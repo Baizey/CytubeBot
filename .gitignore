@@ -1,9 +1,15 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Node template
 # Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Bot specifics that should not be in a repository... ever
+package-lock.json
+*.db
+config.json
 
 # Runtime data
 pids
@@ -59,3 +65,7 @@ typings/
 
 # next.js build output
 .next
+
+.idea/inspectionProfiles/
+.idea/vcs.xml
+logs/
