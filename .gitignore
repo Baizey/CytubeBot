@@ -11,6 +11,9 @@ package-lock.json
 *.db
 config.json
 
+# WebStorm specific
+.idea
+
 # Runtime data
 pids
 *.pid
