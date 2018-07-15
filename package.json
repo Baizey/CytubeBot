@@ -1,0 +1,19 @@
+{
+  "name": "CytubeBot",
+  "version": "0.7.0",
+  "private": true,
+
+  "dependencies": {
+    "better-sqlite3": "^4.1.4",
+    "forever-monitor": "^1.7.1",
+    "giphy-api": "^1.2.7",
+    "google-images": "latest",
+    "jquery": "^3.2.1",
+    "jsdom": "^11.3.0",
+    "simple-node-logger": "^0.93.30",
+    "snekfetch": "^3.6.3",
+    "socket.io-client": "^2.0.3",
+    "urban": "^0.3.1",
+    "fast-levenshtein": "latest"
+  }
+}
