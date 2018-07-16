@@ -38,7 +38,7 @@ class Connection {
         bot.validator.pause();
 
         const getServerUrl = async (attempt = 1) => {
-            logger.system(`Connection attempt ${i}`);
+            logger.system(`Connection attempt ${attempt}`);
             const request = await Api.request(`https://www.cytu.be/socketconfig/${self.room.name}.json`);
             if (request.success) {
                 const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
