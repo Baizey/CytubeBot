@@ -349,6 +349,13 @@ class Database {
         return this.db.prepare(sql);
     };
 
+    prepareMultiUpdate(table, columns, where = null) {
+        let sql = `UPDATE ${table} SET ${columns}`;
+        if (utils.defined(where))
+            sql += ` WHERE ${where}`;
+        return this.db.prepare(sql);
+    };
+
     prepareUpdate(table, column, where = null) {
         let sql = `UPDATE ${table} SET ${column} = ?`;
         if (utils.defined(where))
