@@ -27,7 +27,7 @@ module.exports = new Command(
         });
 
 
-        videos = videos.map(video => `${video.year > 0 ? video.year : '????'} | ${video.title} (${video.quality})`);
+        videos = videos.map(video => `${video.year > 0 ? video.year : '????'} | ${video.displayTitle} ${utils.isEmpty(video.quality) ? '' : `(${video.quality})`}`);
 
         const minShow = Math.min(5, videos.length);
         bot.sendMsg(`Here are the ${minShow} best fitting, with ${videos.length} total results`, message);
