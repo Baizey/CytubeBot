@@ -37,7 +37,6 @@ const commands = {
     unignore: require("../commands/Unignore.js"),
     update: require("../commands/Update.js"),
     validlib: require("../commands/ValidLib.js"),
-    validplaylist: require("../commands/ValidPlaylist.js"),
     wakeall: require("../commands/WakeAll.js"),
     wolfram: require("../commands/Wolfram.js"),
     youtube: require("../commands/Youtube.js"),
