@@ -189,7 +189,7 @@ class Video {
         const movie = new VideoUtils.Movie(fullTitle);
         this.title = movie.title;
         this.quality = movie.quality;
-        this.year = movie.releaseYear;
+        this.year = Math.round(movie.releaseYear);
     }
 
     asQueueObject() {
@@ -210,7 +210,7 @@ class Video {
             return 0;
 
         if (/year:\d{4}/.test(this.fullTitle))
-            return /year:(\d{4})/.exec(this.fullTitle)[1] - 0;
+            return Math.round(/year:(\d{4})/.exec(this.fullTitle)[1] - 0);
 
         return 0;
     }
