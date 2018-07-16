@@ -15,7 +15,7 @@ module.exports = new Command(
             resp.reverse().forEach(link => {
                 if (!link.success)
                     return bot.sendMsg(`found nothing to queue for ${link.result}`, message, true);
-                bot.connection.server.socket.emit("queue", link.result.asQueueObject());
+                bot.connection.emit("queue", link.result.asQueueObject());
             });
         });
     }

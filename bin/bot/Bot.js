@@ -61,7 +61,7 @@ class CytubeBot {
      * @param {Boolean} forcePm
      */
     sendMsg(msg, receiver, forcePm = false) {
-        const socket = this.connection.server.socket;
+        const socket = this.connection.socket;
         const messages = utils.splitMessage(msg);
         const pack = {meta: {}};
         const pm = receiver.isPm || forcePm;

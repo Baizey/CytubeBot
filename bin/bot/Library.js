@@ -8,7 +8,7 @@ class Library {
     constructor(bot) {
         this.message = new Message('', true, new User(bot.connection.name));
         this.bot = bot;
-        this.server = bot.connection.server;
+        this.socket = bot.connection.socket;
     }
 
     getEverything() {
@@ -19,7 +19,7 @@ class Library {
      * @param {String} query
      */
     search(query) {
-        this.server.socket.emit("searchMedia", {source: "library", query: query});
+        this.socket.emit("searchMedia", {source: "library", query: query});
     }
 
     handleResults(videos) {

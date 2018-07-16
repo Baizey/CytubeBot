@@ -25,7 +25,7 @@ class Playlist {
     add(video) {
         if (typeof video === "string")
             video = Video.fromUrl(video);
-        this.bot.connection.server.socket.emit("queue", video.asQueueObject());
+        this.bot.connection.emit("queue", video.asQueueObject());
         logger.system(`Queuing link: ${video.url}`);
     }
 
@@ -33,7 +33,7 @@ class Playlist {
      * @param {Number} uid
      */
     remove(uid) {
-        this.bot.connection.server.socket.emit("remove", uid);
+        this.bot.connection.emit("remove", uid);
     }
 
     /**

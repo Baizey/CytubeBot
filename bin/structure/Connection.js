@@ -64,16 +64,14 @@ class Connection {
             handlers.addHandlers(bot);
             const socket = self.socket;
 
-            let firstConnection = true;
             socket.on('connect', () => {
                 logger.debug(`Connected`);
                 bot.validator.unpause();
+                bot.startTime = Time.current();
 
-                if (!firstConnection) return;
-                firstConnection = false;
-                self.emit("initChannelCallbacks");
-                self.emit("joinChannel", {name: self.room.name});
-                self.emit("connection", {name: self.name, pw: self.password});
+                socket.emit("initChannelCallbacks");
+                socket.emit("joinChannel", {name: self.room.name});
+                socket.emit("login", {name: self.name, pw: self.password});
             });
 
             socket.on('connect_timeout', () => {

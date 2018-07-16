@@ -3,10 +3,9 @@ const User = require("../structure/Message").User;
 const Option = require("../bot/Poll").Option;
 const Video = require("../structure/Playlist").Video;
 const Time = require("../core/Time");
-const exit = require("../core/Exit");
+const utils = require("../core/Utils");
 
 const addHandlers = function (bot) {
-    const login = bot.connection;
     const library = bot.library;
     const userlist = bot.userlist;
     const playlist = bot.playlist;
@@ -46,7 +45,7 @@ const addHandlers = function (bot) {
     socket.on("updatePoll", (data) => {
         const options = [];
         // Handle anon polls...
-        if (data.counts.length > 0 && data.counts[0].slice(-1) === '?')
+        if (!utils.isEmpty(data.counts) && data.counts[0].slice(-1) === '?')
             data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
 
         for(let i in data.options)
@@ -56,7 +55,7 @@ const addHandlers = function (bot) {
     socket.on("newPoll", (data) => {
         // const creator = data.initiator;
         // Handle anon polls...
-        if (data.counts.length > 0 && data.counts[0].slice(-1) === '?')
+        if (!utils.isEmpty(data.counts) && data.counts[0].slice(-1) === '?')
             data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
 
         const options = [];
