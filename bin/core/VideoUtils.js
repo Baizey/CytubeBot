@@ -106,10 +106,13 @@ class MovieInfo {
         // Remove any urls
         this.title = fullTitle.replace(/(^| )(https?:\/\/)?(www\.)?.*?\.(com|org|net)( |$)/g, ' ').trim();
 
-        this.title = this.title.replace(/[.,_~/\\\-]/g, ' ').trim().replace(/ +/g, ' ');
+        this.title = this.title.replace(/[.,_~/\\\-]/g, ' ').trim().replace(/ +/g, ' ').toLowerCase();
 
-        // Split it by words
-        let words = this.title.split(" ");
+        // Split it by words ignoring brackets
+        let words = this.title
+            .replace(/[\[<{()}>\]]/g, ' ')
+            .replace(/  +/g, ' ')
+            .split(" ");
 
         // Figure release year
         this.releaseYear = 0;
@@ -119,10 +122,9 @@ class MovieInfo {
                 return;
 
             // Within realistic release years
-            if (number < 1930
-                || number > 2020
+            if (number < 1930 || number > 2020
                 // Used to catch cases such as '2012' released in 2009
-                || Math.abs(2010 - number) >= Math.abs(2008 - self.releaseYear))
+                || Math.abs(2008 - number) >= Math.abs(2008 - self.releaseYear))
                 return;
 
             self.releaseYear = number;
@@ -156,7 +158,6 @@ class MovieInfo {
         }
 
         // Filter out known words to be non-title words
-        this.title = this.title.toLowerCase();
         words = this.title.trim().replace(/ +/g, ' ').split(" ");
 
         let i = 0;
