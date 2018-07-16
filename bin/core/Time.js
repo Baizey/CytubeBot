@@ -1,4 +1,5 @@
 const utils = require("./Utils");
+const msleep = require("sleep").msleep;
 
 class Time {
 
@@ -12,6 +13,13 @@ class Time {
      */
     static of(millis = 0, seconds = 0, minutes = 0, hours = 0, days = 0) {
         return new Time(millis, seconds, minutes, hours, days);
+    }
+
+    /**
+     * @param {Number} seconds
+     */
+    static sleep(seconds = 1) {
+        msleep(1000 * seconds);
     }
 
     /**

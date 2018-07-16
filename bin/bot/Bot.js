@@ -1,6 +1,6 @@
-const Login = require("../structure/BotUser").BotUser;
-const Room = require("../structure/BotUser").Room;
-const Server = require("../structure/BotUser").Server;
+const Connection = require("../structure/Connection").Connection;
+const Room = require("../structure/Connection").Room;
+const Server = require("../structure/Connection").Server;
 const User = require("../structure/Message").User;
 const Message = require("../structure/Message").Message;
 const Validator = require("./Validator");
@@ -31,7 +31,7 @@ class CytubeBot {
 
         // Restructuring config data
         this.apikeys = config.apikeys;
-        this.login = new Login(
+        this.connection = new Connection(
             this,
             config.userName,
             config.userPassword,
@@ -52,7 +52,7 @@ class CytubeBot {
         // this.trivia = new Trivia();
 
         // Last setup part, connect to cytube
-        this.login.connect();
+        this.connection.connect();
     }
 
     /**
@@ -61,8 +61,7 @@ class CytubeBot {
      * @param {Boolean} forcePm
      */
     sendMsg(msg, receiver, forcePm = false) {
-        const socket = this.login.server.socket;
-        if (!utils.defined(socket)) return this.reconnect();
+        const socket = this.connection.server.socket;
         const messages = utils.splitMessage(msg);
         const pack = {meta: {}};
         const pm = receiver.isPm || forcePm;
@@ -95,7 +94,7 @@ class CytubeBot {
         if (this.startTime.isBigger(Time.of(data.time).addSeconds(1)))
             return;
 
-        const lowName = this.login.name.toLowerCase();
+        const lowName = this.connection.name.toLowerCase();
         const lowUser = data.username.toLowerCase();
         const lowMsg = utils.htmlDecode(data.msg.trim()).toLowerCase();
 
@@ -141,7 +140,7 @@ class CytubeBot {
 
     reconnect() {
         logger.system("Lost connection... reconnecting\n\n");
-        this.login.connect();
+        this.connection.connect();
     }
 
     /**

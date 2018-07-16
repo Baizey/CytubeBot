@@ -52,10 +52,16 @@ class Validator {
 
         logger.system(`Validating: ${video.fullTitle}`);
 
+        // Not worth validating intermissions
         if(Playlist.intermissionLimit.isBigger(video.time))
             return;
 
+        // Not worth re-validating dead links
         if (this.bot.db.isDead(video))
+            return;
+
+        // We must have queued this link for validation more than once... whoops
+        if (Time.current().isBigger(Time.ofSeconds(this.bot.db.getVideoExact(video).validateBy)))
             return;
 
         Api.validateVideo(this.bot, video).then(resp => {

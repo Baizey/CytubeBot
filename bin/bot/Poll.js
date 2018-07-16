@@ -63,7 +63,7 @@ class Poll {
      * @param {Boolean} obscured
      */
     create(title, options, obscured) {
-        this.bot.login.server.socket.emit("newPoll", {
+        this.bot.connection.server.socket.emit("newPoll", {
             title: title,
             obscured: obscured,
             opts: options
@@ -75,7 +75,7 @@ class Poll {
      */
     close(user) {
         logger.system("'" + (user.name) + "' closed poll through me");
-        this.bot.login.server.socket.emit("closePoll");
+        this.bot.connection.server.socket.emit("closePoll");
     }
 
 }

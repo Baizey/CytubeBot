@@ -6,12 +6,12 @@ const Time = require("../core/Time");
 const exit = require("../core/Exit");
 
 const addHandlers = function (bot) {
-    const login = bot.login;
+    const login = bot.connection;
     const library = bot.library;
     const userlist = bot.userlist;
     const playlist = bot.playlist;
     const poll = bot.poll;
-    const socket = bot.login.server.socket;
+    const socket = bot.connection.socket;
 
     // TODO: Add structures for incoming data so what they contain isn't magic
 
@@ -76,10 +76,10 @@ const addHandlers = function (bot) {
     ));
 
     // Login
-    // REACTOR, we initiated this by attempting to login
-    socket.on("login",          (data) => bot.login.userLogin(data));
+    // REACTOR, we initiated this by attempting to connection
+    socket.on("connection",          (data) => bot.connection.userLogin(data));
     // RESPONDER, we need to respond with a password
-    socket.on("needPassword",   (data) => bot.login.roomPassword(data));
+    socket.on("needPassword",   (data) => bot.connection.roomPassword(data));
 
     // Messages PASSIVE
     socket.on("pm",             (data) => bot.receiveMessage(data, true));

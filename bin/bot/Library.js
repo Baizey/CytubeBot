@@ -6,9 +6,9 @@ class Library {
      * @param {CytubeBot} bot
      */
     constructor(bot) {
-        this.message = new Message('', true, new User(bot.login.name));
+        this.message = new Message('', true, new User(bot.connection.name));
         this.bot = bot;
-        this.server = bot.login.server;
+        this.server = bot.connection.server;
     }
 
     getEverything() {
