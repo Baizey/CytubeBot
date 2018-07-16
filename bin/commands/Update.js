@@ -15,7 +15,7 @@ module.exports = new Command(
         const videos = db.prepareSelect(tableName).all()
             .map(video => Video.fromDatabase(video));
 
-        bot.sendMsg('Updating titles...', message, true);
+        bot.sendMsg(`Updating titles... ${videos.length}`, message, true);
         videos.forEach(video => video.setFromIdAndType(video.fullTitle));
 
         bot.sendMsg('Updating database...', message, true);
