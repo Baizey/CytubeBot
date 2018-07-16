@@ -141,7 +141,7 @@ class Database {
 
         const map = {};
         nominations.forEach(nom => {
-            const key = `${nom.year > 0 ? `${nom.year} - ` : ''}${nom.title.charAt(0).toUpperCase() + nom.title.substr(1)}`;
+            const key = `${nom.year > 0 ? `${Math.round(nom.year)} - ` : ''}${nom.title.charAt(0).toUpperCase() + nom.title.substr(1)}`;
             if (!utils.defined(map[key])) {
                 nom.votes = 0;
                 nom.key = key;
