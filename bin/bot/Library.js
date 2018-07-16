@@ -27,6 +27,7 @@ class Library {
         const table = db.structure.videos.table;
         const c = db.structure.videos.columns;
 
+        console.log('Deleting...');
         // Lets pray this works
         db.prepareDelete(db.structure.videos.table.name).run();
         console.log(videos.length);
