@@ -1,17 +1,21 @@
 const Video = require("../structure/Playlist").Video;
 
-const wordFilter = [
+const sentenceFilter = [
+    'robert donat',
     "super 720p",
     "full sci fi",
     "full animation",
     "sci fi",
     "nonton film",
     "nonton movie",
+    'eng sub',
     "web dl",
     "full original",
+    'with trivia',
     "silent movie",
     "eng dub",
     "english sub",
+    "full movie online",
     "watch full movie",
     "full movie",
     "copy of the",
@@ -20,7 +24,10 @@ const wordFilter = [
     "full hd",
     "in hq",
     "movie online",
-    "anniversary edition",
+    "anniversary edition"
+];
+
+const wordFilter = [
     "saphirebluray",
     "h264",
     "uncut",
@@ -158,6 +165,9 @@ class MovieInfo {
         }
 
         // Filter out known words to be non-title words
+        if(this.releaseYear > 0)
+            this.title = this.title.replace(this.releaseYear + '', wordFilter[0]);
+        sentenceFilter.forEach(sentence => this.title = this.title.replace(sentence, wordFilter[0]));
         words = this.title.trim().replace(/ +/g, ' ').split(" ");
 
         let i = 0;

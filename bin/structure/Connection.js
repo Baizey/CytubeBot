@@ -44,14 +44,13 @@ class Connection {
                 if (request.success) {
                     const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
                     if (!utils.isEmpty(serverUrl))
-                        return serverUrl;
+                        return connect(serverUrl);
                 }
-                Time.sleep(30);
+                setTimeout(() => getServerUrl(), 30000);
             }
         };
 
-        const server = this.server;
-        getServerUrl().then(url => {
+        const connect = (url) => {
             logger.system(`Got server ${url}`);
             self.socket = socketClient.connect(url, {
                 reconnection: true,
@@ -83,7 +82,9 @@ class Connection {
                 logger.debug(`Disconnected`);
                 bot.validator.pause();
             });
-        });
+        };
+
+        getServerUrl();
     };
 
     /**

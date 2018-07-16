@@ -11,7 +11,6 @@
     "jquery": "^3.2.1",
     "jsdom": "^11.3.0",
     "simple-node-logger": "^0.93.30",
-    "sleep": "^5.1.1",
     "snekfetch": "^3.6.3",
     "socket.io-client": "^2.0.3",
     "sqlite": "^2.9.2",
