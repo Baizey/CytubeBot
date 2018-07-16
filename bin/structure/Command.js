@@ -1,4 +1,4 @@
-const ranks = require("./ranks.js");
+const ranks = require("./Ranks.js");
 
 class Command {
     /**
