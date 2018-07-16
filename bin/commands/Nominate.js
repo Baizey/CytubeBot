@@ -4,9 +4,7 @@ module.exports = new Command(
     rank.user,
     "",
     (bot, message) => {
-
         if (message.hasTag('my')) {
-
             const nominations = bot.db.getNominations([message.user.name])
                 .map(n => `${n.key} | ${n.votes} votes`);
             bot.sendMsg('Your nominations are as following:', message, true);
@@ -19,7 +17,6 @@ module.exports = new Command(
             nominations.slice(0, Math.min(5, nominations.length)).forEach(n => bot.sendMsg(n, message));
         }
         else if(message.hasTag('delete')) {
-
             const table = bot.db.structure.nominate.table;
             const columns = bot.db.structure.nominate.columns;
             bot.db.prepareDelete(table.name, columns.user.where()).run(message.user.name);

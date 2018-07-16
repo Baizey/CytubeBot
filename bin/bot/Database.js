@@ -183,7 +183,7 @@ class Database {
 
         if (message.array.length === 0)
             return new Response(false, 'Need a movie title');
-        const videoTitle = message.array[0];
+        const videoTitle = message.array[0].toLowerCase();
         const videoYear = message.array.length > 1 && !isNaN(message.array[1]) ? message.array[1] - 0 : 0;
 
         let results = this.getVideosByTitle(videoTitle);
