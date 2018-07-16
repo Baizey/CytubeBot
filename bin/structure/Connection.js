@@ -37,17 +37,15 @@ class Connection {
 
         bot.validator.pause();
 
-        const getServerUrl = async () => {
-            for (let i = 1; ; i++) {
-                logger.system(`Connection attempt ${i}`);
-                const request = await Api.request(`https://www.cytu.be/socketconfig/${self.room.name}.json`);
-                if (request.success) {
-                    const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
-                    if (!utils.isEmpty(serverUrl))
-                        return connect(serverUrl);
-                }
-                setTimeout(() => getServerUrl(), 30000);
+        const getServerUrl = async (attempt = 1) => {
+            logger.system(`Connection attempt ${i}`);
+            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.room.name}.json`);
+            if (request.success) {
+                const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
+                if (!utils.isEmpty(serverUrl))
+                    return connect(serverUrl);
             }
+            setTimeout(() => getServerUrl(attempt + 1), 30000);
         };
 
         const connect = (url) => {
