@@ -143,16 +143,16 @@ class MovieInfo {
         });
 
         // Remove anything in brackets
-        for (let i = 0, start = this.title.length, depth = 0; i < this.title.length; i++) {
+        for (let i = 0, start = -1, depth = 0; i < this.title.length; i++) {
             if ('<{[('.indexOf(this.title.charAt(i)) >= 0) {
                 depth++;
-                start = Math.min(start, i);
+                start = Math.max(start, i);
             } else if (')]}>'.indexOf(this.title.charAt(i)) >= 0) {
                 depth--;
-                if (depth === 0 && i > start) {
+                if (depth === 0 && start >= 0) {
                     this.title = `${this.title.substr(0, start)} ${this.title.substr(i + 1, this.title.length)}`;
-                    start = this.title.length;
                     i = start;
+                    start = -1;
                 }
             }
         }
