@@ -1,5 +1,6 @@
 const Message = require("../structure/Message").Message;
 const User = require("../structure/Message").User;
+const logger = require("../core/Logger");
 
 class Library {
     /**
@@ -27,21 +28,18 @@ class Library {
         const table = db.structure.videos.table;
         const c = db.structure.videos.columns;
 
-        console.log('Deleting...');
+        logger.debug('Deleting...');
         // Lets pray this works
         db.prepareDelete(db.structure.videos.table.name).run();
-        console.log(videos.length);
-        let i = 1;
+        logger.debug(videos.length);
         videos
-            .map(video=> { console.log(i++); return video; })
             .filter(video => !video.isIntermission())
             .filter(video => !db.isDead(video))
             .forEach(video => {
                 db.insertVideo(video);
-                console.log(`inserted ${video.displayTitle}`)
             });
 
-        console.log("done");
+        logger.debug("done");
 
         /*
         const validator = this.bot.validator;
