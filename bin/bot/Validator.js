@@ -61,8 +61,10 @@ class Validator {
             return;
 
         // We must have queued this link for validation more than once... whoops
-        if (Time.current().isBigger(Time.ofSeconds(this.bot.db.getVideoExact(video).validateBy)))
-            return;
+        const vali = this.bot.db.prepareSelect(this.bot.db.structure.videos.table.name, this.bot.db.structure.videos.table.keysWhere()).get(video.id, video.type).validateBy;
+        if (utils.defined(vali))
+            if (Time.current().isBigger(Time.ofSeconds(vali)))
+                return;
 
         Api.validateVideo(this.bot, video).then(resp => {
             const vidstring = `${video.title} (${video.url})`;
