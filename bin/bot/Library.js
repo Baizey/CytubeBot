@@ -33,6 +33,8 @@ class Library {
             .filter(video => !db.isDead(video))
             .forEach(video => db.insertVideo(video));
 
+        console.log("done");
+
         /*
         const validator = this.bot.validator;
         const db = this.bot.db;
