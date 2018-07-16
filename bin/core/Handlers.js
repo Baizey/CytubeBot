@@ -45,12 +45,20 @@ const addHandlers = function (bot) {
     // Poll PASSIVE
     socket.on("updatePoll", (data) => {
         const options = [];
+        // Handle anon polls...
+        if (data.counts.length > 0 && data.counts[0].slice(-1) === '?')
+            data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
+
         for(let i in data.options)
             options.push(new Option(data.options[i], data.counts[i]))
         poll.updateEvent(options);
     });
     socket.on("newPoll", (data) => {
         // const creator = data.initiator;
+        // Handle anon polls...
+        if (data.counts.length > 0 && data.counts[0].slice(-1) === '?')
+            data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
+
         const options = [];
         for(let i in data.options)
             options.push(new Option(data.options[i], data.counts[i]))
