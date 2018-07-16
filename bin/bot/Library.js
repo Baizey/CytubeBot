@@ -29,9 +29,16 @@ class Library {
 
         // Lets pray this works
         db.prepareDelete(db.structure.videos.table.name).run();
-        videos.filter(video => !video.isIntermission())
+        console.log(videos.length);
+        let i = 1;
+        videos
+            .map(video=> { console.log(i++); return video; })
+            .filter(video => !video.isIntermission())
             .filter(video => !db.isDead(video))
-            .forEach(video => db.insertVideo(video));
+            .forEach(video => {
+                db.insertVideo(video);
+                console.log(`inserted ${video.displayTitle}`)
+            });
 
         console.log("done");
 
