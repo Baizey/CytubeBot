@@ -155,6 +155,10 @@ class Video {
         this.id = null;
     }
 
+    /**
+     * @param {String} id
+     * @param {String} type
+     */
     setFromIdAndType(id, type) {
         this.id = id;
         this.type = type;
@@ -176,6 +180,9 @@ class Video {
         return intermissionTime.isBigger(this.time);
     }
 
+    /**
+     * @param {String} fullTitle
+     */
     setFullTitle(fullTitle) {
         this.fullTitle = fullTitle;
 
