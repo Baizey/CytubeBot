@@ -1,6 +1,8 @@
 const Video = require("../structure/Playlist").Video;
 
 const sentenceFilter = [
+
+    "the film crew",
     'robert donat',
     "super 720p",
     "full sci fi",
@@ -24,10 +26,15 @@ const sentenceFilter = [
     "full hd",
     "in hq",
     "movie online",
-    "anniversary edition"
+    "anniversary edition",
+    "for free on openmovies",
+    "icinema27 com",
+    "8bro com"
 ];
 
 const wordFilter = [
+    "m4v",
+    "mst3k",
     "saphirebluray",
     "h264",
     "uncut",
@@ -163,13 +170,18 @@ class MovieInfo {
                 }
             }
         }
-
         // Filter out known words to be non-title words
         if(this.releaseYear > 0)
             this.title = this.title.replace(this.releaseYear + '', wordFilter[0]);
         sentenceFilter.forEach(sentence => this.title = this.title.replace(sentence, wordFilter[0]));
+
+        // Remove IMDB ids
+        this.title = this.title.replace(/tt\d+/g, wordFilter[0]);
+
+        // Split title into words
         words = this.title.trim().replace(/ +/g, ' ').split(" ");
 
+        // Figure out what parts of the title is the actual movie title
         let i = 0;
         for (; i < words.length; i++)
             if (!utils.defined(wordLookup[words[i]]))
