@@ -28,27 +28,13 @@ class Library {
         const table = db.structure.videos.table;
         const c = db.structure.videos.columns;
 
-        logger.debug('Deleting...');
-        logger.debug(videos.length);
-        videos
-            .filter(video => !video.isIntermission())
-            .filter(video => !db.isDead(video))
-            .forEach(video => {
-                db.insertVideo(video);
-            });
-
-        logger.debug("done");
-
-        /*
         const validator = this.bot.validator;
-        const db = this.bot.db;
         this.bot.sendMsg(`Received ${videos.length} videos from the library`, this.message, true);
         videos.forEach(video => {
             if (db.isDead(video) || db.getVideoExact(video))
                 return;
             validator.add(video);
         });
-        */
     }
 
 }
