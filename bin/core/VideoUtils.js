@@ -29,7 +29,8 @@ const sentenceFilter = [
     "anniversary edition",
     "for free on openmovies",
     "icinema27 com",
-    "8bro com"
+    "8bro com",
+    "Patrick Swayze & Jamie Lee Curtis in"
 ];
 
 const wordFilter = [
