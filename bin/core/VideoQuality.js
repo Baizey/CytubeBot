@@ -19,8 +19,6 @@ const mapping = {
     "1080p": "1080p",
 };
 
-const mappingOrder = Object.keys(mapping);
-
 const order = {
     "cam": 1,
     "hdts": 2,
@@ -29,12 +27,11 @@ const order = {
     "480p": 5,
     "720p": 6,
     "1080p": 7,
-    "4k": 8,
 };
 
 
 module.exports = {
     rank: (str) => utils.defined(order[mapping[str]]) ? order[mapping[str]] : 0,
     order: order,
-    mapping: mappingOrder
+    mapping: mapping
 };
