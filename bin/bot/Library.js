@@ -29,8 +29,6 @@ class Library {
         const c = db.structure.videos.columns;
 
         logger.debug('Deleting...');
-        // Lets pray this works
-        db.prepareDelete(db.structure.videos.table.name).run();
         logger.debug(videos.length);
         videos
             .filter(video => !video.isIntermission())
