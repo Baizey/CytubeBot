@@ -57,12 +57,12 @@ class Patterns {
     };
 
     /**
-     * @param {String} regex
+     * @param {String} command
      * @param {Message} message
      */
-    remove(regex, message) {
-        this.bot.db.deletePattern(regex);
-        this.patterns = this.patterns.filter(pattern => pattern.regexText !== regex);
+    delete(command, message) {
+        this.bot.db.deletePattern(command);
+        this.patterns = this.patterns.filter(pattern => pattern.command !== command);
         this.bot.sendMsg(`Pattern has been removed... it will be assimilated later`, message);
     };
 }

@@ -17,7 +17,7 @@ module.exports = new Command(
                 bot.sendMsg(`${pattern.command} | ${pattern.regexText} | ${pattern.rest}`, message, true)
             );
         } else if (message.hasTag('delete'))
-            patterns.delete(message.msg);
+            patterns.delete(message.msg.trim().toLowerCase(), message);
         else
             bot.patterns.add(message.array[0], message.array[1], message.array[2], message);
     }

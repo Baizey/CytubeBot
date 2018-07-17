@@ -230,10 +230,10 @@ class Database {
             .run(command, regex, rest);
     };
 
-    deletePattern(regex) {
+    deletePattern(command) {
         const table = structure.patterns.table;
         const columns = structure.patterns.columns;
-        this.prepareDelete(table.name, columns.regex.where()).run(regex);
+        this.prepareDelete(table.name, columns.command.where()).run(command);
     };
 
     /*
