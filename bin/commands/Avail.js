@@ -32,7 +32,6 @@ module.exports = new Command(
         const minShow = Math.min(5, videos.length);
         bot.sendMsg(`Here are the ${minShow} best fitting, with ${videos.length} total results`, message);
         videos.slice(0, minShow).forEach(video => bot.sendMsg(video, message));
-        if(videos.length > minShow);
-        videos.slice(minShow).forEach(video => bot.sendMsg(video, message, true));
+        bot.sendMsg(videos.slice(minShow), message, true);
     }
 );

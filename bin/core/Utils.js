@@ -8,6 +8,8 @@ const chatLimit = 240;
 
 const utils = {
 
+    chatLimit: chatLimit,
+
     modlog: function (bot, cmd, username, target) {
         const clearUser = utils.safeName(username);
         let msg = "'" + clearUser + "' used '" + cmd + "'";

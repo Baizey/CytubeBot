@@ -16,10 +16,29 @@ const commands = require("../structure/CommandDictionary");
 const Users = require("./Userlist");
 const Time = require("../core/Time");
 const logger = require("../core/Logger");
+const chatLimit = utils.chatLimit;
 
 const commandSymbols = '!$';
 const isCommand = (msg) => commandSymbols.indexOf(msg.charAt(0)) >= 0;
-
+const asExtraLine = (msg) => `[flip]${msg}[/flip]`;
+const concatMessages = (msgs) => {
+    if (msgs.length <= 1)
+        return msgs;
+    const result = [];
+    let curr = '';
+    msgs.forEach(msg => {
+        if(utils.isEmpty(curr))
+            return (curr = msg);
+        const temp = asExtraLine(msg);
+        if (curr.length + temp.length <= chatLimit)
+            return (curr += temp);
+        result.push(curr);
+        curr = msg;
+    });
+    if(!utils.isEmpty(curr))
+        result.push(curr);
+    return result;
+};
 
 class CytubeBot {
     /**
@@ -61,8 +80,12 @@ class CytubeBot {
      * @param {Boolean} forcePm
      */
     sendMsg(msg, receiver, forcePm = false) {
+        // Split ensures we're within chat limits on each message
+        // concat attempts to limit the number of messages to send
+        const messages = concatMessages(utils.splitMessage(msg));
+        if (utils.isEmpty(messages)) return;
+
         const socket = this.connection.socket;
-        const messages = utils.splitMessage(msg);
         const pack = {meta: {}};
         const pm = receiver.isPm || forcePm;
         if (pm) pack.to = receiver.user.name;
@@ -77,7 +100,9 @@ class CytubeBot {
             return;
 
         pack.msg = "Rest of the info will be pm'ed for the chat's sake";
-        socket.emit(type, pack);
+        if (!pm)
+            socket.emit(type, pack);
+
         type = "pm";
         messages.slice(3).forEach(message => {
             pack.msg = message;
