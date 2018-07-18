@@ -126,6 +126,9 @@ class MovieInfo {
         // Remove any urls
         this.title = fullTitle.replace(/(^| )(https?:\/\/)?(www\.)?.*?\.(com|org|net)( |$)/g, ' ').trim();
 
+        // Handle cases like U.S.A. and R.I.M.S
+        this.title = this.title.replace(/^|([.,_~/\\\- ])([a-zA-Z]\.){2,}/g, (g0, a, b) => a + b.split('.').join('').trim());
+
         this.title = this.title.replace(/[.,_~/\\\-]/g, ' ').trim().replace(/ +/g, ' ').toLowerCase();
 
         // Split it by words ignoring brackets
