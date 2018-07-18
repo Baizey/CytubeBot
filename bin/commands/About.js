@@ -11,19 +11,16 @@ module.exports = new Command(
         const video = Video.fromTitle(bot, message.msg.trim());
 
         const firstUrl = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
+        const errorMsg = `No movies found for '${video.title}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
 
         Api.request(firstUrl).then(resp => {
             if (!resp.success || utils.isEmpty(resp.result.results))
-                return bot.sendMsg(
-                    `No movies found for '${video.title}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`,
-                    message);
+                return bot.sendMsg(errorMsg, message);
 
             const secondUrl = `api.themoviedb.org/3/movie/${resp.result.id}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
             Api.request(secondUrl).then(resp => {
                 if (!resp.success || utils.isEmpty(resp.result.results))
-                    return bot.sendMsg(
-                        `No movies found for '${video.title}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`,
-                        message);
+                    return bot.sendMsg(errorMsg, message);
 
                 const result = resp.result.results[0];
 

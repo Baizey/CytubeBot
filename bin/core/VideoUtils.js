@@ -16,6 +16,7 @@ const sentenceFilter = [
     'with trivia',
     "silent movie",
     "eng dub",
+    "hindi dubbed movie",
     "english sub",
     "full movie online",
     "watch full movie",
@@ -30,7 +31,9 @@ const sentenceFilter = [
     "for free on openmovies",
     "icinema27 com",
     "8bro com",
-    "Patrick Swayze & Jamie Lee Curtis in"
+    "Patrick Swayze & Jamie Lee Curtis in",
+    "short film",
+    "phim74 net"
 ];
 
 const wordFilter = [
@@ -38,6 +41,7 @@ const wordFilter = [
     "mst3k",
     "saphirebluray",
     "h264",
+    "hdts",
     "uncut",
     "br",
     "wmv",
@@ -67,6 +71,7 @@ const wordFilter = [
     "divx",
     "flv",
     "hd",
+    "fileanime",
     "1080p",
     "720p",
     "480p",
