@@ -4,6 +4,6 @@ module.exports = new Command(
     rank.mod,
     "",
     (bot, message) => {
-        bot.sendMsg("Under construction", message);
+        bot.sendMsg(`${bot.userlist.getNames().join(", ")}. ${message.msg.trim()}`, message);
     }
 );

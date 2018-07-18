@@ -9,9 +9,7 @@ module.exports = new Command(
     "",
     (bot, message) => {
         const video = Video.fromTitle(bot, message.msg.trim());
-        let url = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}`;
-        if (video.queryYear > 0)
-            url += `&year=${video.queryYear}`;
+        let url = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
         Api.request(url).then(resp => {
             if(!resp.success || utils.isEmpty(resp.result.results))
                 return bot.sendMsg('No movie found', message);

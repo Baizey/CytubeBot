@@ -14,7 +14,7 @@ module.exports = new Command(
 
         let videos = bot.db.getVideosLike(video.title, year);
 
-        videos.forEach(m => m.display = `${m.releaseYear === 0 ? '????' : m.releaseYear} | ${m.displayTitle} ${m.quality === '' ? '' : `(${m.quality}`})`);
+        videos.forEach(m => m.display = `${m.releaseYear === 0 ? '    ' : m.releaseYear} | ${m.displayTitle} ${m.quality === '' ? '' : `(${m.quality}`})`);
         videos = utils.mapToList(utils.listToMap(videos, v => v.display));
 
         videos.forEach(m => m.score = levenshtein.get(video.title, m.title));

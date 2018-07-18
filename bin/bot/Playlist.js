@@ -30,6 +30,37 @@ class Playlist {
     }
 
     /**
+     * @returns {{time: Time, intermissions: Video[], next: Video}}
+     */
+    get dataTillNextMovie() {
+        const result = {
+            time: Time.ofMillis(this.currentVideo.time.millis - this.playtime.millis),
+            intermissions: [],
+            next: Video.empty()
+        };
+
+        let at = this.indexFromUid(this.currentUID);
+        if (at === -1)
+            return result;
+
+        const curr = this.playlist[i];
+        if (this.currentVideo.isIntermission())
+            result.intermissions.push(this.currentVideo);
+
+        for(let i = at + 1; i !== at && at < this.playlist.length; i = (i + 1) % this.playlist.length) {
+            const curr = this.playlist[i];
+            if(!curr.isIntermission()) {
+                result.next = curr;
+                return result;
+            }
+            result.intermissions.push(curr);
+            result.time.add(curr.time);
+        }
+
+        return result;
+    }
+
+    /**
      * @param {Number} uid
      */
     remove(uid) {

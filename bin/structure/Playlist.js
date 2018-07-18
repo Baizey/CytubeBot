@@ -215,6 +215,15 @@ class Video {
         return 0;
     }
 
+    /**
+     * @param {String} parameterName
+     * @returns {String}
+     */
+    urlQueryYear(parameterName = 'year') {
+        const y = this.queryYear;
+        return y === 0 ? '' : `&${parameterName}=${y}`;
+    }
+
     get simpleTitle() {
         return this.title.replace(/[;:,.']/g, '').replace(/ ?& ?/g, ' and ').trim();
     }
