@@ -42,8 +42,7 @@ class Playlist {
         let at = this.indexFromUid(this.currentUID);
         if (at === -1)
             return result;
-
-        const curr = this.playlist[i];
+        
         if (this.currentVideo.isIntermission())
             result.intermissions.push(this.currentVideo);
 
