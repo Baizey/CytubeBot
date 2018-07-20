@@ -20,15 +20,47 @@ class Api {
                 if (isJson)
                     return new Response(true, JSON.parse(result.text));
                 return new Response(true, result.text);
-            })
-            .catch(error => {
-                if (isJson)
-                    return new Response(true, JSON.parse(error.text));
-                return new Response(false, error.text);
             }).catch(error => {
-                logger.error(`URL error: ${error}`);
-                return new Response(false, error)
+                try {
+                    return new Response(true, JSON.parse(error.text));
+                } catch (ignored) {
+                    logger.error(`Request error: ${error}`);
+                    return new Response(false, error);
+                }
             });
+    }
+
+    /**
+     * @param {CytubeBot} bot
+     * @param {Message} message
+     * @param {Video} video
+     * @param {String} type
+     * @returns {Promise<Response>}
+     */
+    static async searchTheMovieDatabase(bot, message, video, type = null) {
+        const errorMsg = `No movies found for '${video.title}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
+
+        const firstUrl = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
+        let findings = await Api.request(firstUrl).then(async resp => {
+            resp.success &= !utils.isEmpty(resp.result.results);
+            if (!resp.success)
+                bot.sendMsg(errorMsg, message);
+            return resp;
+        });
+
+        if (!utils.defined(type) || !findings.success)
+            return findings;
+        findings = findings.result.results[0];
+        bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
+
+        const secondUrl = `api.themoviedb.org/3/movie/${type}${type.length > 0 ? '/' : ''}${findings.id}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
+        return await Api.request(secondUrl).then(resp => {
+            if (!resp.success) {
+                bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
+                logger.error(resp.result);
+            }
+            return resp;
+        });
     }
 
     /**
@@ -40,7 +72,7 @@ class Api {
     static async searchYoutube(bot, queries, prefix = "") {
         const results = [];
 
-        for(let i = 0; i < queries.length; i++) {
+        for (let i = 0; i < queries.length; i++) {
             const query = queries[i];
             const url = `www.googleapis.com/youtube/v3/search?part=snippet&key=${bot.apikeys.google}&q=${prefix} ${query}&maxResults=1`;
             results.push(await (Api.request(url)

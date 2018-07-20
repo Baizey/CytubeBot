@@ -186,10 +186,10 @@ class Video {
     setFullTitle(fullTitle) {
         this.fullTitle = fullTitle;
 
-        const movie = new VideoUtils.Movie(fullTitle);
-        this.title = movie.title;
-        this.quality = movie.quality;
-        this.year = Math.round(movie.releaseYear);
+        const filtered = VideoUtils.filterTitle(fullTitle);
+        this.title = filtered.title;
+        this.quality = filtered.quality;
+        this.year = Math.round(filtered.releaseYear);
     }
 
     asQueueObject() {

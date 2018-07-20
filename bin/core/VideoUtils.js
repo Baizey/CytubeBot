@@ -125,7 +125,7 @@ class MovieInfo {
 
         // Remove any urls
         this.title = fullTitle.replace(/(^| )(https?:\/\/)?(www\.)?.*?\.(com|org|net)( |$)/g, ' ').trim();
-        
+
         this.title = this.title.replace(/[.,_~/\\\-]/g, ' ').trim().replace(/ +/g, ' ').toLowerCase();
 
         // Split it by words ignoring brackets
@@ -176,9 +176,11 @@ class MovieInfo {
                 }
             }
         }
-        // Filter out known words to be non-title words
+
+        // Filter out release year
         if(this.releaseYear > 0)
             this.title = this.title.replace(this.releaseYear + '', wordFilter[0]);
+        // Filter out known sentences not part of titles
         sentenceFilter.forEach(sentence => this.title = this.title.replace(sentence, wordFilter[0]));
 
         // Remove IMDB ids
@@ -203,7 +205,13 @@ class MovieInfo {
 }
 
 const VideoUtils = {
-    Movie: MovieInfo,
+    /**
+     * @param {String} fullTitle
+     * @returns {MovieInfo}
+     */
+    filterTitle: fullTitle => new MovieInfo(fullTitle),
+    wordFilter: wordFilter,
+    sentenceFilter: sentenceFilter,
 };
 
 module.exports = VideoUtils;
