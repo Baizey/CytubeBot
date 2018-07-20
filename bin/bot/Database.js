@@ -93,7 +93,7 @@ class Database {
             .all(Time.current().asSeconds());
         if (!utils.defined(result))
             return [];
-        return result.map(video => Video.of(video.id, video.type, video.title, Time.ofSeconds(video.duration), null));
+        return result.map(video => Video.fromDatabase(video));
     };
 
     /**

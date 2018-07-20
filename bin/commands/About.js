@@ -10,23 +10,27 @@ module.exports = new Command(
     (bot, message) => {
         const video = Video.fromTitle(bot, message.msg.trim());
         Api.searchTheMovieDatabase(bot, message, video, '').then(resp => {
-           if(!resp.success) return;
-           const result = resp.result;
-            bot.sendMsg(`**${video.displayTitle}**`, message);
+            if(!resp.success) return;
+            const result = resp.result;
+
+            const saying = [];
+
             if (utils.defined(result.status) && result.status !== "Released")
-                bot.sendMsg(`**Status ${result.status}**`, message);
+                saying.push(`**Status ${result.status}**`);
             else
-                bot.sendMsg(`**Rated ${result.vote_average} from ${result.vote_count} votes**`, message);
+                saying.push(`**Rated ${result.vote_average} from ${result.vote_count} votes**`);
 
             if (utils.defined(result.tagline))
-                bot.sendMsg(`**${result.tagline}**`, message);
+                saying.push(`**${result.tagline}**`);
 
-            bot.sendMsg(`**Plot** ${result.overview}`, message);
+            saying.push(`**Plot** ${result.overview}`);
 
             if (utils.defined(result.genres))
-                bot.sendMsg(`**Genres** ${result.genres.map(e => e.name).join(", ")}`, message);
+                saying.push(`**Genres** ${result.genres.map(e => e.name).join(", ")}`);
 
-            bot.sendMsg(`**Imdb link** https://www.imdb.com/title/${result.imdb_id}/`, message);
+            saying.push(`**Imdb link** https://www.imdb.com/title/${result.imdb_id}/`);
+
+            bot.sendMsg(saying, message);
         });
     }
 );
