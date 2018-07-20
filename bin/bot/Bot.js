@@ -20,7 +20,12 @@ const chatLimit = utils.chatLimit;
 
 const commandSymbols = '!$';
 const isCommand = (msg) => commandSymbols.indexOf(msg.charAt(0)) >= 0;
-const asExtraLine = (msg) => `[flip]${msg}[/flip]`;
+const asExtraLine = (msg) => {
+    const lastWord = msg.substr(msg.lastIndexOf(" ") + 1);
+    if (lastWord.startsWith("http"))
+        return `[flip]${msg} [/flip]`;
+    return `[flip]${msg}[/flip]`
+};
 const concatMessages = (msgs) => {
     if (msgs.length <= 1)
         return msgs;
