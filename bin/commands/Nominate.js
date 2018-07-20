@@ -4,7 +4,7 @@ module.exports = new Command(
     rank.user,
     "",
     (bot, message) => {
-        if (message.hasTag('my')) {
+        if (message.hasTag('mine')) {
             const nominations = bot.db.getNominations([message.user.name])
                 .map(n => `${n.key} | ${n.votes} votes`);
             bot.sendMsg('Your nominations are as following:', message, true);

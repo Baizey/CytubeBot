@@ -2,12 +2,14 @@ class Table {
 
     /**
      * @param {String} name
-     * @param {String[]} keys
+     * @param {String[]} primaryKeys
+     * @param {ForeignKey[]} foreignKeys
      * @constructor
      */
-    constructor(name, keys) {
+    constructor(name, primaryKeys = [], foreignKeys = []) {
         this.name = name.trim();
-        this.keys = keys;
+        this.primaryKeys = primaryKeys;
+        this.foreignKeys = foreignKeys;
     }
 
     getInsert() {
@@ -24,6 +26,7 @@ class Table {
         });
         return str;
     };
+
     /**
      * @param {Boolean} withKeys
      * @returns {string}
@@ -39,30 +42,41 @@ class Table {
             first = false;
         });
 
-        if (withKeys && this.keys.length > 0)
-            str += `, ${self.keysCreate()}`;
+        if (withKeys) {
+            const keys = this.keysCreate();
+            if (keys.length > 0)
+                str += ", " + keys;
+        }
         return str;
     };
+
     /**
      * @returns {string}
      */
     keysCreate() {
         const self = this;
         if (Object.keys(databaseStructure[self.name].columns).length === 0) return "";
-        let str = "primary key(";
-        let first = true;
-        this.keys.forEach(key => {
-            if (!first) str += ", ";
-            str += key;
-            first = false;
-        });
-        return str + ")";
+        let primary = this.primaryKeysCreate();
+        let foreign = this.foreignKeysCreate();
+        if (foreign.length === 0) return primary;
+        if (primary.length === 0) return foreign;
+        return foreign + ", " + primary;
     };
+
+    foreignKeysCreate() {
+        if (this.foreignKeys.length === 0) return '';
+        return this.foreignKeys.map(key => key.create()).join(', ');
+    }
+
+    primaryKeysCreate() {
+        if (this.primaryKeys.length === 0) return '';
+        return `PRIMARY KEY(${this.primaryKeys.join(', ')})`;
+    }
 
     keysWhere() {
         let str = "";
         let first = true;
-        this.keys.forEach(key => {
+        this.primaryKeys.forEach(key => {
             if (!first) str += " AND ";
             str += `${key} = ?`;
             first = false;
@@ -89,15 +103,37 @@ class Column {
     create() {
         return `${this.name} ${this.type}`;
     };
+
     where() {
         return `${this.name} = ?`
     };
+
     like() {
         return `${this.name} LIKE ?`
     };
 }
 
+class ForeignKey {
+
+    constructor(column, referenceTable, referenceColumn) {
+        this.column = column;
+        this.referenceTable = referenceTable;
+        this.referenceColumn = referenceColumn;
+    }
+
+    create() {
+        return `FOREIGN KEY(${this.column}) REFERENCES ${this.referenceTable}(${this.referenceColumn})`
+    }
+}
+
 const databaseStructure = {
+    "permissions": {
+        columns: {
+            user: new Column("user", "TEXT NOT NULL"),
+            type: new Column("type", "TEXT NOT NULL"),
+        },
+        table: new Table("permissions", ["user", "type"], [new ForeignKey('user', 'users', 'name')])
+    },
     "users": {
         columns: {
             name: new Column("name", "TEXT NOT NULL"),
@@ -128,7 +164,7 @@ const databaseStructure = {
             command: new Column("command", "TEXT"),
             rest: new Column("rest", "TEXT"),
         },
-        table: new Table("patterns", [])
+        table: new Table("patterns")
     },
     /* Kept for easily lookup on links we don't have to validate again */
     "deadlinks": {

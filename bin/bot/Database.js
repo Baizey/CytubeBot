@@ -27,6 +27,50 @@ class Database {
         });
     }
 
+
+    /*
+     * PERMISSION FUNCTIONS
+     */
+    /**
+     * @param {User} user
+     * @param {String} permission
+     */
+    insertPermission(user, permission) {
+        const table = structure.permissions.table;
+        const columns = structure.permissions.columns;
+        this.prepareInsert(table.name, `${columns.user.name}, ${columns.type.name}`, "?, ?").run(user.name, permission);
+    }
+    /**
+     * @param {User} user
+     * @param {String} permission
+     */
+    deletePermission(user, permission) {
+        const table = structure.permissions.table;
+        const columns = structure.permissions.columns;
+        this.prepareDelete(table.name, `${columns.user.where()}, ${columns.type.where()}`).run(user.name, permission);
+    }
+
+    /**
+     * @param {User} user
+     * @returns {String[]}
+     */
+    getPermissions(user) {
+        const table = structure.permissions.table;
+        const columns = structure.permissions.columns;
+        return this.prepareSelect(table.name, columns.user.where()).all(user.name)
+            .map(permission => permission.permission);
+    }
+    /**
+     * @param {User} user
+     * @param {String} permission
+     * @returns {Boolean}
+     */
+    hasPermission(user, permission) {
+        const table = structure.permissions.table;
+        const columns = structure.permissions.columns;
+        return utils.defined(this.prepareSelect(table.name, `${columns.user.where()}, ${columns.type.where()}`).get(user.name, permission));
+    }
+
     /*
      * VIDEO FUNCTIONS
      */

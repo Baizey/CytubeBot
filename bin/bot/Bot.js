@@ -51,6 +51,7 @@ class CytubeBot {
      */
     constructor(configData) {
         this.startTime = Time.current();
+        User.static.bot = this;
         const config = new Config(configData);
 
         // Restructuring config data
@@ -167,11 +168,6 @@ class CytubeBot {
 
         this.handleCommand(message);
     };
-
-    reconnect() {
-        logger.system("Lost connection... reconnecting\n\n");
-        this.connection.connect();
-    }
 
     /**
      * @param {Message} message

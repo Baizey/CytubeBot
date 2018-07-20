@@ -53,12 +53,14 @@ class Api {
         findings = findings.result.results[0];
         bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
 
-        const secondUrl = `api.themoviedb.org/3/movie/${type}${type.length > 0 ? '/' : ''}${findings.id}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
+        if (type.length > 0) type = "/" + type;
+        const secondUrl = `api.themoviedb.org/3/movie/${findings.id}${type}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
         return await Api.request(secondUrl).then(resp => {
             if (!resp.success) {
                 bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
                 logger.error(resp.result);
             }
+            logger.debug(resp.result);
             return resp;
         });
     }

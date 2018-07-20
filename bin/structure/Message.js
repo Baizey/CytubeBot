@@ -4,6 +4,8 @@ const utils = require("../core/Utils");
 const tagRegex = /\[(\w+)(:(\w+))?]/g;
 const commandRegex = /^[$!](\w+)/;
 
+const staticContent = {bot: null};
+
 class Message {
     /**
      * @param {string} msg
@@ -24,7 +26,7 @@ class Message {
             return ''
         });
 
-        if(commandRegex.test(this.msg)) {
+        if (commandRegex.test(this.msg)) {
             this.command = commandRegex.exec(this.msg)[1];
             this.msg = this.msg.split(' ').slice(1).join(' ');
         }
@@ -60,6 +62,21 @@ class User {
     constructor(name, rank = 0) {
         this.rank = ranks.getRank(rank);
         this.name = name;
+    }
+
+    /**
+     * @param {String} permission
+     * @returns {Boolean}
+     */
+    hasPermission(permission) {
+        return User.static.bot.db.hasPermission(this, permission);
+    }
+
+    /**
+     * @returns {{bot}}
+     */
+    static static() {
+        return staticContent;
     }
 }
 
