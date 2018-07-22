@@ -65,7 +65,12 @@ const addHandlers = function (bot) {
             options.push(new Option(data.options[i], data.counts[i]))
         poll.openEvent(options);
     });
-    socket.on("closePoll", (data) => poll.closeEvent());
+    socket.on("closePoll", (data) => {
+        const table = bot.db.structure.nominate.table;
+        const c = bot.db.structure.nominate.columns;
+        bot.db.prepareDelete(table.name, c.title.where()).run(bot.pickWinner().title.replace(/.*[\-|]/, ''));
+        poll.closeEvent();
+    });
 
 
     // Userlist PASSIVE (reactors, if we use mod-commands like kick)
