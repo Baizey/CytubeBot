@@ -82,7 +82,7 @@ class Connection {
             });
         };
 
-        getServerUrl();
+        getServerUrl().catch(error => logger.error(error));
     };
 
     /**

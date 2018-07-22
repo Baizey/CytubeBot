@@ -9,6 +9,7 @@ const Video = require("../structure/Playlist").Video;
 const Time = require("../core/Time");
 const Response = require("../structure/Api").Response;
 
+
 class Database {
 
     /**
@@ -57,8 +58,10 @@ class Database {
     getPermissions(user) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
+        console.log(user.name);
         return this.prepareSelect(table.name, columns.user.where()).all(user.name)
-            .map(permission => permission.permission);
+            .filter(item => utils.defined(item))
+            .map(permission => permission[columns.type.name]);
     }
     /**
      * @param {User} user
@@ -159,6 +162,8 @@ class Database {
      * @param {Video} video
      */
     insertVideo(video) {
+        if (!utils.defined(video) || video.isIntermission())
+            return;
         const table = structure.videos.table;
         const columns = structure.videos.columns;
         this.prepareInsert(table.name,

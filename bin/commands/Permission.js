@@ -5,10 +5,11 @@ const Message = require("../structure/Message").Message;
 const utils = require("../core/Utils");
 
 // TODO: kick, mute, ban
-const permissions = ["add", "skip", "poll", "restart", "choose", "disallow"];
+const permissions = ["add", "skip", "poll", "restart", "disallow"];
 const grants = ["true", "1", "t", "+", "yes", "y"];
 const removes = ["false", "0", "f", "-", "no", "n"];
 
+const permissionsLookup = utils.listToMap(permissions, v => v.charAt(0));
 const grantsLookup = utils.listToMap(grants);
 const removesLookup = utils.listToMap(removes);
 
@@ -24,13 +25,15 @@ module.exports = new Command(
         const user = new User(message.msg.trim());
         const givenUser = !utils.isEmpty(user.name);
 
-        if (message.hasTag("mine"))
+        console.log(bot.db.getPermissions(givenUser ? user : message.user));
+
+        if (message.hasTag('mine'))
             return bot.sendMsg(bot.db.getPermissions(givenUser ? user : message.user).join(", "), message);
 
         if (!utils.defined(bot.db.getUser(user)))
             return bot.sendMsg("User does not exist", message);
 
-        if (message.hasTag("all")) {
+        if (message.hasTag('all')) {
             const table = bot.db.structure.permissions.table;
             const columns = bot.db.structure.permissions.columns;
             if (utils.defined(grantsLookup[message.getTag("all")]))
@@ -41,15 +44,15 @@ module.exports = new Command(
         }
 
         permissions.forEach(permission => {
-            const used = message.hasTag(permission)
-                ? permission
-                : permission.charAt(0);
-            if (!message.hasTag(used))
+            if (!message.hasTag(permission))
                 return;
-            if (utils.defined(grantsLookup[message.getTag(used)]))
-                bot.db.insertPermission(user, used);
-            else if (utils.defined(removesLookup[message.getTag(used)]))
-                bot.db.deletePermission(user, used);
+            console.log(message.getTag(permission));
+            console.log(utils.defined(grantsLookup[message.getTag(permission)]));
+            console.log(utils.defined(removesLookup[message.getTag(permission)]));
+            if (utils.defined(grantsLookup[message.getTag(permission)]))
+                bot.db.insertPermission(user, permission);
+            else if (utils.defined(removesLookup[message.getTag(permission)]))
+                bot.db.deletePermission(user, permission);
         });
     }
 );

@@ -10,7 +10,7 @@ module.exports = new Command(
 
         // No intermissions
         if (utils.isEmpty(data.intermissions))
-            bot.sendMsg(`Next movie in the queue is ${data.next.displayTitle}`, message);
+            return bot.sendMsg(`Next movie in the queue is ${data.next.displayTitle}`, message);
 
         bot.sendMsg([
             `${data.time.asUnit()} before next movie (${data.intermissions.length} intermissions)`,

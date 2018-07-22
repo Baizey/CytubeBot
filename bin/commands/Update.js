@@ -1,6 +1,7 @@
 const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
 const Video = require("../structure/Playlist").Video;
+const limit = require("../structure/Playlist").intermissionLimit;
 
 
 module.exports = new Command(
@@ -10,6 +11,9 @@ module.exports = new Command(
         const db = bot.db;
         const tableName = db.structure.videos.table.name;
         const columns = db.structure.videos.columns;
+
+        // Remove intermissions
+        db.prepareDelete(tableName, `${columns.duration.name} < ?`).run(limit.asSeconds());
 
         bot.sendMsg('Getting videos...', message, true);
         const videos = db.prepareSelect(tableName).all()

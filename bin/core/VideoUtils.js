@@ -1,7 +1,7 @@
 const Video = require("../structure/Playlist").Video;
 
 const sentenceFilter = [
-
+    "movieji com",
     "the film crew",
     'robert donat',
     "super 720p",
@@ -201,6 +201,8 @@ class MovieInfo {
 
         if (i >= words.length) this.title = "";
         else this.title = words.slice(i, j).join(" ");
+
+        this.title = this.title.replace(/ ?& ?/g, ' and ').replace(/[':]/g, '');
     }
 }
 

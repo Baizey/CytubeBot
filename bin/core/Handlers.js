@@ -46,7 +46,6 @@ const addHandlers = function (bot) {
         const options = [];
         // Handle anon polls...
         const count = data.counts[0];
-        console.log(data);
         if (!utils.isEmpty(count) && typeof count === 'string' && count.slice(-1) === '?')
                 data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
 

@@ -176,7 +176,7 @@ class CytubeBot {
         const command = commands[message.command.toLowerCase()];
         if (!utils.defined(command))
             return this.sendMsg("Unknown command... do '$help'", message);
-        if (!command.hasAccess(message.user))
+        if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);
         command.function(this, message);
     };
