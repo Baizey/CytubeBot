@@ -68,7 +68,7 @@ const addHandlers = function (bot) {
     socket.on("closePoll", (data) => {
         const table = bot.db.structure.nominate.table;
         const c = bot.db.structure.nominate.columns;
-        bot.db.prepareDelete(table.name, c.title.where()).run(bot.pickWinner().title.replace(/.*[\-|]/, ''));
+        bot.db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
         poll.closeEvent();
     });
 
