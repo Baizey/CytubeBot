@@ -86,7 +86,7 @@ class Option {
      * @param {Number} votes
      */
     constructor(title, votes) {
-        this.title = title;
+        this.title = title.replace(/[']/g, '');
         this.votes = votes;
     }
 }
