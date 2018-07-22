@@ -59,7 +59,7 @@ module.exports = new Command(
     (bot, message) => {
         if (message.hasTag('close')) {
             bot.connection.emit('closePoll');
-            const winner = bot.poll.pickWinner().title;
+            const winner = bot.poll.pickWinner().title.replace(/[']/g, '');
             bot.sendMsg(`I pick ${winner} as winner!`, message);
             if (message.hasTag('manage'))
                 require('../structure/CommandDictionary').add.function(bot,

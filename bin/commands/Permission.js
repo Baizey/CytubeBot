@@ -5,7 +5,7 @@ const Message = require("../structure/Message").Message;
 const utils = require("../core/Utils");
 
 // TODO: kick, mute, ban
-const permissions = ["add", "skip", "poll", "restart", "disallow"];
+const permissions = ["add", "skip", "poll", "restart", "disallow", "allow", "trailer"];
 const grants = ["true", "1", "t", "+", "yes", "y"];
 const removes = ["false", "0", "f", "-", "no", "n"];
 
