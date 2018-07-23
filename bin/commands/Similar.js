@@ -8,7 +8,7 @@ module.exports = new Command(
     rank.user,
     "",
     (bot, message) => {
-        const video = Video.fromTitle(bot, message.msg.trim());
+        const video = Video.fromMessage(bot, message);
         Api.searchTheMovieDatabase(bot, message, video, 'similar').then(resp => {
             if (!resp.success) return;
             bot.sendMsg('Found these similar movies', message);

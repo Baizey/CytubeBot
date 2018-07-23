@@ -9,7 +9,7 @@ module.exports = new Command(
     rank.user,
     "",
     (bot, message) => {
-        const video = Video.fromTitle(bot, message.msg);
+        const video = Video.fromMessage(bot, message);
         const year = video.queryYear;
 
         let videos = bot.db.getVideosLike(video.title, year);
@@ -62,7 +62,7 @@ module.exports = new Command(
         const minShow = Math.min(5, videos.length);
 
         if (videos.length === 0)
-            return bot.sendMsg(`No results for ${video.displayTitle}`, message);
+            return bot.sendMsg(`No results for ${video.displayTitle}${year > 0 ? ` (${year})` : ''}`, message);
         if (videos.length <= 5)
             bot.sendMsg(`Here are the ${minShow} best fitting`, message);
         else

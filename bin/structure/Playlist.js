@@ -67,16 +67,16 @@ class Video {
 
     /**
      * @param {CytubeBot} bot
-     * @param {String} fullTitle
+     * @param {Message} message
      * @returns {Video}
      */
-    static fromTitle(bot, fullTitle) {
-        fullTitle = fullTitle.trim();
+    static fromMessage(bot, message) {
+        let title = message.msg.trim();
 
-        if (utils.isEmpty(fullTitle))
-            fullTitle = "$curr";
+        if (utils.isEmpty(title))
+            title = "$curr";
 
-        switch (fullTitle) {
+        switch (title) {
             case "$prev":
                 return bot.playlist.getVideoFromCurrent(-1);
             case "$curr":
@@ -85,7 +85,11 @@ class Video {
                 return bot.playlist.getVideoFromCurrent(1);
             default:
                 const video = Video.empty();
-                video.setFullTitle(fullTitle);
+                video.title = title;
+                video.year = message.hasTag('year')
+                    ? (isNaN(message.getTag('year') - 0) ? 0 : message.getTag('year') - 0)
+                    : 0;
+                video.fullTitle = `${video.title}${video.year > 0 ? ` [year:${video.year}]` : ''}`;
                 return video;
         }
     }

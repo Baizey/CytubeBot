@@ -32,8 +32,8 @@ class Validator {
         this.queue = [];
         this.bot = bot;
         this.isPaused = true;
-        checkQueue(this);
-        getOldLinks(this);
+        checkQueue(this).finally();
+        getOldLinks(this).finally();
     }
 
     pause() {
