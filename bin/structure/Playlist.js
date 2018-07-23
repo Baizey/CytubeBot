@@ -140,7 +140,7 @@ class Video {
         this.temp = true;
         this.uid = null;
         this.queuedBy = null;
-        this.time = Time.ofSeconds(1).add(intermissionTime);
+        this.time = Time.of();
 
         this.validateBy = Time.of();
 
