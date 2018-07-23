@@ -194,7 +194,7 @@ class Video {
 
     asQueueObject() {
         return {
-            temp: this.temp,
+            temp: this.isIntermission(),
             pos: "next",
             id: this.id,
             type: this.type
