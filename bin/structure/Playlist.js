@@ -2,7 +2,7 @@ const Time = require("../core/Time");
 const utils = require("../core/Utils");
 const VideoUtils = require("../core/VideoUtils");
 
-const intermissionTime = Time.ofMinutes(15);
+const intermissionTime = Time.fromMinutes(15);
 
 /**
  * @param {String} url
@@ -114,9 +114,9 @@ class Video {
         video.title = databaseVideo.title;
         video.year = databaseVideo.year;
         video.quality = databaseVideo.quality;
-        video.time = Time.ofSeconds(databaseVideo.duration);
+        video.time = Time.fromSeconds(databaseVideo.duration);
         video.setFromIdAndType(databaseVideo.id, databaseVideo.type);
-        video.validateBy = Time.of(databaseVideo.validateBy);
+        video.validateBy = Time.from(databaseVideo.validateBy);
         return video;
     }
 
@@ -134,7 +134,7 @@ class Video {
         const media = utils.defined(cytubeVideo.media) ? cytubeVideo.media : cytubeVideo;
 
         video.setFullTitle(media.title);
-        video.time = Time.ofSeconds(media.seconds);
+        video.time = Time.fromSeconds(media.seconds);
         video.setFromIdAndType(media.id, media.type);
 
         return video;
@@ -144,9 +144,9 @@ class Video {
         this.temp = true;
         this.uid = null;
         this.queuedBy = null;
-        this.time = Time.of();
+        this.time = Time.from();
 
-        this.validateBy = Time.of();
+        this.validateBy = Time.from();
 
         this.title = null;
         this.releaseYear = 0;
@@ -181,7 +181,7 @@ class Video {
     }
 
     isIntermission() {
-        return intermissionTime.isBigger(this.time);
+        return intermissionTime.isBiggerThan(this.time);
     }
 
     /**

@@ -12,7 +12,7 @@ const Playlist = require("../structure/Playlist");
 const checkQueue = async function (validator) {
     if (!validator.isPaused)
         validator.checkQueue();
-    setTimeout(() => checkQueue(validator), Time.ofMillis(2000, 4000).millis);
+    setTimeout(() => checkQueue(validator), Time.fromMillis(2000, 4000).millis);
 };
 
 /**
@@ -21,7 +21,7 @@ const checkQueue = async function (validator) {
 const getOldLinks = async function (validator) {
     if (!validator.isPaused)
         validator.addOldLinksToQueue();
-    setTimeout(() => getOldLinks(validator), Time.ofHours(2, 30).millis);
+    setTimeout(() => getOldLinks(validator), Time.fromHours(2, 30).millis);
 };
 
 class Validator {
@@ -53,7 +53,7 @@ class Validator {
         logger.system(`Validating: ${video.fullTitle}`);
 
         // Not worth validating intermissions
-        if(Playlist.intermissionLimit.isBigger(video.time))
+        if(Playlist.intermissionLimit.isBiggerThan(video.time))
             return;
 
         // Not worth re-validating dead links
@@ -63,7 +63,7 @@ class Validator {
         // We must have queued this link for validation more than once... whoops
         const vali = this.bot.db.prepareSelect(this.bot.db.structure.videos.table.name, this.bot.db.structure.videos.table.keysWhere()).get(video.id, video.type).validateBy;
         if (utils.defined(vali))
-            if (Time.current().isBigger(Time.ofSeconds(vali)))
+            if (Time.current().isBiggerThan(Time.fromSeconds(vali)))
                 return;
 
         Api.validateVideo(this.bot, video).then(resp => {

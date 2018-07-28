@@ -13,7 +13,7 @@ module.exports = new Command(
         const columns = db.structure.videos.columns;
 
         // Remove intermissions
-        db.prepareDelete(tableName, `${columns.duration.name} < ?`).run(limit.asSeconds());
+        db.prepareDelete(tableName, `${columns.duration.name} < ?`).run(limit.seconds);
 
         bot.sendMsg('Getting videos...', message, true);
         const videos = db.prepareSelect(tableName).all()

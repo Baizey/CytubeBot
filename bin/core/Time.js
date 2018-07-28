@@ -10,7 +10,7 @@ class Time {
      * @param {Number} days
      * @returns {Time}
      */
-    static of(millis = 0, seconds = 0, minutes = 0, hours = 0, days = 0) {
+    static from(millis = 0, seconds = 0, minutes = 0, hours = 0, days = 0) {
         return new Time(millis, seconds, minutes, hours, days);
     }
 
@@ -19,8 +19,8 @@ class Time {
      * @param {Number} min
      * @param {Number} max
      */
-    static ofMillis(min = 0, max = min) {
-        return Time.of(utils.random(min, max));
+    static fromMillis(min = 0, max = min) {
+        return Time.from(utils.random(min, max));
     }
 
     /**
@@ -28,8 +28,8 @@ class Time {
      * @param {Number} min
      * @param {Number} max
      */
-    static ofSeconds(min = 0, max = min) {
-        return Time.of(0, utils.random(min, max));
+    static fromSeconds(min = 0, max = min) {
+        return Time.from(0, utils.random(min, max));
     }
 
     /**
@@ -37,8 +37,8 @@ class Time {
      * @param {Number} min
      * @param {Number} max
      */
-    static ofMinutes(min = 0, max = min) {
-        return Time.of(0, 0, utils.random(min, max));
+    static fromMinutes(min = 0, max = min) {
+        return Time.from(0, 0, utils.random(min, max));
     }
 
     /**
@@ -46,8 +46,8 @@ class Time {
      * @param {Number} min
      * @param {Number} max
      */
-    static ofHours(min = 0, max = min) {
-        return Time.of(0, 0, 0, utils.random(min, max));
+    static fromHours(min = 0, max = min) {
+        return Time.from(0, 0, 0, utils.random(min, max));
     }
 
     /**
@@ -55,15 +55,15 @@ class Time {
      * @param {Number} min
      * @param {Number} max
      */
-    static ofDays(min = 0, max = min) {
-        return Time.of(0, 0, 0, 0, utils.random(min, max));
+    static fromDays(min = 0, max = min) {
+        return Time.from(0, 0, 0, 0, utils.random(min, max));
     }
 
     /**
      * @returns {Time}
      */
     static current() {
-        return Time.of(Date.now());
+        return Time.from(Date.now());
     }
 
     /**
@@ -84,14 +84,42 @@ class Time {
         hours += days * 24;
         minutes += hours * 60;
         seconds += minutes * 60;
-        this.millis = Math.round(millis + seconds * 1000);
+        this._millis = Math.round(millis + seconds * 1000);
     }
 
     /**
      * @returns {number}
      */
-    asSeconds() {
+    get days() {
+        return Math.floor(this.hours / 24);
+    }
+
+    /**
+     * @returns {number}
+     */
+    get hours() {
+        return Math.floor(this.minutes / 60);
+    }
+
+    /**
+     * @returns {number}
+     */
+    get minutes() {
+        return Math.floor(this.seconds / 60);
+    }
+
+    /**
+     * @returns {number}
+     */
+    get seconds() {
         return Math.floor(this.millis / 1000);
+    }
+
+    /**
+     * @returns {number}
+     */
+    get millis(){
+        return this._millis;
     }
 
     /**
@@ -115,8 +143,24 @@ class Time {
      * @param {Time} other
      * @returns {boolean}
      */
-    isBigger(other){
+    isBiggerThan(other){
         return this.millis > other.millis;
+    }
+
+    /**
+     * @param {Time} other
+     * @returns {boolean}
+     */
+    isEqual(other){
+        return this.millis === other.millis;
+    }
+
+    /**
+     * @param {Time} other
+     * @returns {boolean}
+     */
+    isSmallerThan(other){
+        return this.millis < other.millis;
     }
 
     /**
@@ -124,7 +168,7 @@ class Time {
      * @returns {String} Time in HH:MM:SS format
      */
     asPlaytime() {
-        const seconds = Math.abs(this.asSeconds());
+        const seconds = Math.abs(this.seconds);
         const hr = `${Math.floor(seconds / 3600)}`.padStart(2, '0');
         const min = `${Math.floor(Math.floor(seconds / 60) % 60)}`.padStart(2, '0');
         const sec = `${Math.floor(seconds % 60)}`.padStart(2, '0');
@@ -132,11 +176,24 @@ class Time {
     }
 
     /**
-     * If the time is negative
      * @returns {Boolean}
      */
     isNegative() {
         return this.millis < 0;
+    }
+
+    /**
+     * @returns {Boolean}
+     */
+    isPositive() {
+        return this.millis > 0;
+    }
+
+    /**
+     * @returns {Boolean}
+     */
+    isZero() {
+        return this.millis === 0;
     }
 
     /**
@@ -148,10 +205,10 @@ class Time {
      */
     add(millis = 0, seconds = 0, minutes = 0, hours = 0, days = 0) {
         if (millis instanceof Time)
-            this.millis += millis.millis;
+            this._millis += millis.millis;
         else
-            this.millis += new Time(millis, seconds, minutes, hours, days).millis;
-        this.millis = Math.round(this.millis);
+            this._millis += new Time(millis, seconds, minutes, hours, days).millis;
+        this._millis = Math.round(this._millis);
         return this;
     }
 
@@ -160,7 +217,7 @@ class Time {
      * @param {Number} maxMillis
      */
     addMillis(minMillis = 0, maxMillis = minMillis) {
-        this.add(Time.ofMillis(minMillis, maxMillis));
+        this.add(Time.fromMillis(minMillis, maxMillis));
         return this;
     }
 
@@ -169,7 +226,7 @@ class Time {
      * @param {Number} maxSeconds
      */
     addSeconds(minSeconds = 0, maxSeconds = minSeconds) {
-        this.add(Time.ofSeconds(minSeconds, maxSeconds));
+        this.add(Time.fromSeconds(minSeconds, maxSeconds));
         return this;
     }
 
@@ -178,7 +235,7 @@ class Time {
      * @param {Number} maxMinutes
      */
     addMinutes(minMinutes = 0, maxMinutes = minMinutes) {
-        this.add(Time.ofMinutes(minMinutes, minMinutes));
+        this.add(Time.fromMinutes(minMinutes, minMinutes));
         return this;
     }
 
@@ -187,7 +244,7 @@ class Time {
      * @param {Number} maxHours
      */
     addHours(minHours = 0, maxHours = minHours) {
-        this.add(Time.ofHours(minHours, maxHours));
+        this.add(Time.fromHours(minHours, maxHours));
         return this;
     }
 
@@ -196,7 +253,7 @@ class Time {
      * @param {Number} maxDays
      */
     addDays(minDays = 0, maxDays = minDays) {
-        this.add(Time.ofDays(minDays, maxDays));
+        this.add(Time.fromDays(minDays, maxDays));
         return this;
     }
 }

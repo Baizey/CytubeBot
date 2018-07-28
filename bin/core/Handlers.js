@@ -20,9 +20,9 @@ const addHandlers = function (bot) {
     // Reactors     : We are getting a respond to something we emitted
 
     // Playlist PASSIVE (reactors, if we're the ones to moveEvent/delete/updateEvent media)
-    let lastPlaylist = Time.of().addSeconds(30);
+    let lastPlaylist = Time.from().addSeconds(30);
     socket.on("playlist", (videos) => {
-        if(lastPlaylist.isBigger(Time.current()))
+        if(lastPlaylist.isBiggerThan(Time.current()))
             return logger.debug("Ignoring playlist...");
         logger.debug("Getting playlist...");
         lastPlaylist = Time.current().addSeconds(30);

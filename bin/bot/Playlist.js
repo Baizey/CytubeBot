@@ -12,7 +12,7 @@ class Playlist {
         this.bot = bot;
         this.isLeader = false;
         this.isPlaying = true;
-        this.playtime = Time.of();
+        this.playtime = Time.from();
         this.playlist = [];
         this.previousUID = null;
         this.currentUID = null;
@@ -34,7 +34,7 @@ class Playlist {
      */
     get dataTillNextMovie() {
         const result = {
-            time: Time.ofMillis(this.currentVideo.time.millis - this.playtime.millis),
+            time: Time.fromMillis(this.currentVideo.time.millis - this.playtime.millis),
             intermissions: [],
             next: Video.empty()
         };
@@ -131,7 +131,7 @@ class Playlist {
      */
     changeMedia(currentTime, video) {
         this.currentVideo = video;
-        this.playtime = Time.ofSeconds(currentTime);
+        this.playtime = Time.fromSeconds(currentTime);
         logger.system(`Now playing ${video.displayTitle}`);
     }
 
@@ -167,7 +167,7 @@ class Playlist {
      */
     updateCurrentMedia(currentTime, isPaused) {
         this.isPlaying = !isPaused;
-        this.playtime = Time.ofSeconds(currentTime);
+        this.playtime = Time.fromSeconds(currentTime);
     }
 
 

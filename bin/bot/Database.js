@@ -137,7 +137,7 @@ class Database {
         const table = structure.videos.table;
         const columns = structure.videos.columns;
         const result = this.prepareSelect(table.name, `${columns.validateBy.name} > ?`)
-            .all(Time.current().asSeconds());
+            .all(Time.current().seconds);
         if (!utils.defined(result))
             return [];
         return result.map(video => Video.fromDatabase(video));
@@ -153,7 +153,7 @@ class Database {
             .addDays(14, 31)
             .addHours(0, 24)
             .addMinutes(0, 60)
-            .asSeconds();
+            .seconds;
         this.prepareUpdate(table.name, columns.validateBy.name, table.keysWhere())
             .run(time, video.id, video.type);
     };
@@ -169,7 +169,7 @@ class Database {
         this.prepareInsert(table.name,
             `${columns.title.name}, ${columns.fulltitle.name}, ${columns.year.name}, ${columns.id.name}, ${columns.type.name}, ${columns.quality.name}, ${columns.duration.name}`,
             table.getInsert()
-        ).run(video.title, video.fullTitle, video.year, video.id, video.type, video.quality, video.time.asSeconds());
+        ).run(video.title, video.fullTitle, video.year, video.id, video.type, video.quality, video.time.seconds);
         this.updateValidationBy(video);
     };
 
@@ -319,7 +319,7 @@ class Database {
         this.prepareInsert(table.name, columns.name.name, table.getInsert())
             .run(user.name);
         this.prepareUpdate(table.name, columns.lastonline.name, columns.name.where())
-            .run(Time.current().asSeconds(), user.name);
+            .run(Time.current().seconds, user.name);
         this.prepareUpdate(table.name, columns.rank.name, columns.name.where())
             .run(user.rank, user.name);
     };

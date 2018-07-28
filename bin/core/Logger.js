@@ -1,36 +1,27 @@
+const Log = require('simple-node-logger');
 const join = require("path").join;
-const path = function(name){
-    return join(__dirname, "../..", "logs/" + name + ".log");
-};
 
-const syslog = require('simple-node-logger').createSimpleLogger({
-    logFilePath: path('system'),
+const createLog = name => Log.createSimpleLogger({
+    logFilePath: join(__dirname, '../..', `logs/${name}.log`),
     timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
 });
-const debuglog = require('simple-node-logger').createSimpleLogger({
-    logFilePath: path('debug'),
-    timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
-});
-const errlog = require('simple-node-logger').createSimpleLogger({
-    logFilePath: path('error'),
-    timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
-});
-const chatlog = require('simple-node-logger').createSimpleLogger({
-    logFilePath: path('chat'),
-    timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
-});
-const commandlog = require('simple-node-logger').createSimpleLogger({
-    logFilePath: path('commands'),
-    timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
-});
+
+const systemLog = createLog('system');
+const debugLog = createLog('debug');
+const errorLog = createLog('error');
+const chatLog = createLog('chat');
+const commandLog = createLog('commands');
 
 module.exports = {
     /**
      * @param {Message} message
      */
-    command: function(message) { commandlog.info(`${message.command}: ${message.msg}`); },
-    debug: function(msg) { debuglog.info(msg); },
-    system: function(msg) { syslog.info(msg); },
-    chat: function(username, pm, msg) {chatlog.info((username + (pm ? " (pm)" : "") + ": " + msg));},
-    error: function(msg) { errlog.info(msg); }
+    chat: function(message) {chatLog.info((message.user.name + (message.isPm ? " (pm)" : "") + ": " + message.msg));},
+    /**
+     * @param {Message} message
+     */
+    command: function(message) { commandLog.info(`${message.user.name} | ${message.command} | ${message.msg}`); },
+    debug: function(msg) { debugLog.info(msg); },
+    system: function(msg) { systemLog.info(msg); },
+    error: function(msg) { errorLog.info(msg); }
 };

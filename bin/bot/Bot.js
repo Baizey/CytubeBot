@@ -122,7 +122,7 @@ class CytubeBot {
      * @param {Boolean} pm
      */
     receiveMessage(data, pm) {
-        if (this.startTime.isBigger(Time.of(data.time).addSeconds(1)))
+        if (this.startTime.isBiggerThan(Time.from(data.time).addSeconds(1)))
             return;
 
         const lowName = this.connection.name.toLowerCase();
@@ -134,7 +134,7 @@ class CytubeBot {
 
         // Ignore messages from sources we shouldn't take commands from
         if (lowUser === lowName || lowUser === "[server]")
-            return logger.chat(user.name, message.isPm, message.msg);
+            return logger.chat(message);
 
         // Get long term info on user
         const dbUser = this.db.getUser(user);
@@ -164,7 +164,7 @@ class CytubeBot {
             message.command = 'talk';
 
         if (utils.isEmpty(message.command))
-            return logger.chat(user.name, message.isPm, message.msg);
+            return logger.chat(message);
 
         this.handleCommand(message);
     };
@@ -178,6 +178,7 @@ class CytubeBot {
             return this.sendMsg("Unknown command... do '$help'", message);
         if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);
+        logger.command(message);
         command.function(this, message);
     };
 }
