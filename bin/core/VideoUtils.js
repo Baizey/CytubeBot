@@ -37,6 +37,9 @@ const sentenceFilter = [
 ];
 
 const wordFilter = [
+    "http",
+    "https",
+    "www",
     "m4v",
     "mst3k",
     "saphirebluray",
@@ -123,10 +126,12 @@ class MovieInfo {
         const self = this;
         this.fullTitle = fullTitle;
 
-        // Remove any urls
-        this.title = fullTitle.replace(/(^| )(https?:\/\/)?(www\.)?.*?\.(com|org|net)( |$)/g, ' ').trim();
-
-        this.title = this.title.replace(/[.,_~/\\\-]/g, ' ').trim().replace(/ +/g, ' ').toLowerCase();
+        this.title = fullTitle
+            .replace(/[,_~/\\\-]+/g, ' ')                                               // Handle space replacer
+            .replace(/(^|[ .])\w+\.(com|org|net)($|[ .])/g, `$1${wordFilter[0]}$3`)     // Remove simple urls
+            .replace(/\.+/g, ' ')                                                       // Handle dots after url
+            .trim().replace(/  +/g, ' ')                                                // Remove redundant whitespace
+            .toLowerCase();
 
         // Split it by words ignoring brackets
         let words = this.title
