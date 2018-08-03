@@ -179,6 +179,8 @@ like ```$about $next```
 
 ```$youtube queries``` (mod command) searches for given queries and queues the found ones
 
+```$skip``` (mod command) skips whatever is playing to the next thing in the queue
+
 ```permission user``` (admin command) gives/removes access to specific mod commands. 
 
 possible ways to write it:
