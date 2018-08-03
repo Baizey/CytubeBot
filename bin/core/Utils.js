@@ -93,7 +93,7 @@ const utils = {
      * @param {Function} valueFunction
      * @returns {Object[]}
      */
-    mapToList: function (map, valueFunction = (key, value) => value) {
+    mapToList: function (map, valueFunction = (k, v) => v) {
         const list = [];
         Object.keys(map).forEach(key => list.push(valueFunction(key, map[key])));
         return list;
@@ -114,8 +114,15 @@ const utils = {
     splitMessage: (msg) => {
         if (!utils.defined(msg))
             return ["null"];
+
+        if (Array.isArray(msg)) {
+            let result = [];
+            msg.forEach(e => result = result.concat(utils.splitMessage(e)));
+            return result;
+        }
+
         if (typeof msg !== "string")
-            return msg;
+            msg = msg + "";
 
         msg = utils.htmlDecode(msg);
 

@@ -5,6 +5,7 @@ const sentenceFilter = [
     "the film crew",
     'robert donat',
     "super 720p",
+    "english dub",
     "full sci fi",
     "full animation",
     "sci fi",

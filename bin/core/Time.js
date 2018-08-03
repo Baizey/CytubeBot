@@ -164,7 +164,6 @@ class Time {
     }
 
     /**
-     * Time in HH:MM:SS format (ignoring 24 hour limit)
      * @returns {String} Time in HH:MM:SS format
      */
     asPlaytime() {
