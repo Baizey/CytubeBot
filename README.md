@@ -95,7 +95,13 @@ like ```$about $next```
  
 ```$poll title;option1;option2;..:optionN [anon]``` (mod command) same as above, just does the voting obscured
 
-```$choose``` (mod command) If a poll has been run, picks a winner from the poll.
+```$poll [close]``` (mod command) Picks winner from previous poll and closes it if it's open.
+
+```$poll [close] [manage]``` (mod command, experimental) Same as above, also tries to queue the winner next
+
+```$poll [auto]``` (mod command) Makes a poll from top nominations
+
+```$poll [auto] [manage]``` (mod command, experimental) Same as above. The bot will however also queue trailers, intermission and play the winner at the end
 
 ```$choose a;b;c;d``` chooses between a, b, c and d. 
 
@@ -135,10 +141,6 @@ like ```$about $next```
 
 ```$nominate [delete]``` (user command) deletes all your current nominations
 
-```$$autopoll``` (mod command) makes a poll from top nominations
-
-```$$autopoll [auto]``` (experimental) same as above. The bot will however also queue trailers, intermission and play the winner at the end
-
 ```$pattern command;regex;msg``` (admin command) if you don't know regex look it up. creates a pattern outside of commands for the bot to recognize. Fx say;greater good;greatest good will have the bot say greatest good everytime someone says greater good.
 
 ```$pattern command;regex``` (admin command) same as above, just not giving any msg to the command that is called
@@ -176,6 +178,21 @@ like ```$about $next```
 ```$wolfram query``` queries wolfram alpha
 
 ```$youtube queries``` (mod command) searches for given queries and queues the found ones
+
+```permission user``` (admin command) gives/removes access to specific mod commands. 
+
+possible ways to write it:
+```
+permissions: "add", "skip", "poll", "restart", "disallow", "allow", "trailer";
+grants: "true", "1", "t", "+", "yes", "y";
+removes: "false", "0", "f", "-", "no", "n";
+```
+
+fx ```permission user [add:t] [skip:0] [poll:-] [allow:+] [trailer:yes]```
+
+```permission user [all:t]``` (admin command) removes/gives access to all mod commands, still needs a grant/remove symbol
+
+
 
 ### Adding new commands
 in the folder _bin/commands/_
