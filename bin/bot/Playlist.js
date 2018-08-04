@@ -63,7 +63,7 @@ class Playlist {
      * @param {Number} uid
      */
     remove(uid) {
-        this.bot.connection.emit("remove", uid);
+        this.bot.connection.emit("delete", uid);
     }
 
     /**
@@ -79,7 +79,6 @@ class Playlist {
                 return logger.error(`Found no video with UID ${afterUid} to place ${video.title} after`);
             this.playlist.splice(index + 1, 0, video);
         }
-        this.bot.validator.add(video, null);
     }
 
     /**
