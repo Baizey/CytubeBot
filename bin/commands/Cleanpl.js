@@ -13,21 +13,13 @@ module.exports = new Command(
      * @param {Message} message
      */
     (bot, message) => {
-        const removeFromPlaylist = message.hasTag("manage");
+        const shouldManage = message.hasTag("manage");
 
         const seen = {};
         bot.playlist.playlist.forEach(v => {
             if (!utils.defined(seen[v.title]))
                 seen[v.title] = [];
-
-            if (bot.db.isDead(v)) {
-                logger.debug(`Dead link in playlist: ${v.fullTitle}`);
-                bot.sendMsg(`Dead: ${v.fullTitle}`, message, true);
-                if (removeFromPlaylist)
-                    bot.playlist.remove(v.uid);
-            } else
-                seen[v.title].push(v);
-
+            seen[v.title].push(v);
         });
 
         const duplicates = Object.keys(seen).map(key => seen[key]).filter(list => list.length > 1);
@@ -40,7 +32,7 @@ module.exports = new Command(
             logger.debug(say.join("\n"));
             bot.sendMsg(say, message, true);
             bot.sendMsg('------------', message, true);
-            if (removeFromPlaylist)
+            if (shouldManage)
                 list.slice(1).forEach(v => bot.playlist.remove(v.uid));
         });
     }
