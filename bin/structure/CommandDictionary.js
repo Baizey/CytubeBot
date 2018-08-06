@@ -29,6 +29,7 @@ const commands = {
     recommend: require("../commands/Recommend.js"),
     restart: require("../commands/Restart.js"),
     say: require("../commands/Say.js"),
+    test: require("../commands/Test"),
     similar: require("../commands/Similar.js"),
     talk: require("../commands/Talk.js"),
     time: require("../commands/Time.js"),

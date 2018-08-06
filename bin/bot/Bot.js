@@ -97,24 +97,10 @@ class CytubeBot {
         if (pm) pack.to = receiver.user.name;
         let type = pm ? "pm" : "chatMsg";
         logger.debug(messages);
-        messages.slice(0, Math.min(3, messages.length)).forEach(message => {
+        messages.forEach(message => {
             pack.msg = message;
             socket.emit(type, pack);
         });
-
-        if(pm || messages.length <= 3)
-            return;
-
-        pack.msg = "Rest of the info will be pm'ed for the chat's sake";
-        if (!pm)
-            socket.emit(type, pack);
-
-        type = "pm";
-        messages.slice(3).forEach(message => {
-            pack.msg = message;
-            socket.emit(type, pack);
-        });
-
     };
 
     /**
