@@ -13,7 +13,7 @@ module.exports = new Command(
         Api.request(url).then(resp => {
             if (!resp.success || resp.result.list.length === 0)
                 return bot.sendMsg("No definition exists... probably", message);
-            return bot.sendMsg(resp.result.list[0].definition, message);
+            return bot.sendMsg(resp.result.list[0].definition.replace(/[\[\]]/g, ''), message);
         });
     }
 );
