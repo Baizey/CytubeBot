@@ -35,6 +35,11 @@ with some commands taking tags like:
 
 ```$about text [year:1984]``` or ```$nominate [mine]```
 
+or alternatively like such:
+
+```$about text -year:1984``` or ```$nominate -mine```
+
+
 Some commands also take multiple arguments, these are separated by ```;``` fx:
 
 ```$choose a;b;c;d```
