@@ -1,7 +1,7 @@
 const ranks = require("./Ranks");
 const utils = require("../core/Utils");
 
-const tagRegex = /\[(\w+)(:(\w+))?]/g;
+const tagRegex = /[\-\[](\w+)(:(\w+))?]?/g;
 const commandRegex = /^[$!](\w+)/;
 
 const staticContent = {bot: null};

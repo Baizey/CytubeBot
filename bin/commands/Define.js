@@ -6,6 +6,10 @@ const Api = require("../core/Api");
 module.exports = new Command(
     rank.user,
     "",
+    /**
+     * @param {CytubeBot} bot
+     * @param {Message} message
+     */
     (bot, message) => {
 
         const url = `api.urbandictionary.com/v0/define?term=${message.msg.trim()}`;
