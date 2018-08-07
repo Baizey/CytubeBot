@@ -17,12 +17,12 @@ class Poll {
      */
     pickWinner() {
         if (this.options.length === 0)
-            return new Option("There is no poll", 0);
+            return new Option("There is no poll", 0, false);
         let maxVotes = 0;
         this.options.forEach(option => maxVotes = Math.max(maxVotes, option.votes));
         const ties = this.options.filter(option => option.votes === maxVotes);
         if (ties.length === 1)
-            return ties[0];
+            return new Option(ties[0].title, 0, false);
         return ties[utils.random(0, ties.length)];
     }
 
@@ -84,10 +84,12 @@ class Option {
     /**
      * @param {String} title
      * @param {Number} votes
+     * @param {Boolean} wasInTie
      */
-    constructor(title, votes) {
+    constructor(title, votes, wasInTie = true) {
         this.title = title.replace(/[']/g, '');
         this.votes = votes;
+        this.wasInTie = wasInTie;
     }
 }
 

@@ -59,8 +59,12 @@ module.exports = new Command(
     (bot, message) => {
         if (message.hasTag('close')) {
             bot.connection.emit('closePoll');
-            const winner = bot.poll.pickWinner().title.replace(/[']/g, '');
-            bot.sendMsg(`I pick ${winner} as winner!`, message);
+            const pick = bot.poll.pickWinner();
+            const winner = pick.title.replace(/[']/g, '');
+            if (pick.wasInTie)
+                bot.sendMsg(`I pick ${winner} as winner!`, message);
+            else
+                bot.sendMsg(`The winner is ${winner}!`, message);
             if (message.hasTag('manage'))
                 require('../structure/CommandDictionary').add.function(bot,
                     new Message(winner.replace(/.*[|\-]/, ''), true, message.user));
