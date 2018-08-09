@@ -99,6 +99,11 @@ const addHandlers = function (bot) {
     // Handle mixed stuff, PASSIVE
     socket.on("error", (err) => logger.error(err));
 
+    // REACTOR, we initiated this by attempting to queue a media
+    socket.on('queueFail', data => {
+
+    });
+
     /* Unused listeners
     socket.on("disconnect",     (data) => {});
     socket.on("setPlaylistMeta", (data) => {});
