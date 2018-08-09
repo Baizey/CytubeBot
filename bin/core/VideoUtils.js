@@ -114,101 +114,150 @@ const wordFilter = [
     "axxo",
 ];
 
-const quality = require("./VideoQuality");
+const Quality = require("./VideoQuality");
 const utils = require("./Utils");
 
 const wordLookup = utils.listToMap(wordFilter);
+
+/**
+ * @param {String} title
+ * @returns {string}
+ */
+function applyBasicFilter(title) {
+    return title.replace(/[,_~/\\\-]+/g, ' ')                                               // Handle space replacer
+        .replace(/(^|[ .])\w+\.(com|org|net)($|[ .])/g, `$1${wordFilter[0]}$3`)     // Remove simple urls
+        .replace(/\.+/g, ' ')                                                       // Handle dots after url
+        .trim().replace(/  +/g, ' ')                                                // Remove redundant whitespace
+        .toLowerCase();
+}
+
+/**
+ * @param {String} title
+ * @returns {string}
+ */
+function filterTitle(title) {
+    // Filter out known sentences not part of titles
+    sentenceFilter.forEach(sentence => title = title.replace(sentence, wordFilter[0]));
+
+    // Remove IMDB ids
+    title = title.replace(/tt\d+/g, wordFilter[0]);
+
+    // Split title into words
+    const words = title.trim().replace(/ +/g, ' ').split(" ");
+
+    // Figure out what parts of the title is the actual movie title
+    let i = 0;
+    for (; i < words.length; i++)
+        if (!utils.defined(wordLookup[words[i]]))
+            break;
+    let j = i + 1;
+    for (; j < words.length; j++)
+        if (utils.defined(wordLookup[words[j]]))
+            break;
+
+    if (i >= words.length) title = "";
+    else title = words.slice(i, j).join(" ");
+
+    return title.replace(/ ?& ?/g, ' and ').replace(/[':]/g, '');
+}
+
+/**
+ * @param {String} title
+ * @returns {string[]}
+ */
+function splitToWords(title) {
+    // Split it by words ignoring brackets
+    return title
+        .replace(/[\[<{()}>\]]/g, ' ')
+        .replace(/  +/g, ' ')
+        .split(" ");
+}
+
+/**
+ * @param {String} title
+ * @param {Number} year
+ * @returns {string}
+ */
+function removeReleaseYear(title, year = 0) {
+    return year === 0 ? title : title.replace(year + '', wordFilter[0]);
+}
+
+/**
+ * @param {String[]} input
+ * @returns {string}
+ */
+function guessQuality(words) {
+    let rank = 99;
+    let quality = "";
+    words.forEach(word => {
+        if (!utils.defined(Quality.mapping[word]))
+            return;
+        if (Quality.rank(word) < rank) {
+            rank = Quality.rank(word);
+            quality = Quality.mapping[word];
+        }
+    });
+    return quality;
+}
+
+/**
+ * @param {String[]} words
+ * @returns {number}
+ */
+function guessReleaseYear(words) {
+    let year = 0;
+    words.forEach(word => {
+        const number = word - 0;
+        if (word.length !== 4 || isNaN(number))
+            return;
+
+        // Within realistic release years
+        if (number < 1930 || number > 2020
+            // Used to catch cases such as '2012' released in 2009
+            || Math.abs(2008 - number) >= Math.abs(2008 - year))
+            return;
+
+        year = number;
+    });
+    return year;
+}
+
+function removeBrackets(title) {
+    for (let i = 0, start = -1, depth = 0; i < title.length; i++) {
+        if ('<{[('.indexOf(title.charAt(i)) >= 0) {
+            depth++;
+            start = Math.max(start, i);
+        } else if (')]}>'.indexOf(title.charAt(i)) >= 0) {
+            depth--;
+            if (depth === 0 && start >= 0) {
+                title = `${title.substr(0, start)} ${title.substr(i + 1, title.length)}`;
+                i = start;
+                start = -1;
+            }
+        }
+    }
+    return title;
+}
 
 class MovieInfo {
     /**
      * @param {String} fullTitle
      */
     constructor(fullTitle) {
-        const self = this;
         this.fullTitle = fullTitle;
 
-        this.title = fullTitle
-            .replace(/[,_~/\\\-]+/g, ' ')                                               // Handle space replacer
-            .replace(/(^|[ .])\w+\.(com|org|net)($|[ .])/g, `$1${wordFilter[0]}$3`)     // Remove simple urls
-            .replace(/\.+/g, ' ')                                                       // Handle dots after url
-            .trim().replace(/  +/g, ' ')                                                // Remove redundant whitespace
-            .toLowerCase();
+        this.title = applyBasicFilter(fullTitle);
+        const words = splitToWords(this.title);
 
-        // Split it by words ignoring brackets
-        let words = this.title
-            .replace(/[\[<{()}>\]]/g, ' ')
-            .replace(/  +/g, ' ')
-            .split(" ");
+        this.releaseYear = guessReleaseYear(words);
+        this.quality = guessQuality(words);
 
-        // Figure release year
-        this.releaseYear = 0;
-        words.forEach(word => {
-            const number = word - 0;
-            if (word.length !== 4 || isNaN(number))
-                return;
+        this.titleWithReleaseYear = removeBrackets(this.title);
+        this.titleWithReleaseYear = filterTitle(this.titleWithReleaseYear);
 
-            // Within realistic release years
-            if (number < 1930 || number > 2020
-                // Used to catch cases such as '2012' released in 2009
-                || Math.abs(2008 - number) >= Math.abs(2008 - self.releaseYear))
-                return;
-
-            self.releaseYear = number;
-        });
-
-        // Figure quality
-        let rank = 99;
-        this.quality = "";
-        words.forEach(word => {
-            if (!utils.defined(quality.mapping[word]))
-                return;
-            if (quality.rank(word) < rank) {
-                rank = quality.rank(word);
-                this.quality = quality.mapping[word];
-            }
-        });
-
-        // Remove anything in brackets
-        for (let i = 0, start = -1, depth = 0; i < this.title.length; i++) {
-            if ('<{[('.indexOf(this.title.charAt(i)) >= 0) {
-                depth++;
-                start = Math.max(start, i);
-            } else if (')]}>'.indexOf(this.title.charAt(i)) >= 0) {
-                depth--;
-                if (depth === 0 && start >= 0) {
-                    this.title = `${this.title.substr(0, start)} ${this.title.substr(i + 1, this.title.length)}`;
-                    i = start;
-                    start = -1;
-                }
-            }
-        }
-
-        // Filter out release year
-        if(this.releaseYear > 0)
-            this.title = this.title.replace(this.releaseYear + '', wordFilter[0]);
-        // Filter out known sentences not part of titles
-        sentenceFilter.forEach(sentence => this.title = this.title.replace(sentence, wordFilter[0]));
-
-        // Remove IMDB ids
-        this.title = this.title.replace(/tt\d+/g, wordFilter[0]);
-
-        // Split title into words
-        words = this.title.trim().replace(/ +/g, ' ').split(" ");
-
-        // Figure out what parts of the title is the actual movie title
-        let i = 0;
-        for (; i < words.length; i++)
-            if (!utils.defined(wordLookup[words[i]]))
-                break;
-        let j = i + 1;
-        for (; j < words.length; j++)
-            if (utils.defined(wordLookup[words[j]]))
-                break;
-
-        if (i >= words.length) this.title = "";
-        else this.title = words.slice(i, j).join(" ");
-
-        this.title = this.title.replace(/ ?& ?/g, ' and ').replace(/[':]/g, '');
+        this.title = removeBrackets(this.title);
+        this.title = removeReleaseYear(this.title, this.releaseYear);
+        this.title = filterTitle(this.title);
     }
 }
 

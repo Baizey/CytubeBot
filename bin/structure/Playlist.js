@@ -74,24 +74,22 @@ class Video {
         let title = message.msg.trim();
 
         if (utils.isEmpty(title))
-            title = "$curr";
+            message.setTag('curr');
 
-        switch (title) {
-            case "$prev":
-                return bot.playlist.getVideoFromCurrent(-1);
-            case "$curr":
-                return bot.playlist.getVideoFromCurrent(0);
-            case "$next":
-                return bot.playlist.getVideoFromCurrent(1);
-            default:
-                const video = Video.empty();
-                video.title = title;
-                video.year = message.hasTag('year')
-                    ? (isNaN(message.getTag('year') - 0) ? 0 : message.getTag('year') - 0)
-                    : 0;
-                video.fullTitle = `${video.title}${video.year > 0 ? ` [year:${video.year}]` : ''}`;
-                return video;
-        }
+        if (message.hasTag('curr'))
+            return bot.playlist.getVideoFromCurrent(0);
+        if (message.hasTag('next'))
+            return bot.playlist.getVideoFromCurrent(1);
+        if (message.hasTag('prev'))
+            return bot.playlist.getVideoFromCurrent(-1);
+
+        const video = Video.empty();
+        video.title = title;
+        video.year = message.hasTag('year')
+            ? (isNaN(message.getTag('year') - 0) ? 0 : message.getTag('year') - 0)
+            : 0;
+        video.fullTitle = `${video.title}${video.year > 0 ? ` [year:${video.year}]` : ''}`;
+        return video;
     }
 
     /**
@@ -186,15 +184,18 @@ class Video {
 
     /**
      * @param {String} fullTitle
+     * @param {Boolean} ignoreReleaseYear
      */
-    setFullTitle(fullTitle) {
+    setFullTitle(fullTitle, ignoreReleaseYear = false) {
         this.fullTitle = fullTitle;
 
         const filtered = VideoUtils.filterTitle(fullTitle);
-        this.title = filtered.title;
+        this.title = ignoreReleaseYear ? filtered.titleWithReleaseYear : filtered.title;
         this.quality = filtered.quality;
-        this.year = Math.round(filtered.releaseYear);
+
+        this.year = ignoreReleaseYear ? 0 : Math.round(filtered.releaseYear);
     }
+
 
     asQueueObject() {
         return {

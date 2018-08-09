@@ -46,6 +46,14 @@ class Message {
     }
 
     /**
+     * @param {String} key
+     * @param {String} value
+     */
+    setTag(key, value = key) {
+        this.tags[key] = value;
+    }
+
+    /**
      * @param {String} tag
      * @returns {String|undefined}
      */

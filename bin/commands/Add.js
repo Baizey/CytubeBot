@@ -19,14 +19,14 @@ module.exports = new Command(
             bot.playlist.add(video);
         } else {
             let year = message.getTag('year') - 0;
-            if(isNaN(year)) year = 0;
+            year = isNaN(year) ? 0 : Math.floor(year);
 
             let videos = bot.db.getVideosByTitle(title);
             if (year !== 0)
                 videos = videos.filter(video => video.year === year);
 
             if (videos.length === 0)
-                return bot.sendMsg('No movie with this title (and year if that was given)', message);
+                return bot.sendMsg(`No movie with the title '${title}' to queue`, message);
 
             videos.sort((a, b) => quality(b.quality) - quality(a.quality));
 

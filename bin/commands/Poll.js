@@ -2,6 +2,7 @@ const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
 const Message = require("../structure/Message").Message;
 const User = require("../structure/Message").User;
+const Video = require("../structure/Playlist").Video;
 const utils = require("../core/Utils");
 const quality = require("../core/VideoQuality").rank;
 
@@ -65,9 +66,18 @@ module.exports = new Command(
                 bot.sendMsg(`I pick ${winner} as winner!`, message);
             else
                 bot.sendMsg(`The winner is ${winner}!`, message);
-            if (message.hasTag('manage'))
-                require('../structure/CommandDictionary').add.function(bot,
-                    new Message(winner.replace(/.*[|\-]/, ''), true, message.user));
+            
+            if (message.hasTag('manage')) {
+                const video = Video.empty();
+
+                const split = winner.split('-');
+                const title = split.length > 1 ? split.slice(1).join('-') : winner;
+
+                video.setFullTitle(title, false);
+
+                require('../structure/CommandDictionary').add
+                    .function(bot, new Message(video.title, true, message.user));
+            }
             return;
         }
 
