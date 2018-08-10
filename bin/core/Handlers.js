@@ -50,7 +50,7 @@ const addHandlers = function (bot) {
                 data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
 
         for(let i in data.options)
-            options.push(new Option(data.options[i], data.counts[i]))
+            options.push(new Option(utils.htmlDecode(data.options[i]), data.counts[i]))
         poll.updateEvent(options);
     });
     socket.on("newPoll", (data) => {
@@ -62,7 +62,7 @@ const addHandlers = function (bot) {
 
         const options = [];
         for(let i in data.options)
-            options.push(new Option(data.options[i], data.counts[i]))
+            options.push(new Option(utils.htmlDecode(data.options[i]), data.counts[i]))
         poll.openEvent(options);
     });
     socket.on("closePoll", (data) => {
