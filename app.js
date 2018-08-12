@@ -89,8 +89,6 @@ const ensureLogExist = () =>
         ? initiateBot()
         : fs.writeFile(shutdownLog, {flag: 'wx'}, () => initiateBot()));
 
-console.log(configString);
-
 const configFile = './config.json';
 fs.exists(configFile, exists => exists
     ? ensureLogExist()
