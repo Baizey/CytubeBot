@@ -395,33 +395,38 @@ class Database {
         let sql = `SELECT * FROM ${table}`;
         if (utils.defined(where))
             sql += ` WHERE ${where}`;
-        return this.db.prepare(sql);
+        return this.prepare(sql);
     };
 
     prepareMultiUpdate(table, columns, where = null) {
         let sql = `UPDATE ${table} SET ${columns}`;
         if (utils.defined(where))
             sql += ` WHERE ${where}`;
-        return this.db.prepare(sql);
+        return this.prepare(sql);
     };
 
     prepareUpdate(table, column, where = null) {
         let sql = `UPDATE ${table} SET ${column} = ?`;
         if (utils.defined(where))
             sql += ` WHERE ${where}`;
-        return this.db.prepare(sql);
+        return this.prepare(sql);
     };
 
     prepareInsert(table, columns, values) {
-        return this.db.prepare(`INSERT OR IGNORE INTO ${table} (${columns}) VALUES (${values})`);
+        return this.prepare(`INSERT OR IGNORE INTO ${table} (${columns}) VALUES (${values})`);
     };
 
     prepareDelete(table, where = null) {
         let sql = `DELETE FROM ${table}`;
         if (utils.defined(where))
             sql += ` WHERE ${where}`;
-        return this.db.prepare(sql);
+        return this.prepare(sql);
     };
+
+    prepare(sql) {
+        logger.debug(sql);
+        return this.db.prepare(sql);
+    }
 }
 
 module.exports = {
