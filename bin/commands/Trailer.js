@@ -3,6 +3,7 @@ const Command = require("../structure/Command");
 const Video = require("../structure/Playlist").Video;
 const Api = require("../core/Api");
 const utils = require("../core/Utils");
+const Emit = require('../structure/Socket').Emit;
 
 module.exports = new Command(
     rank.mod,
@@ -15,7 +16,7 @@ module.exports = new Command(
             resp.reverse().forEach(link => {
                 if (!link.success)
                     return bot.sendMsg(`found nothing to queue for ${link.result}`, message, true);
-                bot.connection.emit("queue", link.result.asQueueObject());
+                bot.connection.emit(Emit.playlist.queue, link.result.asQueueObject());
             });
         });
     }

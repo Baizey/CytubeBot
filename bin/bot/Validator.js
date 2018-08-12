@@ -62,7 +62,7 @@ class Validator {
 
         // We must have queued this link for validation more than once... whoops
         const vali = this.bot.db.prepareSelect(this.bot.db.structure.videos.table.name, this.bot.db.structure.videos.table.keysWhere()).get(video.id, video.type);
-        if (utils.defined(vali))
+        if (utils.isDefined(vali))
             if (Time.current().isBiggerThan(Time.fromSeconds(vali.validateBy)))
                 return;
 
@@ -80,7 +80,7 @@ class Validator {
                 self.bot.db.moveToDead(video);
             }
 
-            if(utils.defined(item.after) && typeof item.after === "function")
+            if(utils.isDefined(item.after) && typeof item.after === "function")
                 item.after(resp);
         });
     }

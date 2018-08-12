@@ -8,61 +8,44 @@ const chatLimit = 240;
 
 const utils = {
 
-    chatLimit: chatLimit,
-
-    modlog: function (bot, cmd, username, target) {
-        const clearUser = utils.safeName(username);
-        let msg = "'" + clearUser + "' used '" + cmd + "'";
-        let log = "'" + username + "' used '" + cmd + "'";
-        if (utils.defined(target)) {
-            msg += " on '" + utils.safeName(target) + "'";
-            log += " on '" + (target) + "'";
-        }
-        bot.sendMsg(msg);
-        logger.system(log);
-    },
+    /**
+     * @returns {number}
+     */
+    chatLimit: () => chatLimit,
 
     /**
-     * @param {Number} int
+     * @param {*} thing
      * @returns {Boolean}
      */
-    bool: function (int) {
-        return int === 1;
-    },
+    isUndefined: thing => !utils.isDefined(thing),
 
     /**
-     * @param thing
+     * @param {*} thing
      * @returns {Boolean}
      */
-    defined: function (thing) {
-        return typeof(thing) !== 'undefined' && thing !== null;
-    },
+    isDefined: thing => typeof(thing) !== 'undefined' && thing !== null,
 
     /**
-     * @param thing
+     * @param {*} thing
+     * @returns {boolean}
+     */
+    isUsed: thing => !utils.isEmpty(thing),
+
+    /**
+     * @param {*} thing
      * @returns {Boolean}
      */
-    isEmpty: function (thing) {
+    isEmpty: thing => {
         // Covers null and undefined
-        if (!utils.defined(thing))
+        if (utils.isUndefined(thing))
             return true;
         // noinspection FallThroughInSwitchStatementJS
         switch (typeof(thing)) {
-            // Turn object to array
-            case "object":
-                thing = Object.keys(thing);
-            // Turn array to number
-            case "string":
-                thing = thing.length;
-            // Turn number to boolean
-            case "number":
-                thing = thing === 0;
-            // Return boolean
-            case "boolean":
-                return thing;
-            // Functions and unknowns
-            default:
-                return false;
+            case "object": thing = Object.keys(thing);
+            case "string": thing = thing.length;
+            case "number": thing = thing === 0;
+            case "boolean": return thing;
+            default: return false;
         }
     },
 
@@ -78,14 +61,14 @@ const utils = {
      * @param {Object[]} list
      * @param {Function} keyFunction
      * @param {Function} valueFunction
+     * @returns {object}
      */
     listToMap: function (list, keyFunction = v => v, valueFunction = v => v) {
-        let map = {};
-        list.forEach(value => {
-            const key = keyFunction(value);
+        return list.reduce((map, value) => {
+            const key = keyFunction(value, map, list);
             map[key] = valueFunction(value, key, map, list);
-        });
-        return map;
+            return map;
+        }, {});
     },
 
     /**
@@ -94,9 +77,7 @@ const utils = {
      * @returns {Object[]}
      */
     mapToList: function (map, valueFunction = (k, v) => v) {
-        const list = [];
-        Object.keys(map).forEach(key => list.push(valueFunction(key, map[key])));
-        return list;
+        return Object.keys(map).map(key => valueFunction(key, map[key]));
     },
 
     /**
@@ -111,13 +92,13 @@ const utils = {
      * @param {String|String[]} msg
      * @returns {String[]}
      */
-    splitMessage: (msg) => {
-        if (!utils.defined(msg))
+    splitAccordingToLimits: (msg) => {
+        if (utils.isUndefined(msg))
             return ["null"];
 
         if (Array.isArray(msg)) {
             let result = [];
-            msg.forEach(e => result = result.concat(utils.splitMessage(e)));
+            msg.forEach(e => result = result.concat(utils.splitAccordingToLimits(e)));
             return result;
         }
 
@@ -146,6 +127,41 @@ const utils = {
         if (current.length > 0)
             messages.push(current.join(" "));
         return messages;
+    },
+
+    /**
+     * @param {String} msg
+     * @returns {string}
+     */
+    asExtraLine: (msg) => {
+        const lastWord = msg.substr(msg.lastIndexOf(" ") + 1);
+        if (lastWord.startsWith("http"))
+            return `[flip]${msg} [/flip]`;
+        return `[flip]${msg}[/flip]`
+    },
+
+    /**
+     * @param {String|String[]} msgs
+     * @returns {String[]}
+     */
+    formatMessage: (msgs) => {
+        msgs = utils.splitAccordingToLimits(msgs);
+        if (msgs.length <= 1)
+            return msgs;
+        const result = [];
+        let curr = '';
+        msgs.forEach(msg => {
+            if(utils.isEmpty(curr))
+                return (curr = msg);
+            const temp = utils.asExtraLine(msg);
+            if (curr.length + temp.length <= chatLimit)
+                return (curr += temp);
+            result.push(curr);
+            curr = msg;
+        });
+        if(utils.isUsed(curr))
+            result.push(curr);
+        return result;
     },
 
     /**

@@ -5,50 +5,50 @@ const socketClient = require("socket.io-client");
 const exit = require("../core/Exit");
 const Time = require("../core/Time");
 const handlers = require("../core/Handlers");
+const Emit = require("../structure/Socket").Emit;
+const On = require("../structure/Socket").On;
 
-
-let connecting = false;
 
 class Connection {
     /**
      * @param {CytubeBot} bot
-     * @param {String} name
-     * @param {String} password
-     * @param {Boolean} useFlair
-     * @param {Server} server
-     * @param {Room} room
+     * @param {Config} config
      */
-    constructor(bot, name, password, useFlair, server, room) {
+    constructor(bot, config) {
         this.bot = bot;
-        this.name = name;
-        this.password = password;
-        this.useFlair = useFlair;
-        this.server = server;
+        this.name = config.user.name;
+        this.password = config.user.password;
+        this.user = config.user;
+        this.channel = config.channel;
         this.socket = null;
-        this.room = room;
+    }
+
+    get isConnected() {
+        return utils.isDefined(this.socket);
     }
 
     connect() {
-        if (connecting) return;
-        connecting = true;
-
         const self = this;
+        if (self.isConnected)
+            return logger.debug('Already connected');
         const bot = this.bot;
 
         bot.validator.pause();
 
         const getServerUrl = async (attempt = 1) => {
             logger.system(`Connection attempt ${attempt}`);
-            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.room.name}.json`);
+            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.channel.name}.json`);
             if (request.success) {
                 const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
-                if (!utils.isEmpty(serverUrl))
+                if (utils.isUsed(serverUrl))
                     return connect(serverUrl);
             }
             setTimeout(() => getServerUrl(attempt + 1), 30000);
         };
 
         const connect = (url) => {
+            if (self.isConnected)
+                return logger.debug('Already connected');
             logger.system(`Got server ${url}`);
             self.socket = socketClient.connect(url, {
                 reconnection: true,
@@ -61,22 +61,22 @@ class Connection {
             handlers.addHandlers(bot);
             const socket = self.socket;
 
-            socket.on('connect', () => {
+            socket.on(On.defaults.connect, () => {
                 logger.debug(`Connected`);
                 bot.validator.unpause();
                 bot.startTime = Time.current();
 
-                socket.emit("initChannelCallbacks");
-                socket.emit("joinChannel", {name: self.room.name});
-                socket.emit("login", {name: self.name, pw: self.password});
+                self.emit(Emit.connect.init);
+                self.emit(Emit.connect.joinChannel, {name: self.channel.name});
+                self.emit(Emit.connect.login, {name: self.name, pw: self.password});
             });
 
-            socket.on('connect_timeout', () => {
+            socket.on(On.defaults.timeout, () => {
                 logger.debug(`Connection timed out`);
                 bot.validator.pause();
             });
 
-            socket.on('disconnect', () => {
+            socket.on(On.defaults.disconnect, () => {
                 logger.debug(`Disconnected`);
                 bot.validator.pause();
             });
@@ -93,20 +93,20 @@ class Connection {
         this.socket.emit(type, data);
     }
 
-    roomPassword() {
+    handleChannelPassword() {
         logger.debug("Room has password");
-        const room = this.room;
-        if (!utils.defined(room.password))
-            exit.exit(exit.code.exit, "Have no room password to give!");
+        const room = this.channel;
+        if (utils.isUndefined(room.password))
+            exit.exit(exit.code.exit, "Have no channel password to give!");
         logger.debug("Sending password...");
-        this.emit("channelPassword", room.password);
+        this.emit(Emit.connect.channelPassword, room.password);
     };
 
-    userLogin(data) {
+    handleUserLogin(data) {
         if (!data.success)
             exit.exit(exit.code.exit, `Failed to login as ${this.name}`);
         logger.debug(`Logged in as ${data.name}`);
-        this.emit("requestPlaylist");
+        this.emit(Emit.playlist.request);
     };
 }
 
@@ -119,19 +119,4 @@ class Server {
     }
 }
 
-class Room {
-    /**
-     * @param name
-     * @param password
-     */
-    constructor(name, password) {
-        this.name = name;
-        this.password = password;
-    }
-}
-
-module.exports = {
-    Connection: Connection,
-    Server: Server,
-    Room: Room,
-};
+module.exports = Connection;

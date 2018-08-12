@@ -1,41 +1,56 @@
 const forever = require('forever-monitor');
 const fs = require('fs');
 
-const shutdownLog = "./logs/shutdown.log";
-
 /**
  * Initial config file to create if none exist
  */
 const config = {
-    // General info
-    "databasePath": "",
-    "serverName": "cytu.be",
-    "userName": "",
-    "userPassword": "",
-    "roomName": "",
-    "roompassword": "",
-    "useFlair": true,
+    'databasePath': '',
+    'user': {
+        'name': '',
+        'password': '',
+    },
+    'channel': {
+      'name': '',
+      'password': ''
+    },
     /**
      * API keys
      */
     // https://products.wolframalpha.com/api/
-    "wolfram": '',
+    'wolfram': '',
     // https://developers.google.com/apis-explorer/#p/
-    "google": '',
+    'google': '',
     // https://www.themoviedb.org/documentation/api
-    "TheMovieDB": '',
+    'TheMovieDB': '',
     // https://www.omdbapi.com/
-    "OMDB": '',
+    'OMDB': '',
     // https://www.cleverbot.com/api/
-    "cleverbot": '',
+    'cleverbot': '',
+
+    /**
+     * Optional settings
+     */
+    // Errors causing crashes will still be logged
+    'useLogging': true,
+
+
 };
 
+let depth = 0;
 const configString = JSON.stringify(config)
-    .replace(/[{,]/g, (a) => `${a}\n\t`)
     .replace(/:/g, ': ')
-    .replace('}', '\n}');
+    .replace(/[{\[,]/g, g => `${g}\n`)
+    .replace(/[}\]]/g, g => `\n${g}`)
+    .split('\n')
+    .map(line => {
+        depth -= /[}\]]/.test(line) ? 1 : 0;
+        line.padStart(line.length + depth, '\t');
+        depth += /[{\[]/.test(line) ? 1 : 0;
+    })
+    .join('\n');
 
-
+const shutdownLog = "./logs/shutdown.log";
 initiateBot = function () {
     const child = new (forever.Monitor)("./bin/index.js", {
         silent: false,

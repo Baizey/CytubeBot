@@ -1,5 +1,6 @@
 const utils = require("../core/Utils");
 const logger = require("../core/Logger");
+const Emit = require('../structure/Socket').Emit;
 
 class Poll {
     /**
@@ -63,7 +64,7 @@ class Poll {
      * @param {Boolean} obscured
      */
     create(title, options, obscured) {
-        this.bot.connection.socket.emit("newPoll", {
+        this.bot.connection.emit(Emit.poll.open, {
             title: title,
             obscured: obscured,
             opts: options
@@ -75,7 +76,7 @@ class Poll {
      */
     close(user) {
         logger.system("'" + (user.name) + "' closed poll through me");
-        this.bot.connection.emit("closePoll");
+        this.bot.connection.emit(Emit.poll.close);
     }
 
 }

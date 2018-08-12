@@ -60,7 +60,7 @@ class Database {
         const columns = structure.permissions.columns;
         console.log(user.name);
         return this.prepareSelect(table.name, columns.user.where()).all(user.name)
-            .filter(item => utils.defined(item))
+            .filter(item => utils.isDefined(item))
             .map(permission => permission[columns.type.name]);
     }
     /**
@@ -71,7 +71,7 @@ class Database {
     hasPermission(user, permission) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
-        return utils.defined(this.prepareSelect(table.name, `${columns.user.where()}, ${columns.type.where()}`).get(user.name, permission));
+        return utils.isDefined(this.prepareSelect(table.name, `${columns.user.where()}, ${columns.type.where()}`).get(user.name, permission));
     }
 
     /*
@@ -125,7 +125,7 @@ class Database {
     getVideoExact(video) {
         const table = structure.videos.table;
         const result = this.prepareSelect(table.name, table.keysWhere()).get(video.id, video.type);
-        if (utils.defined(result))
+        if (utils.isDefined(result))
             return Video.fromDatabase(result);
         return null;
     };
@@ -138,7 +138,7 @@ class Database {
         const columns = structure.videos.columns;
         const result = this.prepareSelect(table.name, `${columns.validateBy.name} > ?`)
             .all(Time.current().seconds);
-        if (!utils.defined(result))
+        if (utils.isUndefined(result))
             return [];
         return result.map(video => Video.fromDatabase(video));
     };
@@ -162,7 +162,7 @@ class Database {
      * @param {Video} video
      */
     insertVideo(video) {
-        if (!utils.defined(video) || video.isIntermission())
+        if (utils.isUndefined(video) || video.isIntermission())
             return;
         const table = structure.videos.table;
         const columns = structure.videos.columns;
@@ -191,7 +191,7 @@ class Database {
         const map = {};
         nominations.forEach(nom => {
             const key = `${nom.year > 0 ? `${Math.round(nom.year)} - ` : ''}${nom.title.charAt(0).toUpperCase() + nom.title.substr(1)}`;
-            if (!utils.defined(map[key])) {
+            if (utils.isUndefined(map[key])) {
                 nom.votes = 0;
                 nom.key = key;
                 map[key] = nom;
@@ -266,7 +266,7 @@ class Database {
      */
     getPatterns() {
         const result = this.prepareSelect(structure.patterns.table.name).all();
-        if (!utils.defined(result))
+        if (utils.isUndefined(result))
             return [];
         return result.map(p => new Pattern(p.command, p.regex, p.rest));
     };
@@ -305,7 +305,7 @@ class Database {
         const columns = structure.users.columns;
         const result = this.prepareSelect(table.name, columns.name.where())
             .get(user.name);
-        if (utils.defined(result))
+        if (utils.isDefined(result))
             user.rank = result.rank;
         return result;
     };
@@ -385,7 +385,7 @@ class Database {
      */
     isDead(video) {
         const dead = structure.deadlinks.table;
-        return utils.defined(this.prepareSelect(dead.name, dead.keysWhere()).get(video.id, video.type));
+        return utils.isDefined(this.prepareSelect(dead.name, dead.keysWhere()).get(video.id, video.type));
     };
 
     /*
@@ -393,21 +393,21 @@ class Database {
      */
     prepareSelect(table, where = null) {
         let sql = `SELECT * FROM ${table}`;
-        if (utils.defined(where))
+        if (utils.isDefined(where))
             sql += ` WHERE ${where}`;
         return this.prepare(sql);
     };
 
     prepareMultiUpdate(table, columns, where = null) {
         let sql = `UPDATE ${table} SET ${columns}`;
-        if (utils.defined(where))
+        if (utils.isDefined(where))
             sql += ` WHERE ${where}`;
         return this.prepare(sql);
     };
 
     prepareUpdate(table, column, where = null) {
         let sql = `UPDATE ${table} SET ${column} = ?`;
-        if (utils.defined(where))
+        if (utils.isDefined(where))
             sql += ` WHERE ${where}`;
         return this.prepare(sql);
     };
@@ -418,7 +418,7 @@ class Database {
 
     prepareDelete(table, where = null) {
         let sql = `DELETE FROM ${table}`;
-        if (utils.defined(where))
+        if (utils.isDefined(where))
             sql += ` WHERE ${where}`;
         return this.prepare(sql);
     };

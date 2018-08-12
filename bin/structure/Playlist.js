@@ -129,7 +129,7 @@ class Video {
         video.queuedBy = cytubeVideo.queuedBy;
         video.uid = cytubeVideo.uid;
 
-        const media = utils.defined(cytubeVideo.media) ? cytubeVideo.media : cytubeVideo;
+        const media = utils.isDefined(cytubeVideo.media) ? cytubeVideo.media : cytubeVideo;
 
         video.setFullTitle(media.title);
         video.time = Time.fromSeconds(media.seconds);
@@ -211,7 +211,7 @@ class Video {
      */
     get queryYear() {
         // No title to know year from
-        if (!utils.defined(this.fullTitle))
+        if (utils.isUndefined(this.fullTitle))
             return 0;
 
         if (/year:\d{4}/.test(this.fullTitle))
@@ -246,7 +246,7 @@ class Video {
     inDatabase(bot) {
         if (bot.db.isDead(this))
             return false;
-        return utils.defined(bot.db.getVideoExact(this));
+        return utils.isDefined(bot.db.getVideoExact(this));
     }
 }
 

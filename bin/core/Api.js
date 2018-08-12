@@ -38,17 +38,17 @@ class Api {
      * @returns {Promise<Response>}
      */
     static async searchTheMovieDatabase(bot, message, video, type = null) {
-        const errorMsg = `No movies found for '${video.title}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
+        const errorMsg = `No movies found for '${video.displayTitle}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
 
         const firstUrl = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
         let findings = await Api.request(firstUrl).then(async resp => {
-            resp.success &= !utils.isEmpty(resp.result.results);
+            resp.success &= utils.isUsed(resp.result.results);
             if (!resp.success)
                 bot.sendMsg(errorMsg, message);
             return resp;
         });
 
-        if (!utils.defined(type) || !findings.success)
+        if (utils.isUndefined(type) || !findings.success)
             return findings;
         findings = findings.result.results[0];
         bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
@@ -114,7 +114,7 @@ class Api {
      * @private
      */
     static _validateVimeo(bot, video) {
-        const lackTitle = !utils.defined(video.title);
+        const lackTitle = utils.isUndefined(video.title);
         const url = `vimeo.com/api/oembed.json?vimeo.com/${video.id}`;
         return Api.request(url).then(resp => {
             const success = resp.success;
@@ -125,9 +125,9 @@ class Api {
                 video.setFullTitle(result.title);
 
             resp.avail = success
-                && utils.defined(result.type)
-                && utils.defined(result.video_id)
-                && utils.defined(result.uri);
+                && utils.isDefined(result.type)
+                && utils.isDefined(result.video_id)
+                && utils.isDefined(result.uri);
             return resp;
         });
     }
@@ -139,7 +139,7 @@ class Api {
      * @private
      */
     static _validateDailymotion(bot, video) {
-        const lackTitle = !utils.defined(video.fullTitle);
+        const lackTitle = utils.isUndefined(video.fullTitle);
         const url = `api.dailymotion.com/video/${video.id}`;
         return Api.request(url).then(resp => {
             const success = resp.success;
@@ -149,7 +149,7 @@ class Api {
             if (success && lackTitle)
                 video.setFullTitle(result.title);
 
-            resp.avail = success && !utils.defined(result.error);
+            resp.avail = success && utils.isUndefined(result.error);
             return resp;
         });
     }
@@ -161,7 +161,7 @@ class Api {
      * @private
      */
     static _validateYoutube(bot, video) {
-        const lackTitle = !utils.defined(video.fullTitle);
+        const lackTitle = utils.isUndefined(video.fullTitle);
         let url = `www.googleapis.com/youtube/v3/videos?part=status,snippet&id=${video.id}&key=${bot.apikeys.google}`;
 
         return Api.request(url).then(resp => {
@@ -199,7 +199,7 @@ class Api {
      * @private
      */
     static _validateGoogledrive(bot, video) {
-        const lackTitle = !utils.defined(video.fullTitle);
+        const lackTitle = utils.isUndefined(video.fullTitle);
         let url = "www.googleapis.com/drive/v3/files/" + video.id + "?key=" + bot.apikeys.google + "&fields=webViewLink" + (lackTitle ? ",name" : "");
         return Api.request(url).then(resp => {
             const success = resp.success;
@@ -215,8 +215,8 @@ class Api {
             if (lackTitle)
                 video.setFullTitle(result.name);
 
-            if (!utils.defined(result.error)) {
-                response.avail = utils.defined(result.webViewLink);
+            if (utils.isUndefined(result.error)) {
+                response.avail = utils.isDefined(result.webViewLink);
                 return response;
             }
 

@@ -5,6 +5,7 @@ const User = require("../structure/Message").User;
 const Video = require("../structure/Playlist").Video;
 const utils = require("../core/Utils");
 const quality = require("../core/VideoQuality").rank;
+const Emit = require('../structure/Socket').Emit;
 
 function pollManager(bot, message, options) {
     const next = bot.playlist.getVideoFromCurrent(1);
@@ -59,7 +60,7 @@ module.exports = new Command(
     "",
     (bot, message) => {
         if (message.hasTag('close')) {
-            bot.connection.emit('closePoll');
+            bot.poll.close(message.user);
             const pick = bot.poll.pickWinner();
             const winner = pick.title.replace(/[']/g, '');
             if (pick.wasInTie)

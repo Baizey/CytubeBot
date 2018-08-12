@@ -15,17 +15,17 @@ module.exports = new Command(
 
             const saying = [];
 
-            if (utils.defined(result.status) && result.status !== "Released")
+            if (utils.isDefined(result.status) && result.status !== "Released")
                 saying.push(`**Status ${result.status}**`);
             else
                 saying.push(`**Rated ${result.vote_average} from ${result.vote_count} votes**`);
 
-            if (utils.defined(result.tagline))
+            if (utils.isDefined(result.tagline))
                 saying.push(`**${result.tagline}**`);
 
             saying.push(`**Plot** ${result.overview}`);
 
-            if (utils.defined(result.genres))
+            if (utils.isDefined(result.genres))
                 saying.push(`**Genres** ${result.genres.map(e => e.name).join(", ")}`);
 
             saying.push(`**Imdb link** https://www.imdb.com/title/${result.imdb_id}/`);

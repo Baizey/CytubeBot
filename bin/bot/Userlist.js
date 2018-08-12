@@ -52,7 +52,7 @@ class Users {
      * @returns {Boolean}
      */
     isOnline(name) {
-        return utils.defined(this.users[name]);
+        return utils.isDefined(this.users[name]);
     }
 
     /**
@@ -70,7 +70,7 @@ class Users {
     hasHigherRank(user, victimName) {
         const victim = this.bot.db.getUser(new User(victimName));
 
-        if (!utils.defined(victim))
+        if (utils.isUndefined(victim))
             return new Response(false, "Victim need to exist in the archives");
 
         if (user.rank <= victim.rank)

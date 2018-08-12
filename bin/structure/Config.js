@@ -1,13 +1,24 @@
 class Config {
     constructor(configData) {
         this.databasePath = configData.databasePath;
-        this.userName = configData.userName;
-        this.userPassword = configData.userPassword;
-        this.useFlair = configData.useFlair;
-        this.serverName = configData.serverName;
-        this.roomName = configData.roomName;
-        this.roomPassword = configData.roomPassword;
+        this.user = new BotUser(configData.user);
+        this.channel = new Channel(configData.channel);
+        this.server = configData.server;
         this.apikeys = new ApiKeys(configData);
+    }
+}
+
+class Channel {
+    constructor(channel) {
+        this.name = channel.name;
+        this.password = channel.password;
+    }
+}
+
+class BotUser {
+    constructor(user) {
+        this.name = user.name;
+        this.password = user.password;
     }
 }
 

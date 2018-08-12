@@ -23,7 +23,7 @@ class Conversations {
      * @returns {boolean}
      */
     alive(user) {
-        if (!utils.defined(this.names[user.name]))
+        if (utils.isUndefined(this.names[user.name]))
             return false;
         return this.names[user.name] + 15 >= utils.timestamp();
     };
@@ -35,7 +35,7 @@ class Conversations {
     async getResponse(msg) {
         const self = this;
         const url = `https://www.cleverbot.com/getreply?key=${this.apikey}&input= + ${msg}`
-            + (utils.defined(this.cs) ? `&cs=${this.cs}` : "");
+            + (utils.isDefined(this.cs) ? `&cs=${this.cs}` : "");
         return Api.request(url).then(resp => {
             if (resp.status)
                 self.cs = resp.result.cs;

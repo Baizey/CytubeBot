@@ -8,7 +8,7 @@ module.exports = new Command(
     (bot, message) => {
         const dictionary = require("../structure/CommandDictionary");
         const cmd = message;
-        if (utils.defined(dictionary[cmd]))
+        if (utils.isDefined(dictionary[cmd]))
             if (dictionary[cmd].hasAccess(message.user))
                 return bot.sendMsg(dictionary[cmd].desc, message);
             else

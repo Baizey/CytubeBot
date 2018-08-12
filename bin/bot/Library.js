@@ -1,6 +1,7 @@
 const Message = require("../structure/Message").Message;
 const User = require("../structure/Message").User;
 const logger = require("../core/Logger");
+const Emit = require('../structure/Socket').Emit;
 
 class Library {
     /**
@@ -19,7 +20,7 @@ class Library {
      * @param {String} query
      */
     search(query) {
-        this.bot.connection.emit("searchMedia", {source: "library", query: query});
+        this.bot.connection.emit(Emit.library.search, {source: "library", query: query});
     }
 
     handleResults(videos) {

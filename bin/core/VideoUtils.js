@@ -148,11 +148,11 @@ function filterTitle(title) {
     // Figure out what parts of the title is the actual movie title
     let i = 0;
     for (; i < words.length; i++)
-        if (!utils.defined(wordLookup[words[i]]))
+        if (utils.isUndefined(wordLookup[words[i]]))
             break;
     let j = i + 1;
     for (; j < words.length; j++)
-        if (utils.defined(wordLookup[words[j]]))
+        if (utils.isDefined(wordLookup[words[j]]))
             break;
 
     if (i >= words.length) title = "";
@@ -190,7 +190,7 @@ function guessQuality(words) {
     let rank = 99;
     let quality = "";
     words.forEach(word => {
-        if (!utils.defined(Quality.mapping[word]))
+        if (utils.isUndefined(Quality.mapping[word]))
             return;
         if (Quality.rank(word) < rank) {
             rank = Quality.rank(word);

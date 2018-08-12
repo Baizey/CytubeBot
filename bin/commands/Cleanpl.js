@@ -17,7 +17,7 @@ module.exports = new Command(
 
         const seen = {};
         bot.playlist.playlist.forEach(v => {
-            if (!utils.defined(seen[v.title]))
+            if (utils.isUndefined(seen[v.title]))
                 seen[v.title] = [];
             seen[v.title].push(v);
         });

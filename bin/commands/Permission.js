@@ -23,22 +23,22 @@ module.exports = new Command(
     (bot, message) => {
 
         const user = new User(message.msg.trim());
-        const givenUser = !utils.isEmpty(user.name);
+        const givenUser = utils.isUsed(user.name);
 
         console.log(bot.db.getPermissions(givenUser ? user : message.user));
 
         if (message.hasTag('mine'))
             return bot.sendMsg(bot.db.getPermissions(givenUser ? user : message.user).join(", "), message);
 
-        if (!utils.defined(bot.db.getUser(user)))
+        if (utils.isUndefined(bot.db.getUser(user)))
             return bot.sendMsg("User does not exist", message);
 
         if (message.hasTag('all')) {
             const table = bot.db.structure.permissions.table;
             const columns = bot.db.structure.permissions.columns;
-            if (utils.defined(grantsLookup[message.getTag("all")]))
+            if (utils.isDefined(grantsLookup[message.getTag("all")]))
                 permissions.forEach(permission => bot.db.insertPermission(user, permission));
-            else if (utils.defined(removesLookup[message.getTag("all")]))
+            else if (utils.isDefined(removesLookup[message.getTag("all")]))
                 bot.db.prepareDelete(table.name, columns.user.where()).run(user.name);
             return;
         }
@@ -47,11 +47,11 @@ module.exports = new Command(
             if (!message.hasTag(permission))
                 return;
             console.log(message.getTag(permission));
-            console.log(utils.defined(grantsLookup[message.getTag(permission)]));
-            console.log(utils.defined(removesLookup[message.getTag(permission)]));
-            if (utils.defined(grantsLookup[message.getTag(permission)]))
+            console.log(utils.isDefined(grantsLookup[message.getTag(permission)]));
+            console.log(utils.isDefined(removesLookup[message.getTag(permission)]));
+            if (utils.isDefined(grantsLookup[message.getTag(permission)]))
                 bot.db.insertPermission(user, permission);
-            else if (utils.defined(removesLookup[message.getTag(permission)]))
+            else if (utils.isDefined(removesLookup[message.getTag(permission)]))
                 bot.db.deletePermission(user, permission);
         });
     }

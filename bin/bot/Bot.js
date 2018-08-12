@@ -1,6 +1,5 @@
-const Connection = require("../structure/Connection").Connection;
-const Room = require("../structure/Connection").Room;
-const Server = require("../structure/Connection").Server;
+const Connection = require("../structure/Connection");
+const Emit = require('../structure/Socket').Emit;
 const User = require("../structure/Message").User;
 const Message = require("../structure/Message").Message;
 const Validator = require("./Validator");
@@ -16,34 +15,6 @@ const commands = require("../structure/CommandDictionary");
 const Users = require("./Userlist");
 const Time = require("../core/Time");
 const logger = require("../core/Logger");
-const chatLimit = utils.chatLimit;
-
-const commandSymbols = '!$';
-const isCommand = (msg) => commandSymbols.indexOf(msg.charAt(0)) >= 0;
-const asExtraLine = (msg) => {
-    const lastWord = msg.substr(msg.lastIndexOf(" ") + 1);
-    if (lastWord.startsWith("http"))
-        return `[flip]${msg} [/flip]`;
-    return `[flip]${msg}[/flip]`
-};
-const concatMessages = (msgs) => {
-    if (msgs.length <= 1)
-        return msgs;
-    const result = [];
-    let curr = '';
-    msgs.forEach(msg => {
-        if(utils.isEmpty(curr))
-            return (curr = msg);
-        const temp = asExtraLine(msg);
-        if (curr.length + temp.length <= chatLimit)
-            return (curr += temp);
-        result.push(curr);
-        curr = msg;
-    });
-    if(!utils.isEmpty(curr))
-        result.push(curr);
-    return result;
-};
 
 class CytubeBot {
     /**
@@ -56,13 +27,7 @@ class CytubeBot {
 
         // Restructuring config data
         this.apikeys = config.apikeys;
-        this.connection = new Connection(
-            this,
-            config.userName,
-            config.userPassword,
-            config.useFlair,
-            new Server(config.serverName),
-            new Room(config.roomName, config.roomPassword));
+        this.connection = new Connection(this, config);
 
         // Initiate structures for internal record keeping
         this.db = new Database(this, config.databasePath);
@@ -86,20 +51,19 @@ class CytubeBot {
      * @param {Boolean} forcePm
      */
     sendMsg(msg, receiver, forcePm = false) {
-        // Split ensures we're within chat limits on each message
-        // concat attempts to limit the number of messages to send
-        const messages = concatMessages(utils.splitMessage(msg));
+        // Splits messages longer than chat limit
+        // Concat messages shorter than chat limit (adding linebreak between)
+        const messages = utils.formatMessage(msg);
         if (utils.isEmpty(messages)) return;
-
-        const socket = this.connection.socket;
+        const connection = this.connection;
         const pack = {meta: {}};
         const pm = receiver.isPm || forcePm;
         if (pm) pack.to = receiver.user.name;
-        let type = pm ? "pm" : "chatMsg";
+        const type = pm ? Emit.chat.pm : Emit.chat.public;
         logger.debug(messages);
         messages.forEach(message => {
             pack.msg = message;
-            socket.emit(type, pack);
+            connection.emit(type, pack);
         });
     };
 
@@ -126,7 +90,7 @@ class CytubeBot {
         const dbUser = this.db.getUser(user);
 
         // Ignore user if told to
-        if (utils.defined(dbUser) && dbUser.disallow)
+        if (utils.isDefined(dbUser) && dbUser.disallow)
             return logger.system(`Disallowed: ${user.name}`);
 
         // Ignore user if told to
@@ -134,11 +98,11 @@ class CytubeBot {
             this.handleCommand(message);
             return logger.command(message);
         }
-        if (utils.defined(dbUser) && dbUser.ignore)
+        if (utils.isDefined(dbUser) && dbUser.ignore)
             return logger.system(`Ignoring: ${user.name}`);
 
         // Check if command
-        if (utils.defined(message.command)) {
+        if (utils.isDefined(message.command)) {
             // Everything is handled on Message creation
 
         // Check if command-pattern is made
@@ -160,7 +124,7 @@ class CytubeBot {
      */
     handleCommand(message) {
         const command = commands[message.command.toLowerCase()];
-        if (!utils.defined(command))
+        if (utils.isUndefined(command))
             return this.sendMsg("Unknown command... do '$help'", message);
         if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);

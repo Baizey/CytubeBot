@@ -22,7 +22,7 @@ class Message {
 
         const self = this;
         this.msg = msg.trim().replace(tagRegex, (g0, g1, g2, g3) => {
-            self.tags[g1] = utils.defined(g3) ? g3 : g1;
+            self.tags[g1] = utils.isDefined(g3) ? g3 : g1;
             return ''
         });
 
@@ -34,7 +34,7 @@ class Message {
         this.array = this.msg
             .split(";")
             .map(e => e.trim())
-            .filter(e => !utils.isEmpty(e));
+            .filter(e => utils.isUsed(e));
     }
 
     /**
@@ -42,7 +42,7 @@ class Message {
      * @returns {Boolean}
      */
     hasTag(tag) {
-        return utils.defined(this.tags[tag]);
+        return utils.isDefined(this.tags[tag]);
     }
 
     /**

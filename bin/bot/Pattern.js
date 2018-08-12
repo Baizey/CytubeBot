@@ -16,8 +16,8 @@ class Patterns {
      */
     match(message) {
         const clean = message.msg.toLowerCase().replace(/[,;:.?!']/g, '');
-        const result = this.patterns.find(pattern => utils.defined(pattern.match(clean)));
-        if (!utils.defined(result))
+        const result = this.patterns.find(pattern => utils.isDefined(pattern.match(clean)));
+        if (utils.isUndefined(result))
             return false;
         message.msg = result.match(clean);
         message.command = result.command;
@@ -32,11 +32,11 @@ class Patterns {
      * @returns {*}
      */
     add(command, regex, rest, message) {
-        if (!utils.defined(command) || !utils.defined(regex))
+        if (utils.isUndefined(command) || utils.isUndefined(regex))
             return this.bot.sendMsg("Need at least 2 inputs, command and regex", message);
 
         // Make sure the command exists
-        if (!utils.defined(commands[command]))
+        if (utils.isUndefined(commands[command]))
             return this.bot.sendMsg("Command doesn't exist", message);
 
         // Make sure the regex is sound
@@ -48,7 +48,7 @@ class Patterns {
         }
 
         // rest is optional, so nothing given is simply empty string
-        if (!utils.defined(rest))
+        if (utils.isUndefined(rest))
             rest = "";
 
         this.bot.db.insertPattern(command, regex, rest);

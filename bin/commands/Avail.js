@@ -17,7 +17,7 @@ module.exports = new Command(
         // Filter by title and year, keep highest quality video
         const map = {};
         videos.forEach(video => {
-            if (!utils.defined(map[video.title]))
+            if (utils.isUndefined(map[video.title]))
                 map[video.title] = [];
             const temp = map[video.title];
             for(let i = 0; i < temp.length; i++) {

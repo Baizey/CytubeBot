@@ -4,6 +4,7 @@ const Option = require("../bot/Poll").Option;
 const Video = require("../structure/Playlist").Video;
 const Time = require("../core/Time");
 const utils = require("../core/Utils");
+const On = require("../structure/Socket").On;
 
 const addHandlers = function (bot) {
     const library = bot.library;
@@ -12,97 +13,68 @@ const addHandlers = function (bot) {
     const poll = bot.poll;
     const socket = bot.connection.socket;
 
-    // TODO: Add structures for incoming data so what they contain isn't magic
-
-    // Listening types:
-    // Responders   : We have to emit a respond
-    // Passive      : Data updateEvent from server
-    // Reactors     : We are getting a respond to something we emitted
-
-    // Playlist PASSIVE (reactors, if we're the ones to moveEvent/delete/updateEvent media)
-    let lastPlaylist = Time.from().addSeconds(30);
-    socket.on("playlist", (videos) => {
-        if(lastPlaylist.isBiggerThan(Time.current()))
-            return logger.debug("Ignoring playlist...");
-        logger.debug("Getting playlist...");
-        lastPlaylist = Time.current().addSeconds(30);
-        playlist.setPlaylist(videos.map(video => Video.fromCytube(video)));
-    });
-    socket.on("mediaUpdate", (data) => playlist.updateCurrentMedia(data.currentTime, data.paused));
-    socket.on("changeMedia", (data) => playlist.changeMedia(data.currentTime, Video.fromCytube(data)));
-    socket.on("setCurrent", (id) => playlist.updateMedia(id));
-    socket.on("moveVideo", (data) => playlist.moveEvent(data.from, data.after)); // id's
-    socket.on("setTemp", (data) => playlist.setTemp(data.uid, data.temp));
-    socket.on("delete", (data) => playlist.removeEvent(data.uid));
-    socket.on("setLeader", (data) => playlist.setLeader(data.name)); // "" = none
-    socket.on("queue", (data) => {
-        const video = Video.fromCytube(data.item);
-        playlist.addEvent(data.after, video);
+    socket.on(On.playlist.get, (videos) => playlist.setPlaylist(videos.map(video => Video.fromCytube(video))));
+    socket.on(On.playlist.update, (data) => playlist.updateCurrentMedia(data.currentTime, data.paused));
+    socket.on(On.playlist.change, (data) => playlist.changeMedia(data.currentTime, Video.fromCytube(data)));
+    socket.on(On.playlist.setCurrent, (id) => playlist.updateMedia(id));
+    socket.on(On.playlist.move, (data) => playlist.moveEvent(data.from, data.after));
+    socket.on(On.playlist.setTemp, (video) => playlist.setTemp(video.uid, video.temp));
+    socket.on(On.playlist.delete, (video) => playlist.removeEvent(video.uid));
+    socket.on(On.playlist.setLeader, (user) => playlist.setLeader(user.name));
+    socket.on(On.playlist.queue, (media) => {
+        const video = Video.fromCytube(media.item);
+        playlist.addEvent(media.after, video);
         bot.db.insertVideo(video);
-    }); // after is id
+    });
 
-    // Poll PASSIVE
-    socket.on("updatePoll", (data) => {
+    socket.on(On.poll.update, (poll) => {
         const options = [];
         // Handle anon polls...
-        const count = data.counts[0];
-        if (!utils.isEmpty(count) && typeof count === 'string' && count.slice(-1) === '?')
-                data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
+        const count = poll.counts[0];
+        if (utils.isUsed(count) && typeof count === 'string' && count.slice(-1) === '?')
+                poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
 
-        for(let i in data.options)
-            options.push(new Option(utils.htmlDecode(data.options[i]), data.counts[i]))
+        for(let i in poll.options)
+            options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
         poll.updateEvent(options);
     });
-    socket.on("newPoll", (data) => {
-        // const creator = data.initiator;
+    socket.on(On.poll.open, (poll) => {
+        // const creator = poll.initiator;
         // Handle anon polls...
-        const count = data.counts[0];
-        if (!utils.isEmpty(count) && typeof count === 'string' && count.slice(-1) === '?')
-                data.counts = data.counts.map(c => c.substr(0, c.length - 1) - 0);
+        const count = poll.counts[0];
+        if (utils.isUsed(count) && typeof count === 'string' && count.slice(-1) === '?')
+                poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
 
         const options = [];
-        for(let i in data.options)
-            options.push(new Option(utils.htmlDecode(data.options[i]), data.counts[i]))
+        for(let i in poll.options)
+            options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
         poll.openEvent(options);
     });
-    socket.on("closePoll", (data) => {
+    socket.on(On.poll.close, () => {
         const table = bot.db.structure.nominate.table;
         const c = bot.db.structure.nominate.columns;
         bot.db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
         poll.closeEvent();
     });
 
-
-    // Userlist PASSIVE (reactors, if we use mod-commands like kick)
-    socket.on("addUser",        (data) => userlist.add(new User(data.name, data.rank)));
-    socket.on("setUserRank",    (data) => userlist.updateRank(new User(data.name, data.rank)));
-    socket.on("userLeave",      (data) => userlist.remove(new User(data.name)));
-    socket.on("userlist",       (data) => userlist.setUsers(
-        Object.keys(data).map(key => new User(data[key].name, data[key].rank))
+    socket.on(On.userlist.add, (user) => userlist.add(new User(user.name, user.rank)));
+    socket.on(On.userlist.setRank, (user) => userlist.updateRank(new User(user.name, user.rank)));
+    socket.on(On.userlist.leave, (user) => userlist.remove(new User(user.name)));
+    socket.on(On.userlist.get, (users) => userlist.setUsers(
+        Object.keys(users).map(key => new User(users[key].name, users[key].rank))
     ));
 
-    // Login
-    // REACTOR, we initiated this by attempting to connection
-    socket.on("connection",          (data) => bot.connection.userLogin(data));
-    // RESPONDER, we need to respond with a password
-    socket.on("needPassword",   (data) => bot.connection.roomPassword(data));
+    socket.on(On.connect.connection, (data) => bot.connection.handleUserLogin(data));
+    socket.on(On.connect.needPassword, (data) => bot.connection.handleChannelPassword(data));
 
-    // Messages PASSIVE
-    socket.on("pm",             (data) => bot.receiveMessage(data, true));
-    socket.on("chatMsg",        (data) => bot.receiveMessage(data, false));
+    socket.on(On.chat.pm, (data) => bot.receiveMessage(data, true));
+    socket.on(On.chat.public, (data) => bot.receiveMessage(data, false));
 
-    // Library search results
-    // REACTOR, we initiated this by sending a search query
-    socket.on("searchResults", (data) =>
+    socket.on(On.library.searchResults, (data) =>
         library.handleResults(data.results.map(video => Video.fromCytube(video))));
 
-    // Handle mixed stuff, PASSIVE
-    socket.on("error", (err) => logger.error(err));
-
-    // REACTOR, we initiated this by attempting to queue a media
-    socket.on('queueFail', data => {
-
-    });
+    socket.on(On.error.unknown, (err) => logger.error(err));
+    socket.on(On.error.queue, data => {});
 
     /* Unused listeners
     socket.on("disconnect",     (data) => {});

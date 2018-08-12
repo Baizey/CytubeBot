@@ -31,7 +31,7 @@ const order = {
 
 
 module.exports = {
-    rank: (str) => utils.defined(order[mapping[str]]) ? order[mapping[str]] : 0,
+    rank: (str) => utils.isDefined(order[mapping[str]]) ? order[mapping[str]] : 0,
     order: order,
     mapping: mapping
 };
