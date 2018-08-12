@@ -27,14 +27,6 @@ const config = {
     'OMDB': '',
     // https://www.cleverbot.com/api/
     'cleverbot': '',
-
-    /**
-     * Optional settings
-     */
-    // Errors causing crashes will still be logged
-    'useLogging': true,
-
-
 };
 
 let depth = 0;
@@ -45,8 +37,9 @@ const configString = JSON.stringify(config)
     .split('\n')
     .map(line => {
         depth -= /[}\]]/.test(line) ? 1 : 0;
-        line.padStart(line.length + depth, '\t');
+        line = line.padStart(line.length + depth, '\t');
         depth += /[{\[]/.test(line) ? 1 : 0;
+        return line;
     })
     .join('\n');
 
@@ -95,6 +88,8 @@ const ensureLogExist = () =>
     fs.exists(shutdownLog, (exists) => exists
         ? initiateBot()
         : fs.writeFile(shutdownLog, {flag: 'wx'}, () => initiateBot()));
+
+console.log(configString);
 
 const configFile = './config.json';
 fs.exists(configFile, exists => exists

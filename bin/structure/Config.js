@@ -3,7 +3,6 @@ class Config {
         this.databasePath = configData.databasePath;
         this.user = new BotUser(configData.user);
         this.channel = new Channel(configData.channel);
-        this.server = configData.server;
         this.apikeys = new ApiKeys(configData);
     }
 }
