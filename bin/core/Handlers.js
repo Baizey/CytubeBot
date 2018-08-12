@@ -10,7 +10,7 @@ const addHandlers = function (bot) {
     const library = bot.library;
     const userlist = bot.userlist;
     const playlist = bot.playlist;
-    const poll = bot.poll;
+    const botPoll = bot.poll;
     const socket = bot.connection.socket;
 
     socket.on(On.playlist.get, (videos) => playlist.setPlaylist(videos.map(video => Video.fromCytube(video))));
@@ -36,7 +36,7 @@ const addHandlers = function (bot) {
 
         for(let i in poll.options)
             options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
-        poll.updateEvent(options);
+        botPoll.updateEvent(options);
     });
     socket.on(On.poll.open, (poll) => {
         // const creator = poll.initiator;
@@ -48,13 +48,13 @@ const addHandlers = function (bot) {
         const options = [];
         for(let i in poll.options)
             options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
-        poll.openEvent(options);
+        botPoll.openEvent(options);
     });
     socket.on(On.poll.close, () => {
         const table = bot.db.structure.nominate.table;
         const c = bot.db.structure.nominate.columns;
         bot.db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
-        poll.closeEvent();
+        botPoll.closeEvent();
     });
 
     socket.on(On.userlist.add, (user) => userlist.add(new User(user.name, user.rank)));
