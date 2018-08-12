@@ -44,9 +44,9 @@ Some commands also take multiple arguments, these are separated by ```;``` fx:
 
 ```$choose a;b;c;d```
 
-Lastly the bot also allows simple references to the current playlist with ```$prev```, ```$curr``` and ```$next```
+Lastly the bot also allows simple references to the current playlist with ```-prev```, ```-curr``` and ```-next```
 
-like ```$about $next```
+like ```$about -next```
 
 ### Config settings
 
@@ -74,31 +74,33 @@ like ```$about $next```
 
 ### Commands
 
-```$about movie``` tells general plot and information about the given movie
+```$about <movie>``` tells general plot and information about the given movie
 
-```$about movie [year:1985]``` same as without the [year:1985], except it will only look for movies released in 1985
+```$about <movie> [year:1985]``` same as without the [year:1985], except it will only look for movies released in 1985
 
-```$about $curr``` looks up the current movie playing
+```$about -curr``` looks up the current movie playing
 
-```$about $prev``` looks up the previous movie playing
+```$about -prev``` looks up the previous movie playing
 
-```$about $next``` looks up the next movie playing
+```$about -next``` looks up the next movie playing
 
-```$about```  same as ```$about $curr``` 
+```$about```  same as ```$about -curr``` 
 
-```$add title/url``` (mod command) adds the given movie as a temp next on the playlist. if title it adds best match from database
+```$add <url>``` (mod command) adds the given url as next video in queue
 
-```$add title [year:1985]``` (mod command) same principe as $about with the [year] tag
+```$add <movie>``` (mod command) finds the given movie from db and adds as next in playlist
 
-```$ask question``` answers to yes/no questions 
+```$add <movie> [year:1985]``` (mod command) same principe as ```$about``` with the [year] tag
 
-```$allow/$disallow user``` (mod command) allows/disallows the user to interact with the bot (must be exact name) 
+```$ask <question>``` answers to yes/no questions 
+
+```$allow/$disallow <username>``` (mod command) allows/disallows the user to interact with the bot (must be exact name) 
 
 ```$disallowed``` (mod command) mentions all disallowed users
 
-```$poll title;option1;option2;..:optionN``` (mod command) creates poll with options and title
+```$poll <title;option1;option2;..:optionN>``` (mod command) creates poll with options and title
  
-```$poll title;option1;option2;..:optionN [anon]``` (mod command) same as above, just does the voting obscured
+```$poll <title;option1;option2;..:optionN> [anon]``` (mod command) same as above, just does the voting obscured
 
 ```$poll [close]``` (mod command) Picks winner from previous poll and closes it if it's open.
 
@@ -108,11 +110,11 @@ like ```$about $next```
 
 ```$poll [auto] [manage]``` (mod command, experimental) Same as above. The bot will however also queue trailers, intermission and play the winner at the end
 
-```$choose a;b;c;d``` chooses between a, b, c and d. 
+```$choose option_1;option_2;..;option_n``` chooses between a, b, c and d. 
 
 ```$cleanplaylist``` (admin command) returns a list of possible duplicates and dead links from the playlist
 
-```$define thing``` defines the thing using urban dictionary 
+```$define <thing>``` defines the thing using urban dictionary 
 
 ```$curr``` tells the title of the currently playing movie
 
@@ -124,21 +126,21 @@ like ```$about $next```
 
 ```$restart``` (mod command) restarts the bot
 
-```$giphy thing``` displays a gif of said thing
+```$giphy <thing>``` displays a gif of said thing
 
 ```$holiday``` tells which holidays it currently is today
 
-```$avail title``` (user command) tells all available movies in the library matching the title
+```$avail <title>``` (user command) tells all available movies in the library matching the title
 
-```$avail title [year:1985]``` (user command) same as above, just for specific release year
+```$avail <title> [year:1985]``` (user command) same as above, just for specific release year
 
 ```$ignore/unignore``` makes the bot (un)ignore any input you make
 
-```$image thing``` displays image of thing from a (safe) google search
+```$image <thing>``` displays image of thing from a (safe) google search
 
-```$nominate title``` (user command) nominates the title to be played (each user can only nominate each title once)
+```$nominate <title>``` (user command) nominates the title to be played (each user can only nominate each title once)
 
-```$nominate title [year:1985]``` (user command) same as above for specific year
+```$nominate <title> [year:1985]``` (user command) same as above for specific year
 
 ```$nominate [mine]``` (user command) tells your current nominations
 
@@ -146,9 +148,9 @@ like ```$about $next```
 
 ```$nominate [delete]``` (user command) deletes all your current nominations
 
-```$pattern command;regex;msg``` (admin command) if you don't know regex look it up. creates a pattern outside of commands for the bot to recognize. Fx say;greater good;greatest good will have the bot say greatest good everytime someone says greater good.
+```$pattern <command;regex;msg>``` (admin command) if you don't know regex look it up. creates a pattern outside of commands for the bot to recognize. Fx say;greater good;greatest good will have the bot say greatest good everytime someone says greater good.
 
-```$pattern command;regex``` (admin command) same as above, just not giving any msg to the command that is called
+```$pattern <command;regex>``` (admin command) same as above, just not giving any msg to the command that is called
 
 ```$pattern [all]``` (admin command) shows all patterns currently active
 
@@ -156,37 +158,33 @@ like ```$about $next```
 
 ```$help``` tells you available commands and general usage (tl;dr of all of this)
 
-```$help commandName``` tells specific information about the command
+```$help <commandName>``` tells specific information about the command
 
-```$recommend title/$curr/$next/$prev [year:1985]``` recommend other movies to watch if you liked the given title
+```$recommend <title>/-curr/-next/-prev [year:1985]``` recommend other movies to watch if you liked the given title
 
-```$similar title/$curr/$next/$prev [year:1985]``` similar movies to watch if you liked the given title
+```$similar <title>/-curr/-next/-prev [year:1985]``` similar movies to watch if you liked the given title
 
-```$talk msg``` chat with the bot, cleverbot style 
+```$talk <msg>``` chat with the bot, cleverbot style 
 
 ```$time``` tells the current time of the playing media
 
-```$trailer a;b;c``` (mod command) queues a, b and c as trailers from youtube
+```$trailer media_1;media_2;..;media_n``` (mod command) queues a, b and c as trailers from youtube
 
 ```$trailer``` (mod command) queues trailers for current poll (or last if none active)
-
-```$trivia``` starts a trivia... ehm... I'll get back to this when the command is implemented
-
-```$troubleshoot``` tells common things to do to troubleshoot problems on cytu.be
 
 ```$update``` (admin command) updates all movie titles/releaseYears/quality to new pattern (if the bot was updated)
 
 ```$validlib``` (admin command) makes the bot look through the entire library adding any working links to its database
 
-```$wakeall msg``` (mod commmand) squees everybody in the room and gives them a message
+```$wakeall <msg>``` (mod commmand) squees everybody in the room and gives them a message
 
-```$wolfram query``` queries wolfram alpha
+```$wolfram <query>``` queries wolfram alpha
 
-```$youtube queries``` (mod command) searches for given queries and queues the found ones
+```$youtube <queries>``` (mod command) searches for given queries and queues the found ones
 
 ```$skip``` (mod command) skips whatever is playing to the next thing in the queue
 
-```permission user``` (admin command) gives/removes access to specific mod commands. 
+```$permission <user> -permission:setTo``` (admin command) gives/removes access to specific mod commands. 
 
 possible ways to write it:
 ```
@@ -197,7 +195,7 @@ removes: "false", "0", "f", "-", "no", "n";
 
 fx ```permission user [add:t] [skip:0] [poll:-] [allow:+] [trailer:yes]```
 
-```permission user [all:t]``` (admin command) removes/gives access to all mod commands, still needs a grant/remove symbol
+```$permission user [all:t]``` (admin command) removes/gives access to all mod commands, still needs a grant/remove symbol
 
 
 
