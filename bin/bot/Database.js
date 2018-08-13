@@ -71,7 +71,7 @@ class Database {
     hasPermission(user, permission) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
-        return utils.isDefined(this.prepareSelect(table.name, `${columns.user.where()}, ${columns.type.where()}`).get(user.name, permission));
+        return utils.isDefined(this.prepareSelect(table.name, `${columns.user.where()} AND ${columns.type.where()}`).get(user.name, permission));
     }
 
     /*
@@ -424,7 +424,6 @@ class Database {
     };
 
     prepare(sql) {
-        logger.debug(sql);
         return this.db.prepare(sql);
     }
 }
