@@ -13,14 +13,5 @@ module.exports = new Command(
      * @param {Message} message
      */
     (bot, message) => {
-        const videos = bot.db.getDeadLinks();
-        const a = (i = 0) => {
-            if (i >= videos.length)
-                return bot.sendMsg('Done', message, true);
-            bot.sendMsg(`At: ${i + 1} out of ${videos.length}`, message, true);
-            bot.playlist.add(videos[i]);
-            setTimeout(() => a(i + 1), 1000);
-        };
-        a();
     }
 );
