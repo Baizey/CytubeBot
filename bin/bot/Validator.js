@@ -61,17 +61,15 @@ class Validator {
             return;
 
         // We must have queued this link for validation more than once... whoops
-        const vali = this.bot.db.prepareSelect(this.bot.db.structure.videos.table.name, this.bot.db.structure.videos.table.keysWhere()).get(video.id, video.type);
-        if (utils.isDefined(vali))
-            if (Time.current().isBiggerThan(Time.fromSeconds(vali.validateBy)))
-                return;
+        if (!this.bot.db.needsValidation(video))
+            return;
 
         Api.validateVideo(this.bot, video).then(resp => {
             const vidstring = `${video.title} (${video.url})`;
 
             if (resp.retry) {
                 logger.error(`Retry: ${vidstring}`);
-                this.queue.push(item);
+                this.add(item.video, item.after);
             } else if (resp.avail) {
                 logger.system(`Valid: ${vidstring}`);
                 self.bot.db.moveToAlive(video);
@@ -96,6 +94,8 @@ class Validator {
      */
     add(video, after = () => {}) {
         if(video.isIntermission())
+            return;
+        if (!this.bot.db.needsValidation(video))
             return;
         this.queue.push(new Item(video, after));
     }

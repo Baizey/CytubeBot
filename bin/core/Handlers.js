@@ -7,6 +7,7 @@ const utils = require("../core/Utils");
 const On = require("../structure/Socket").On;
 
 const addHandlers = function (bot) {
+    const db = bot.db;
     const library = bot.library;
     const userlist = bot.userlist;
     const playlist = bot.playlist;
@@ -23,8 +24,10 @@ const addHandlers = function (bot) {
     socket.on(On.playlist.setLeader, (user) => playlist.setLeader(user.name));
     socket.on(On.playlist.queue, (media) => {
         const video = Video.fromCytube(media.item);
+        db.moveToAlive(video);
+        logger.debug(`Alive: ${video.title} (${video.url})`);
         playlist.addEvent(media.after, video);
-        bot.db.insertVideo(video);
+        db.insertVideo(video);
     });
 
     socket.on(On.poll.update, (poll) => {
@@ -32,9 +35,9 @@ const addHandlers = function (bot) {
         // Handle anon polls...
         const count = poll.counts[0];
         if (utils.isUsed(count) && typeof count === 'string' && count.slice(-1) === '?')
-                poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
+            poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
 
-        for(let i in poll.options)
+        for (let i in poll.options)
             options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
         botPoll.updateEvent(options);
     });
@@ -43,17 +46,17 @@ const addHandlers = function (bot) {
         // Handle anon polls...
         const count = poll.counts[0];
         if (utils.isUsed(count) && typeof count === 'string' && count.slice(-1) === '?')
-                poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
+            poll.counts = poll.counts.map(c => c.substr(0, c.length - 1) - 0);
 
         const options = [];
-        for(let i in poll.options)
+        for (let i in poll.options)
             options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
         botPoll.openEvent(options);
     });
     socket.on(On.poll.close, () => {
-        const table = bot.db.structure.nominate.table;
-        const c = bot.db.structure.nominate.columns;
-        bot.db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
+        const table = db.structure.nominate.table;
+        const c = db.structure.nominate.columns;
+        db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
         botPoll.closeEvent();
     });
 
@@ -74,7 +77,10 @@ const addHandlers = function (bot) {
         library.handleResults(data.results.map(video => Video.fromCytube(video))));
 
     socket.on(On.error.unknown, (err) => logger.error(err));
-    socket.on(On.error.queue, data => {});
+    socket.on(On.error.queue, data => {
+        const video = Video.fromUrl(data.link);
+        db.moveToDead(video);
+    });
 
     /* Unused listeners
     socket.on("disconnect",     (data) => {});

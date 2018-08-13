@@ -6,31 +6,28 @@ const intermissionTime = Time.fromMinutes(15);
 
 /**
  * @param {String} url
- * @returns {{id: null, type: null}}
+ * @returns {{type: string|null, id: string|null}}
  */
 function splitLink(url) {
-    const result = {id: null, type: null};
-    const site = url.split("/")[0].replace(/^(https?:\/\/)?(www\.)?/, "");
-    switch (site) {
+    if (utils.isUndefined(url))
+        return {id: null, type: null};
+
+    const host = url.replace(/(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
+
+    switch (host) {
         case 'docs.google.com':
         case 'drive.google.com':
-            result.type = "gd";
-            result.id = url.split("file/d/", 2)[1].split("/", 1)[0];
-            break;
-        case 'searchYoutube.com':
-            result.type = "yt";
-            result.id = url.split("watch?v=", 2)[1];
-            break;
+            return {type: 'gd', id: url.split('file/d/', 2)[1].split(/[\/?#]/, 1)[0]};
+        case 'searchyoutube.com':
+        case 'youtube.com':
+            return {type: 'yt', id: url.split('watch?v=', 2)[1].split('?')[0]};
         case 'vimeo.com':
-            result.type = "vi";
-            result.id = url.split("vimeo.com/", 2)[1];
-            break;
+            return {type: 'vi', id: url.split('vimeo.com/', 2)[1].split(/[?#]/)[0]};
         case 'dailymotion.com':
-            result.type = "dm";
-            result.id = url.split("/video/", 2)[1];
-            break;
+            return {type: 'dm', id: url.split('/video/', 2)[1].split(/[?#]/)[0]};
     }
-    return result;
+
+    return {id: null, type: null};
 }
 
 /**
@@ -49,7 +46,7 @@ function uniteLink(id, type) {
         case "dm":
             return `dailymotion.com/video/${id}`;
         default:
-            return "";
+            return '';
     }
 }
 
@@ -165,6 +162,10 @@ class Video {
         this.id = id;
         this.type = type;
         this.url = uniteLink(id, type);
+    }
+
+    asKey(){
+        return `${this.type}|${this.id}`;
     }
 
     /**

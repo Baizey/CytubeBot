@@ -41,6 +41,7 @@ class Database {
         const columns = structure.permissions.columns;
         this.prepareInsert(table.name, `${columns.user.name}, ${columns.type.name}`, "?, ?").run(user.name, permission);
     }
+
     /**
      * @param {User} user
      * @param {String} permission
@@ -63,6 +64,7 @@ class Database {
             .filter(item => utils.isDefined(item))
             .map(permission => permission[columns.type.name]);
     }
+
     /**
      * @param {User} user
      * @param {String} permission
@@ -143,6 +145,15 @@ class Database {
         return result.map(video => Video.fromDatabase(video));
     };
 
+    needsValidation(video) {
+        const table = structure.videos.table;
+        const lookup = this.prepareSelect(table.name, table.keysWhere()).get(video.id, video.type);
+        if (utils.isUndefined(lookup))
+            return false;
+        const time = Time.fromSeconds(lookup.validateBy);
+        return Time.current().isBiggerThan(time);
+    }
+
     /**
      * @param {Video} video
      */
@@ -185,7 +196,7 @@ class Database {
         const c = structure.nominate.columns;
         const nominations = this.prepareSelect(table.name, `${c.user.name} in (${users.map(n => `'${n}'`).join(', ')})`).all();
 
-        if(utils.isEmpty(nominations))
+        if (utils.isEmpty(nominations))
             return [];
 
         const map = {};
@@ -201,7 +212,7 @@ class Database {
 
         const result = utils.mapToList(map);
         result.sort((a, b) => {
-            if(b.votes === a.votes)
+            if (b.votes === a.votes)
                 return b.year - a.year;
             return b.votes - a.votes
         });
@@ -209,7 +220,7 @@ class Database {
         for (let i = 0; i < result.length; i++) {
             if (result[i].year === 0)
                 continue;
-            for(let j = i + 1; j < result.length; j++) {
+            for (let j = i + 1; j < result.length; j++) {
                 if (result[j].year > 0 || result[i].title !== result[j].title)
                     continue;
                 result[i].votes += result[j].votes;
@@ -373,10 +384,14 @@ class Database {
     /**
      * @param {Video} video
      */
-    moveToAlive(video){
+    moveToAlive(video) {
         const dead = structure.deadlinks.table;
         this.prepareDelete(dead.name, dead.keysWhere()).run(video.id, video.type);
         this.insertVideo(video);
+    }
+
+    getDeadLinks() {
+        return this.prepareSelect(structure.deadlinks.table.name).all().map(video => Video.fromIdAndType(video.id, video.type));
     }
 
     /**
