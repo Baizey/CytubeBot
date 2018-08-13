@@ -80,6 +80,7 @@ const addHandlers = function (bot) {
     socket.on(On.error.queue, data => {
         const video = Video.fromUrl(data.link);
         db.moveToDead(video);
+        logger.debug(`Dead: ${video.url}`);
     });
 
     /* Unused listeners
