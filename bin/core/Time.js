@@ -118,7 +118,7 @@ class Time {
     /**
      * @returns {number}
      */
-    get millis(){
+    get millis() {
         return this._millis;
     }
 
@@ -126,12 +126,12 @@ class Time {
      * Time scaled to best fitting unit
      * @returns {string}
      */
-    asUnit() {
+    get asUnit() {
         const scale = [            1,     1000,       60,     60,    24];
         const names = ["millisecond", "second", "minute", "hour", "day"];
         let time = this.millis;
         let i = 1;
-        for(; i < names.length; i++) {
+        for (; i < names.length; i++) {
             const temp = time / scale[i];
             if (temp < 1) break;
             time = temp;
@@ -140,10 +140,21 @@ class Time {
     }
 
     /**
+     * @returns {String} Time in HH:MM:SS format
+     */
+    get asPlaytime() {
+        const seconds = Math.abs(this.seconds);
+        const hr = `${Math.floor(seconds / 3600)}`.padStart(2, '0');
+        const min = `${Math.floor(Math.floor(seconds / 60) % 60)}`.padStart(2, '0');
+        const sec = `${Math.floor(seconds % 60)}`.padStart(2, '0');
+        return `${hr}:${min}:${sec}`;
+    }
+
+    /**
      * @param {Time} other
      * @returns {boolean}
      */
-    isBiggerThan(other){
+    isBiggerThan(other) {
         return this.millis > other.millis;
     }
 
@@ -151,7 +162,7 @@ class Time {
      * @param {Time} other
      * @returns {boolean}
      */
-    isEqual(other){
+    isEqual(other) {
         return this.millis === other.millis;
     }
 
@@ -159,20 +170,10 @@ class Time {
      * @param {Time} other
      * @returns {boolean}
      */
-    isSmallerThan(other){
+    isSmallerThan(other) {
         return this.millis < other.millis;
     }
 
-    /**
-     * @returns {String} Time in HH:MM:SS format
-     */
-    asPlaytime() {
-        const seconds = Math.abs(this.seconds);
-        const hr = `${Math.floor(seconds / 3600)}`.padStart(2, '0');
-        const min = `${Math.floor(Math.floor(seconds / 60) % 60)}`.padStart(2, '0');
-        const sec = `${Math.floor(seconds % 60)}`.padStart(2, '0');
-        return `${hr}:${min}:${sec}`;
-    }
 
     /**
      * @returns {Boolean}
