@@ -9,26 +9,33 @@ module.exports = new Command(
     "",
     (bot, message) => {
         const video = Video.fromMessage(bot, message);
-        Api.searchTheMovieDatabase(bot, message, video, '').then(resp => {
-            if(!resp.success) return;
-            const result = resp.result;
+        Api.searchTheMovieDatabase(bot, message, video, ['', 'credits']).then(resp => {
+            const detailsWrapper = resp[0];
+            const credits = resp[1];
+
+            if(!detailsWrapper.success || !credits.success) return;
+            const details = detailsWrapper.result;
+            const actors = credits.result.cast.slice(0, 10).map(actor => actor.name).join(', ');
 
             const saying = [];
 
-            if (utils.isDefined(result.status) && result.status !== "Released")
-                saying.push(`**Status ${result.status}**`);
+            if (utils.isDefined(details.status) && details.status !== "Released")
+                saying.push(`**Status ${details.status}**`);
             else
-                saying.push(`**Rated ${result.vote_average} from ${result.vote_count} votes**`);
+                saying.push(`**Rated ${details.vote_average} from ${details.vote_count} votes**`);
 
-            if (utils.isDefined(result.tagline))
-                saying.push(`**${result.tagline}**`);
+            if (utils.isDefined(details.tagline))
+                saying.push(`**${details.tagline}**`);
 
-            saying.push(`**Plot** ${result.overview}`);
+            saying.push(`**Plot** ${details.overview}`);
 
-            if (utils.isDefined(result.genres))
-                saying.push(`**Genres** ${result.genres.map(e => e.name).join(", ")}`);
+            if (utils.isDefined(details.genres))
+                saying.push(`**Genres** ${details.genres.map(e => e.name).join(", ")}`);
 
-            saying.push(`**Imdb link** https://www.imdb.com/title/${result.imdb_id}/`);
+            if (utils.isUsed(actors))
+                saying.push(`**Cast** ${actors}`);
+
+            saying.push(`**Imdb link** https://www.imdb.com/title/${details.imdb_id}/`);
 
             bot.sendMsg(saying, message);
         });

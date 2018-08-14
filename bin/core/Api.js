@@ -34,10 +34,10 @@ class Api {
      * @param {CytubeBot} bot
      * @param {Message} message
      * @param {Video} video
-     * @param {String} type
-     * @returns {Promise<Response>}
+     * @param {String|String[]} requests
+     * @returns {Promise<Response|Response[]>}
      */
-    static async searchTheMovieDatabase(bot, message, video, type = null) {
+    static async searchTheMovieDatabase(bot, message, video, requests = null) {
         const errorMsg = `No movies found for '${video.displayTitle}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
 
         const firstUrl = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
@@ -48,21 +48,30 @@ class Api {
             return resp;
         });
 
-        if (utils.isUndefined(type) || !findings.success)
+        if (utils.isUndefined(requests) || !findings.success)
             return findings;
+
         findings = findings.result.results[0];
         bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
 
-        if (type.length > 0) type = "/" + type;
-        const secondUrl = `api.themoviedb.org/3/movie/${findings.id}${type}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
-        return await Api.request(secondUrl).then(resp => {
-            if (!resp.success) {
-                bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
-                logger.error(resp.result);
-            }
-            logger.debug(resp.result);
-            return resp;
-        });
+        console.log(requests);
+        requests = (typeof requests === 'string' ? [requests] : requests).map(s => s.length === 0 ? s : '/' + s);
+        console.log(requests);
+
+        const result = [];
+        for(let i = 0; i < requests.length; i++) {
+            const secondUrl = `api.themoviedb.org/3/movie/${findings.id}${requests[i]}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
+            result.push(await Api.request(secondUrl).then(resp => {
+                if (!resp.success) {
+                    bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
+                    logger.error(resp.result);
+                }
+                logger.debug(resp.result);
+                return resp;
+            }));
+        }
+
+        return result.length > 1 ? result : result[0];
     }
 
     /**
