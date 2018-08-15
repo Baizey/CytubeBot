@@ -35,7 +35,7 @@ class Api {
      * @param {Message} message
      * @param {Video} video
      * @param {String|String[]} requests
-     * @returns {Promise<Response>}
+     * @returns {Promise<Response|Response[]>}
      */
     static async searchTheMovieDatabase(bot, message, video, requests = null) {
         const errorMsg = `No movies found for '${video.displayTitle}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
