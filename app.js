@@ -1,5 +1,6 @@
 const forever = require('forever-monitor');
 const fs = require('fs');
+const Log = require('./bin/core/Logger').Log;
 
 /**
  * Initial config file to create if none exist
@@ -13,6 +14,10 @@ const config = {
     'channel': {
       'name': '',
       'password': ''
+    },
+    'webserver': {
+        active: false,
+        port: 8080
     },
     /**
      * API keys
@@ -44,11 +49,23 @@ const configString = JSON.stringify(config)
     .join('\n');
 
 const shutdownLog = "./logs/shutdown.log";
+
+
+process.on('uncaughtException', error => {
+    console.log(Log.asLogFormat(error));
+    process.exit(1);
+});
+
 initiateBot = function () {
-    const child = new (forever.Monitor)("./bin/index.js", {
+    const child = new (forever.Monitor)('./bin/index.js', {
         silent: false,
         minUptime: 5000,
         errFile: shutdownLog
+    });
+
+    child.on('stderr', error => {
+        console.log(Log.asLogFormat(error.toString()));
+        process.exit(1);
     });
 
     child.on('error',  (error) => console.log(`\nBot got error: ${error}\n`));
@@ -73,7 +90,7 @@ initiateBot = function () {
             default: console.log("Code: " + code);
         }
         // Delay for time to log/send final messages
-        if (code < 3 && code > 0)
+        if (code !== 0 && code !== 3)
             setTimeout(() => process.exit(code), 1000);
     });
 

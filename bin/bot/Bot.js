@@ -4,6 +4,7 @@ const User = require("../structure/Message").User;
 const Message = require("../structure/Message").Message;
 const Validator = require("./Validator");
 const Playlist = require("./Playlist");
+const WebServer = require('../server/WebServer');
 const Patterns = require("./Pattern").Patterns;
 const Library = require("./Library");
 const Conversations = require("../structure/Conversations");
@@ -38,6 +39,7 @@ class CytubeBot {
         this.poll = new Poll(this);
         this.library = new Library(this);
         this.playlist = new Playlist(this);
+        this.webServer = new WebServer(this, config.web);
 
         // this.trivia = new Trivia();
 
@@ -96,7 +98,7 @@ class CytubeBot {
         // Ignore user if told to
         if (message.command === 'unignore') {
             this.handleCommand(message);
-            return logger.command(message);
+            return logger.commands(message);
         }
         if (utils.isDefined(dbUser) && dbUser.ignore)
             return logger.system(`Ignoring: ${user.name}`);
@@ -128,7 +130,7 @@ class CytubeBot {
             return this.sendMsg("Unknown command... do '$help'", message);
         if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);
-        logger.command(message);
+        logger.commands(message);
         command.function(this, message);
     };
 }

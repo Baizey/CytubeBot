@@ -35,7 +35,7 @@ class Api {
      * @param {Message} message
      * @param {Video} video
      * @param {String|String[]} requests
-     * @returns {Promise<Response|Response[]>}
+     * @returns {Promise<Response>}
      */
     static async searchTheMovieDatabase(bot, message, video, requests = null) {
         const errorMsg = `No movies found for '${video.displayTitle}'  ${video.queryYear > 0 ? `(${video.queryYear})` : ""}`;
@@ -48,15 +48,13 @@ class Api {
             return resp;
         });
 
-        if (utils.isUndefined(requests) || !findings.success)
-            return findings;
+        requests = utils.isUndefined(requests) ? [] : (typeof requests === 'string' ? [requests] : requests).map(s => s.length === 0 ? s : '/' + s);
+
+        if (utils.isEmpty(requests) || !findings.success)
+            return requests.length > 1 ? requests.map(() => findings) : findings;
 
         findings = findings.result.results[0];
         bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
-
-        console.log(requests);
-        requests = (typeof requests === 'string' ? [requests] : requests).map(s => s.length === 0 ? s : '/' + s);
-        console.log(requests);
 
         const result = [];
         for(let i = 0; i < requests.length; i++) {
@@ -66,7 +64,6 @@ class Api {
                     bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
                     logger.error(resp.result);
                 }
-                logger.debug(resp.result);
                 return resp;
             }));
         }

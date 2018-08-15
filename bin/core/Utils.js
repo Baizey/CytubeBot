@@ -1,6 +1,7 @@
 // Jquery
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
+const htmlEncode = require('htmlencode').htmlEncode;
 const dom = new JSDOM();
 const $ = require("jquery")(dom.window);
 const logger = require("./Logger");
@@ -53,9 +54,13 @@ const utils = {
      * @param {String} v
      * @returns {String}
      */
-    htmlDecode: function (v) {
-        return $('<textarea/>').html(v).text();
-    },
+    htmlDecode: (v) => $('<textarea/>').html(v).text(),
+
+    /**
+     * @param {String} v
+     * @returns {String}
+     */
+    htmlEncode: (v) => htmlEncode(v),
 
     /**
      * @param {Object[]} list
