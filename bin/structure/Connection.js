@@ -94,18 +94,18 @@ class Connection {
     }
 
     handleChannelPassword() {
-        logger.debug("Room has password");
+        logger.system("Room has password");
         const room = this.channel;
         if (utils.isUndefined(room.password))
             exit.exit(exit.code.exit, "Have no channel password to give!");
-        logger.debug("Sending password...");
+        logger.system("Sending password...");
         this.emit(Emit.connect.channelPassword, room.password);
     };
 
     handleUserLogin(data) {
         if (!data.success)
             exit.exit(exit.code.exit, `Failed to login as ${this.name}`);
-        logger.debug(`Logged in as ${data.name}`);
+        logger.system(`Logged in as ${data.name}`);
         this.emit(Emit.playlist.request);
     };
 }

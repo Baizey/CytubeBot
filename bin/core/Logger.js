@@ -1,6 +1,7 @@
 const join = require("path").join;
 const fs = require('fs');
 const EventEmitter = require('events').EventEmitter;
+const removeUrlId = require('../structure/Playlist').removeUrlId;
 
 class Log extends EventEmitter {
     constructor(path) {
@@ -25,7 +26,12 @@ class Log extends EventEmitter {
     static asLogFormat(thing) {
         if (typeof thing === 'object')
             thing = JSON.stringify(thing);
+
+        // Remove api keys
         thing = (thing + '').replace(/([&?](?:api)?_?key=)[\w-]+/gi, (g0, g1) => `${g1}<hidden>`);
+        // Remove id's from video links
+        thing = removeUrlId(thing);
+
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1);
         return thing.split('\n').map(line => `[${timestamp}] ${line}`).join('\n')
     }

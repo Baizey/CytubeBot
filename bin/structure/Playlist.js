@@ -4,6 +4,14 @@ const VideoUtils = require("../core/VideoUtils");
 
 const intermissionTime = Time.fromMinutes(15);
 
+function removeLinkId(text) {
+    return text
+        .replace(/(docs\.google\.com\/file\/d\/)([\w-]+)/gi, (g0, g1) => `${g1}<hidden>`)
+        .replace(/(youtube\.com\/watch\?v=)([\w-]+)/gi, (g0, g1) => `${g1}<hidden>`)
+        .replace(/(vimeo\.com\/)([\w-]+)/gi, (g0, g1) => `${g1}<hidden>`)
+        .replace(/(dailymotion\.com\/video\/)([\w-]+)/gi, (g0, g1) => `${g1}<hidden>`);
+}
+
 /**
  * @param {String} url
  * @returns {{type: string|null, id: string|null}}
@@ -256,4 +264,5 @@ module.exports = {
     intermissionLimit: intermissionTime,
     splitUrl: splitLink,
     uniteUrl: uniteLink,
+    removeUrlId: removeLinkId
 };
