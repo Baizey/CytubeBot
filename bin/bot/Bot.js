@@ -62,7 +62,6 @@ class CytubeBot {
         const pm = receiver.isPm || forcePm;
         if (pm) pack.to = receiver.user.name;
         const type = pm ? Emit.chat.pm : Emit.chat.public;
-        logger.debug(messages);
         messages.forEach(message => {
             pack.msg = message;
             connection.emit(type, pack);
@@ -85,7 +84,9 @@ class CytubeBot {
         const message = new Message(utils.htmlDecode(data.msg.trim()), pm, user);
 
         // Ignore messages from sources we shouldn't take commands from
-        if (lowUser === lowName || lowUser === "[server]")
+        if (lowUser === lowName)
+            return logger.commandResponse(message);
+        if (lowUser === "[server]")
             return logger.chat(message);
 
         // Get long term info on user

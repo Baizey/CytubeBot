@@ -20,9 +20,12 @@ const colors = {
 
 const splitLogLine = /^\[([^\]]+)\] (.*)$/;
 
-const createLogLine = (name, status, color, text) => splitLogLine.test(text)
-        ? `<span name="${name}" data-time="${new Date(text.match(splitLogLine)[1]).getTime()}" style="color:${color}; display: ${status ? 'block' : 'none'}">${utils.htmlEncode(text)}</span>`
+const createLogLine = (name, status, color, text) => {
+    text = ['chat', 'commands'].indexOf(name) >= 0 ? text : utils.htmlEncode(text);
+    return splitLogLine.test(text)
+        ? `<span name="${name}" data-time="${new Date(text.match(splitLogLine)[1]).getTime()}" style="color:${color}; display: ${status ? 'block' : 'none'}">${text}</span>`
         : '';
+};
 
 class WebServer {
 
@@ -31,8 +34,36 @@ class WebServer {
      * @param {WebConfig} webServer
      */
     constructor(bot, webServer) {
+        const self = this;
         if (!webServer.active)
             return;
+
+        this.logs = [];
+        const init = async () => {
+            let logs = Object.keys(paths).map(key => ({
+                lines: reader.read(paths[key], 1000).catch(() => ''),
+                name: key,
+                color: utils.isDefined(colors[key]) ? colors[key] : 'black'
+            }));
+
+            for(let i = 0; i < logs.length; i++)
+                logs[i].lines = (await logs[i].lines).trim().split(/\n/);
+
+            const lines = [];
+            logs.forEach(log => {
+                log.lines.forEach(line => {
+                    const index = line.match(splitLogLine);
+                    lines.push({
+                        index: utils.isUsed(index) ? index[1] : 'Z',
+                        html: createLogLine(log.name, true, log.color, line)
+                    });
+                });
+            });
+            lines.sort((a, b) => (a.index > b.index) ? 1 : ((a.index < b.index) ? -1 : 0))
+                .forEach(line => self.logs.push(line.html));
+        };
+        init().catch(error => {throw error});
+
 
         this.tunnel = null;
         if (webServer.public) {
@@ -62,42 +93,18 @@ class WebServer {
                 error: true,
                 shutdown: true
             };
-            const uid = this.register(socket, filterStatus);
-
-            /**
-             * @param {{name: string, display: boolean}} data
-             */
+            socket.emit('logs', self.logs);
+            const uid = self.register(socket, filterStatus);
             socket.on('filter', data => filterStatus[data.name] = data.display);
-            socket.on('disconnect', () => this.unregister(uid));
-
-            const init = async () => {
-                let logs = Object.keys(paths).map(key => ({
-                    lines: reader.read(paths[key], 500).catch(() => ''),
-                    name: key,
-                    color: utils.isDefined(colors[key]) ? colors[key] : 'black'
-                }));
-
-                for(let i = 0; i < logs.length; i++)
-                    logs[i].lines = (await logs[i].lines).trim().split(/\n/);
-
-                const lines = [];
-                logs.forEach(log => {
-                    log.lines.forEach(line => {
-                        const index = line.match(splitLogLine);
-                        lines.push({
-                            index: utils.isUsed(index) ? index[1] : 'Z',
-                            html: createLogLine(log.name, filterStatus[log.name], log.color, line)
-                        });
-                    });
-                });
-                lines.sort((a, b) => (a.index > b.index) ? 1 : ((a.index < b.index) ? -1 : 0))
-                    .forEach(line => socket.emit('display', line.html));
-            };
-            init().catch(error => {throw error});
+            socket.on('disconnect', () => self.unregister(uid));
         });
     }
 
     emit(logname, line) {
+        this.logs.push(createLogLine(logname, true, colors[logname], line));
+        while (this.logs.length > 20000)
+            this.logs.shift();
+
         Object.keys(this.connections).forEach(uid => {
             const conn = this.connections[uid];
             if (utils.isUndefined(conn)) return;

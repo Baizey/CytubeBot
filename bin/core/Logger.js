@@ -57,6 +57,7 @@ module.exports = {
      * @param {Message} message
      */
     commands: (message) => commandLog.log(`${message.user.name} | ${message.command} | ${message.msg} | ${Object.keys(message.tags).map(key => `${key}: ${message.getTag(key)}`).join(', ')}`),
+    commandResponse: (message) => commandLog.log(`${message.user.name} ${message.isPm ? '(pm) ' : ''}| ${message.fullMsg}`),
     debug: (msg) => debugLog.log(msg),
     system: (msg) => systemLog.log(msg),
     error: (msg) => errorLog.log(msg),

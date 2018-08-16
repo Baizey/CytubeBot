@@ -14,6 +14,7 @@ class Message {
      * @param {User} user
      */
     constructor(msg, isPm, user, command = undefined) {
+        this.fullMsg = msg;
         this.command = command;
         this.isPm = isPm;
         this.user = user;

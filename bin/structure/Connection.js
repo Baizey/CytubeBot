@@ -30,7 +30,7 @@ class Connection {
     connect() {
         const self = this;
         if (self.isConnected)
-            return logger.debug('Already connected');
+            return logger.system('Already connected');
         const bot = this.bot;
 
         bot.validator.pause();
@@ -48,7 +48,7 @@ class Connection {
 
         const connect = (url) => {
             if (self.isConnected)
-                return logger.debug('Already connected');
+                return logger.system('Already connected');
             logger.system(`Got server ${url}`);
             self.socket = socketClient.connect(url, {
                 reconnection: true,
@@ -62,7 +62,7 @@ class Connection {
             const socket = self.socket;
 
             socket.on(On.defaults.connect, () => {
-                logger.debug(`Connected`);
+                logger.system(`Connected`);
                 bot.validator.unpause();
                 bot.startTime = Time.current();
 
@@ -72,12 +72,12 @@ class Connection {
             });
 
             socket.on(On.defaults.timeout, () => {
-                logger.debug(`Connection timed out`);
+                logger.system(`Connection timed out`);
                 bot.validator.pause();
             });
 
             socket.on(On.defaults.disconnect, () => {
-                logger.debug(`Disconnected`);
+                logger.system(`Disconnected`);
                 bot.validator.pause();
             });
         };
