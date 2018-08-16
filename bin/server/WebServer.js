@@ -84,6 +84,7 @@ class WebServer {
         http.listen(webServer.port);
         app.get('/', (req, res) => res.sendFile(join(__dirname, '.', `index.html`)));
         io.on('connection', socket => {
+            logger.system('Someone connected to web server');
             socket.emit('clear');
             const filterStatus = {
                 chat: true,
@@ -93,10 +94,14 @@ class WebServer {
                 error: true,
                 shutdown: true
             };
-            socket.emit('logs', self.logs);
-            const uid = self.register(socket, filterStatus);
             socket.on('filter', data => filterStatus[data.name] = data.display);
-            socket.on('disconnect', () => self.unregister(uid));
+            setTimeout(() => {
+                socket.emit('logs', self.logs);
+                setTimeout(() => {
+                    const uid = self.register(socket, filterStatus);
+                    socket.on('disconnect', () => self.unregister(uid));
+                }, 1000)
+            }, 1000);
         });
     }
 
