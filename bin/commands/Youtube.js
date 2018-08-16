@@ -2,6 +2,7 @@ const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
 const Api = require("../core/Api");
 const utils = require("../core/Utils");
+const Emit = require('../structure/Socket').Emit;
 
 
 module.exports = new Command(

@@ -13,6 +13,6 @@ module.exports = new Command(
             if (!resp.success) return;
             bot.sendMsg('Found these similar movies', message);
             bot.sendMsg(resp.result.results.map(e => e.title).join(", "), message);
-        });
+        }).catch(e => {throw e});
     }
 );

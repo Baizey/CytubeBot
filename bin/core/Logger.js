@@ -5,8 +5,11 @@ const EventEmitter = require('events').EventEmitter;
 class Log extends EventEmitter {
     constructor(path) {
         super();
-        fs.appendFileSync(path, '');
-        this.writer = fs.createWriteStream(path);
+        const self = this;
+        //fs.openSync(path, 'a+');
+        this.writer = fs.createWriteStream(path, {flags: 'a+'});
+        this.open = false;
+        this.writer.on('open', () => self.open = true);
     }
 
     /**

@@ -38,6 +38,6 @@ module.exports = new Command(
             saying.push(`**Imdb link** https://www.imdb.com/title/${details.imdb_id}/`);
 
             bot.sendMsg(saying, message);
-        });
+        }).catch(e => {throw e});
     }
 );

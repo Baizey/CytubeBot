@@ -16,8 +16,14 @@ const config = {
       'password': ''
     },
     'webserver': {
-        active: false,
-        port: 8080
+        "active": true,
+        "port": 80,
+        "public": {
+            "active": true,
+            "port": 8080,
+            // Full domain: http://<subdomain>.localtunnel.me
+            "subdomain": ''
+        }
     },
     /**
      * API keys

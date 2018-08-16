@@ -10,6 +10,9 @@ class Config {
 
 class WebConfig {
     constructor(web) {
+        const publicWeb = web.public;
+        this.subdomain = publicWeb.subdomain;
+        this.public = publicWeb.active;
         this.active = web.active;
         this.port = web.port;
     }
