@@ -8,7 +8,7 @@ module.exports = new Command(
     "",
     (bot, message) => {
         if (bot.db.setDisallowUser(1, bot, message))
-            logger.system(`Allowed ${message.msg}`);
+            logger.system(`Disallowed ${message.msg}`);
         else
             logger.system(`${message.user.name} is not high enough rank to allow ${message.msg}`)
     }
