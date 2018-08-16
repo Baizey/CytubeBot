@@ -1,5 +1,6 @@
 const join = require("path").join;
 const logger = require('../core/Logger');
+const fs = require('fs');
 const paths = logger.paths;
 const loggers = logger.logs;
 const App = require('express');
@@ -59,8 +60,9 @@ class WebServer {
                     });
                 });
             });
-            lines.sort((a, b) => (a.index > b.index) ? 1 : ((a.index < b.index) ? -1 : 0))
-                .forEach(line => self.logs.push(line.html));
+            self.logs = lines.sort((a, b) => (a.index > b.index) ? 1 : ((a.index < b.index) ? -1 : 0)).map(line => line.html)
+                .concat(self.logs);
+            self.emit('logs', self.logs);
         };
         init().catch(error => {throw error});
 
@@ -79,7 +81,7 @@ class WebServer {
         const app = App(), http = Http.Server(app), io = Io(http);
 
         this.connections = {};
-        Object.keys(loggers).forEach(key => loggers[key].on('line', line => this.emit(key, line)));
+        Object.keys(loggers).forEach(key => loggers[key].on('line', line => this.sendNewLine(key, line)));
 
         http.listen(webServer.port);
         app.get('/', (req, res) => res.sendFile(join(__dirname, '.', `index.html`)));
@@ -105,7 +107,15 @@ class WebServer {
         });
     }
 
-    emit(logname, line) {
+    emit(type, data) {
+        Object.keys(this.connections).forEach(uid => {
+            const conn = this.connections[uid];
+            if (utils.isUndefined(conn)) return;
+            conn.socket.emit(type, data);
+        });
+    }
+
+    sendNewLine(logname, line) {
         this.logs.push(createLogLine(logname, true, colors[logname], line));
         while (this.logs.length > 20000)
             this.logs.shift();
