@@ -87,23 +87,31 @@ class WebServer {
         app.get('/', (req, res) => res.sendFile(join(__dirname, '.', `index.html`)));
         io.on('connection', socket => {
             logger.system('Someone connected to web server');
-            socket.emit('clear');
-            const filterStatus = {
-                chat: true,
-                commands: true,
-                system: true,
-                debug: true,
-                error: true,
-                shutdown: true
-            };
-            socket.on('filter', data => filterStatus[data.name] = data.display);
-            setTimeout(() => {
-                socket.emit('logs', self.logs);
+            socket.on('login', password => {
+                if (webServer.password !== password) {
+                    logger.system(`User was wrong with ${password}`);
+                    return socket.emit('login', false);
+                }
+
+                logger.system('User logged in');
+                socket.emit('clear');
+                const filterStatus = {
+                    chat: true,
+                    commands: true,
+                    system: true,
+                    debug: true,
+                    error: true,
+                    shutdown: true
+                };
+                socket.on('filter', data => filterStatus[data.name] = data.display);
                 setTimeout(() => {
-                    const uid = self.register(socket, filterStatus);
-                    socket.on('disconnect', () => self.unregister(uid));
-                }, 1000)
-            }, 1000);
+                    socket.emit('logs', self.logs);
+                    setTimeout(() => {
+                        const uid = self.register(socket, filterStatus);
+                        socket.on('disconnect', () => self.unregister(uid));
+                    }, 1000)
+                }, 1000);
+            });
         });
     }
 

@@ -16,12 +16,13 @@ const config = {
         'password': ''
     },
     'webserver': {
-        "active": true,
-        "port": 8080,
-        "public": {
-            "active": true,
+        'active': false,
+        'port': 8080,
+        'password': '',
+        'public': {
+            'active': false,
             // Full domain: http://<subdomain>.localtunnel.me
-            "subdomain": ''
+            'subdomain': ''
         }
     },
     /**
@@ -56,11 +57,7 @@ const configString = JSON.stringify(config)
 const configFile = './config.json';
 const shutdownLog = "./logs/shutdown.log";
 fs.openSync(shutdownLog, 'a+');
-try {
-    fs.writeFileSync(configFile, configString, {flag: 'wx'});
-} catch (error) {
-    // Ignore, this means file already exists
-}
+try { fs.writeFileSync(configFile, configString, {flag: 'wx'}); } catch (error) {}
 
 process.on('uncaughtException', error => {
     console.log(Log.asLogFormat(error));

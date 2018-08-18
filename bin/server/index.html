@@ -60,12 +60,16 @@
         <script type="text/javascript">
             let init = () => {
                 const socket = io();
-                const filterSettings = {
+                socket.emit('login', prompt("Enter password", ''));
+
+
+                var settings = {
                     min: 0,
-                    max: 5e+300
+                    max: 5e+300,
+                    tail: true,
                 };
 
-                const filterStatus = {
+                var status = {
                     chat: true,
                     commands: true,
                     system: true,
@@ -76,53 +80,70 @@
 
                 displayStatus = element => {
                     const name = element.getAttribute('name');
-                    const status = filterStatus[name];
-                    if (!defined(status) || !status)
+                    const temp = status[name];
+                    if (!defined(temp) || !temp)
                         return 'none';
                     const time = element.getAttribute('data-time');
-                    if (time < filterSettings.min || time > filterSettings.max)
+                    if (time < settings.min || time > settings.max)
                         return 'none';
                     return 'block';
                 };
 
-                socket.on('logs', lines => document.getElementById('logs').innerHTML = lines.join(''));
+                tailChat = () => {
+                    const element = document.getElementById('logs');
+                    element.scrollTo(0, element.scrollHeight);
+                };
+
+                defined = (thing) => thing !== null && typeof thing !== 'undefined';
+
+                filter = name => {
+                    if (!defined(name))
+                        return;
+                    name = name.toLowerCase();
+                    if (!defined(status[name]))
+                        return;
+
+                    status[name] = !status[name];
+                    socket.emit('filter', {name: name, display: status[name]});
+                    document.getElementById(name).className = status[name] ? 'on' : 'off';
+                    const elements = document.getElementsByName(name);
+                    for (let i = 0; i < elements.length; i++)
+                        elements[i].style.display = displayStatus(elements[i]);
+                };
+
+                socket.on('logs', lines => {
+                    document.getElementById('logs').innerHTML = lines.join('');
+                    if (settings.tail)
+                        tailChat();
+                });
                 socket.on('clear', () => document.getElementById('logs').innerHTML = '');
 
                 socket.on('display', html => {
                     document.getElementById('logs').innerHTML += html;
                     const element = document.getElementById('logs').lastChild;
                     element.style.display = displayStatus(element);
+                    if (settings.tail)
+                        tailChat();
                 });
-
-                defined = (thing) => thing !== null && typeof thing !== 'undefined';
-
-                /**
-                 * @param {string} name
-                 */
-                filter = name => {
-                    if (!defined(name))
-                        return;
-                    name = name.toLowerCase();
-                    if (!defined(filterStatus[name]))
-                        return;
-
-                    filterStatus[name] = !filterStatus[name];
-                    socket.emit('filter', {name: name, display: filterStatus[name]});
-                    document.getElementById(name).className = filterStatus[name] ? 'on' : 'off';
-                    const elements = document.getElementsByName(name);
-                    for (let i = 0; i < elements.length; i++)
-                        elements[i].style.display = displayStatus(elements[i]);
-                };
 
                 updateFilter = () => {
                     const min = new Date(document.getElementById('earliest-time').value).getTime();
                     const max = new Date(document.getElementById('latest-time').value).getTime();
-                    filterSettings.min = min;
-                    filterSettings.max = max;
+                    settings.min = min;
+                    settings.max = max;
                     const elements = document.getElementById('logs').children;
                     for (let i = 0; i < elements.length; i++)
                         elements[i].style.display = displayStatus(elements[i]);
                 };
+
+                updateTailing = () => {
+                    settings.tail = !settings.tail;
+                    document.getElementById('setting_tail').className = settings.tail
+                        ? 'btn btn-success'
+                        : 'btn btn-danger';
+                    if (settings.tail)
+                        tailChat();
+                }
             };
             init();
             init = null;
@@ -152,7 +173,8 @@
                 <input id="earliest-time" style="width:100%" value="1000-01-01T00:00" type="datetime-local"/>
                 <label for="latest-time">Latest log time</label>
                 <input id="latest-time" style="width:100%" value="3000-01-01T00:00" type="datetime-local"/>
-                <button style="width:100%" class="btn-primary" onclick="updateFilter()">Update logs displayed</button>
+                <button style="width:100%" class="btn btn-primary" onclick="updateFilter()">Update logs displayed</button>
+                <button style="width:100%" id ="setting_tail" class="btn btn-success" onclick="updateTailing()">Tail chat</button>
             </div>
         </div>
     </body>
