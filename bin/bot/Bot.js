@@ -92,18 +92,6 @@ class CytubeBot {
         // Get long term info on user
         const dbUser = this.db.getUser(user);
 
-        // Ignore user if told to
-        if (utils.isDefined(dbUser) && dbUser.disallow)
-            return logger.system(`Disallowed: ${user.name}`);
-
-        // Ignore user if told to
-        if (message.command === 'unignore') {
-            this.handleCommand(message);
-            return logger.commands(message);
-        }
-        if (utils.isDefined(dbUser) && dbUser.ignore)
-            return logger.system(`Ignoring: ${user.name}`);
-
         // Check if command
         if (utils.isDefined(message.command)) {
             // Everything is handled on Message creation
@@ -118,6 +106,13 @@ class CytubeBot {
 
         if (utils.isEmpty(message.command))
             return logger.chat(message);
+        else if (utils.isDefined(dbUser) && dbUser.disallow) {
+            logger.commands(message);
+            return logger.system(`Disallowed: ${user.name}`);
+        } else if (utils.isDefined(dbUser) && dbUser.ignore && message.command !== 'unignore') {
+            logger.commands(message);
+            return logger.system(`Ignoring: ${user.name}`);
+        }
 
         this.handleCommand(message);
     };
