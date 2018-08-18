@@ -11,7 +11,7 @@ module.exports = new Command(
     (bot, message) => {
         Api.searchYoutube(bot, message.array).then(resp => {
             resp.reverse().forEach(link => {
-                if (!link.success)
+                if (link.isFailure)
                     return bot.sendMsg(`found nothing to queue for ${link.result}`, message, true);
                 bot.connection.emit(Emit.playlist.queue, link.result.asQueueObject());
             });

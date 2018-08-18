@@ -37,8 +37,8 @@ class Connection {
 
         const getServerUrl = async (attempt = 1) => {
             logger.system(`Connection attempt ${attempt}`);
-            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.channel.name}.json`);
-            if (request.success) {
+            const request = await Api.request(`www.cytu.be/socketconfig/${self.channel.name}.json`);
+            if (request.isSuccess) {
                 const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
                 if (utils.isUsed(serverUrl))
                     return connect(serverUrl);
@@ -103,7 +103,7 @@ class Connection {
     };
 
     handleUserLogin(data) {
-        if (!data.success)
+        if (data.isFailure)
             exit.exit(exit.code.exit, `Failed to login as ${this.name}`);
         logger.system(`Logged in as ${data.name}`);
         this.emit(Emit.playlist.request);

@@ -9,7 +9,7 @@ module.exports = new Command(
         const msg = message.msg.toLowerCase().trim();
         bot.conversations.getResponse(msg)
             .then(resp => {
-                if(!resp.success)
+                if(resp.isFailure)
                     return;
                 bot.sendMsg(resp.result.output, message);
             });
