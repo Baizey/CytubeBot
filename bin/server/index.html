@@ -4,64 +4,27 @@
         <meta charset="UTF-8">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <style>
-
-            body {
-                color: lightgray
-            }
-
+            body { color: lightgray }
             img {
                 max-width: 200px!important;
                 max-height: 200px!important;
             }
-
-            span:hover,
-            body,
-            .btn-group {
-                background-color: #303030;
+            button { width: 100%; }
+            span:hover, body { background-color: #303030; }
+            #logs { background-color: #424242; }
+            label {
+                width: 100%;
+                margin: auto;
+                text-align: center;
+                font-size: 2em;
             }
-
-            #logs {
-                background-color: #424242;
-            }
-
-            .btn-group button {
-                color: white;
-                padding: 10px 24px;
-                cursor: pointer;
-                float: left;
-            }
-
-            .on {
-                background-color: #4CAF50;
-            }
-            .on:hover {
-                background-color: #3e8e41;
-            }
-
-            .off {
-                background-color: #AD2A1A;
-            }
-
-            .off:hover{
-                background-color: #9A2617;
-            }
-
-            .btn-group button:not(:last-child) {
-                border-right: none;
-            }
-
-            .btn-group:after {
-                content: "";
-                clear: both;
-                display: table;
-            }
+            input { border: none; }
         </style>
         <script src="/socket.io/socket.io.js"></script>
         <script type="text/javascript">
             let init = () => {
                 const socket = io();
                 socket.emit('login', prompt("Enter password", ''));
-
 
                 var settings = {
                     min: 0,
@@ -78,15 +41,19 @@
                     shutdown: true
                 };
 
-                displayStatus = element => {
+                setButtonDisplay = id => {
+                    const element = document.getElementById(id);
+                    const isOn = element.className === 'btn btn-success';
+                    element.className = isOn ? 'btn btn-danger' : 'btn btn-success';
+                };
+
+                setDisplay = element => {
                     const name = element.getAttribute('name');
-                    const temp = status[name];
-                    if (!defined(temp) || !temp)
-                        return 'none';
                     const time = element.getAttribute('data-time');
-                    if (time < settings.min || time > settings.max)
-                        return 'none';
-                    return 'block';
+                    const temp = status[name];
+                    element.style.display =
+                        time < settings.min || time > settings.max || !defined(temp) || !temp
+                        ? 'none' : 'block';
                 };
 
                 tailChat = () => {
@@ -105,10 +72,10 @@
 
                     status[name] = !status[name];
                     socket.emit('filter', {name: name, display: status[name]});
-                    document.getElementById(name).className = status[name] ? 'on' : 'off';
+                    setButtonDisplay(name);
                     const elements = document.getElementsByName(name);
                     for (let i = 0; i < elements.length; i++)
-                        elements[i].style.display = displayStatus(elements[i]);
+                        setDisplay(elements[i]);
                 };
 
                 socket.on('logs', lines => {
@@ -121,26 +88,24 @@
                 socket.on('display', html => {
                     document.getElementById('logs').innerHTML += html;
                     const element = document.getElementById('logs').lastChild;
-                    element.style.display = displayStatus(element);
+                    setDisplay(element);
                     if (settings.tail)
                         tailChat();
                 });
 
                 updateFilter = () => {
-                    const min = new Date(document.getElementById('earliest-time').value).getTime();
-                    const max = new Date(document.getElementById('latest-time').value).getTime();
+                    const min = new Date(document.getElementById('setting_time_start').value).getTime();
+                    const max = new Date(document.getElementById('setting_time_end').value).getTime();
                     settings.min = min;
                     settings.max = max;
                     const elements = document.getElementById('logs').children;
                     for (let i = 0; i < elements.length; i++)
-                        elements[i].style.display = displayStatus(elements[i]);
+                        elements[i].style.display = setDisplay(elements[i]);
                 };
 
                 updateTailing = () => {
                     settings.tail = !settings.tail;
-                    document.getElementById('setting_tail').className = settings.tail
-                        ? 'btn btn-success'
-                        : 'btn btn-danger';
+                    setButtonDisplay('setting_tail');
                     if (settings.tail)
                         tailChat();
                 }
@@ -158,23 +123,33 @@
         <title>Cytubebot webpage</title>
     </head>
     <body>
-        <div class="btn-group" style="width:100%; height:5vh">
-            <button id="chat" class="on" style="width:16.66666%" onClick='filter("Chat")'>Chat</button>
-            <button id="commands" class="on" style="width:16.66666%" onClick='filter("Commands")'>Commands</button>
-            <button id="system" class="on" style="width:16.66666%" onClick='filter("System")'>System</button>
-            <button id="debug" class="on"  style="width:16.66666%" onClick='filter("Debug")'>Debug</button>
-            <button id="error" class="on" style="width:16.66666%" onClick='filter("Error")'>Error</button>
-            <button id="shutdown" class="on" style="width:16.66666%" onClick='filter("Shutdown")'>Shutdown</button>
-        </div>
         <div>
-            <div id="logs" style="overflow-x: hidden; overflow-y:scroll; height:94vh; margin:auto; width:83.33334%; float:left"></div>
-            <div id="filter" style="width:16.66666%; float:left">
-                <label for="earliest-time">Earliest log time</label>
-                <input id="earliest-time" style="width:100%" value="1000-01-01T00:00" type="datetime-local"/>
-                <label for="latest-time">Latest log time</label>
-                <input id="latest-time" style="width:100%" value="3000-01-01T00:00" type="datetime-local"/>
-                <button style="width:100%" class="btn btn-primary" onclick="updateFilter()">Update logs displayed</button>
-                <button style="width:100%" id ="setting_tail" class="btn btn-success" onclick="updateTailing()">Tail chat</button>
+            <div id="logs" style="overflow-x: hidden; overflow-y:scroll; height:100vh; margin:auto; width:85%; float:left"></div>
+            <div id="filter" style="width:15%; float:left">
+
+                <label for="setting_time">Log times</label>
+                <div id ="setting_time" style="width:215.42px; margin:auto">
+                        <label style="font-size:1em" for="setting_time_start">Start</label>
+                        <input id="setting_time_start" value="1000-01-01T00:00" type="datetime-local"/>
+                        <label style="font-size:1em" for="setting_time_end">End</label>
+                        <input id="setting_time_end" value="3000-01-01T00:00" type="datetime-local"/>
+                </div>
+                <button class="btn btn-primary" onclick="updateFilter()">Update display</button>
+
+                <label for="setting_misc">Misc options</label>
+                <div id="setting_misc" class="btn-group-vertical" style="width:100%">
+                    <button id ="setting_tail" class="btn btn-success" onclick="updateTailing()">Tail chat</button>
+                </div>
+
+                <label for="setting_logtypes">Log type filters</label>
+                <div id="setting_logtypes" class="btn-group-vertical" style="width:100%">
+                    <button type="button" id="chat"      class="btn btn-success" onClick='filter("Chat")'>Chat</button>
+                    <button type="button" id="commands"  class="btn btn-success" onClick='filter("Commands")'>Commands</button>
+                    <button type="button" id="system"    class="btn btn-success" onClick='filter("System")'>System</button>
+                    <button type="button" id="debug"     class="btn btn-success" onClick='filter("Debug")'>Debug</button>
+                    <button type="button" id="error"     class="btn btn-success" onClick='filter("Error")'>Error</button>
+                    <button type="button" id="shutdown"  class="btn btn-success" onClick='filter("Shutdown")'>Shutdown</button>
+                </div>
             </div>
         </div>
     </body>
