@@ -52,15 +52,21 @@ like ```$about -next```
 
 ```databasePath``` fx ```./database.db```
 
-```serverName``` defaults to ```cytu.be```
-
-```userName``` name of the account for the bot
-
-```userPassword``` password for the account for the bot
-
-```roomName``` name of the room the bot will monitor
-
-```roompassword``` password if the room has one
+```user```
+   - ```name``` name of user bot is logging in as
+   - ```password``` password of user bot is logging in as
+   
+```channel```
+   - ```name``` name of channel bot is entering
+   - ```password``` password (if there is any) of channel bot is entering
+   
+```webserver```
+   - ```active``` weather or not a webserver should be hosted
+   - ```port``` what port to be used (assuming localhost it is ```localhost:port```)
+   - ```password``` password to type when entering hosted site
+   - ```public```
+        - ```active``` if the webpage should be hosted publicly
+        - ```subdomain``` subdomain of public page (full url is ```subdomain.localtunnel.me```)
 
 ```wolfram``` api key for wolfram alpha ```https://products.wolframalpha.com/api/```
 
