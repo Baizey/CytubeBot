@@ -90,8 +90,12 @@ class WebServer {
             socket.on('login', password => {
                 if (webServer.password !== password) {
                     logger.system(`User was wrong with ${password}`);
-                    return socket.emit('login', false);
+                    socket.emit('login', false);
+                    socket.disconnect();
+                    return;
                 }
+
+                socket.emit('login', true);
 
                 logger.system('User logged in');
                 socket.emit('clear');

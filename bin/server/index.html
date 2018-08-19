@@ -1,156 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <style>
-            body { color: lightgray }
-            img {
-                max-width: 200px!important;
-                max-height: 200px!important;
-            }
-            button { width: 100%; }
-            span:hover, body { background-color: #303030; }
-            #logs { background-color: #424242; }
-            label {
-                width: 100%;
-                margin: auto;
-                text-align: center;
-                font-size: 2em;
-            }
-            input { border: none; }
-        </style>
-        <script src="/socket.io/socket.io.js"></script>
-        <script type="text/javascript">
-            let init = () => {
-                const socket = io();
-                socket.emit('login', prompt("Enter password", ''));
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        body {
+            color: lightgray
+        }
 
-                var settings = {
-                    min: 0,
-                    max: 5e+300,
-                    tail: true,
-                };
+        img {
+            max-width: 200px !important;
+            max-height: 200px !important;
+        }
 
-                var status = {
-                    chat: true,
-                    commands: true,
-                    system: true,
-                    debug: true,
-                    error: true,
-                    shutdown: true
-                };
+        .login {
+            padding:20px;
+            width: 400px;
+            height: 300px;
+            top:50%;
+            margin: 150px auto auto;
+        }
 
-                setButtonDisplay = id => {
-                    const element = document.getElementById(id);
-                    const isOn = element.className === 'btn btn-success';
-                    element.className = isOn ? 'btn btn-danger' : 'btn btn-success';
-                };
+        button {
+            width: 100%;
+        }
 
-                setDisplay = element => {
-                    const name = element.getAttribute('name');
-                    const time = element.getAttribute('data-time');
-                    const temp = status[name];
-                    element.style.display =
-                        time < settings.min || time > settings.max || !defined(temp) || !temp
-                        ? 'none' : 'block';
-                };
+        span:hover, body, #login {
+            background-color: #303030;
+        }
 
-                tailChat = () => {
-                    const element = document.getElementById('logs');
-                    element.scrollTo(0, element.scrollHeight);
-                };
+        #logs, .login {
+            background-color: #424242;
+        }
 
-                defined = (thing) => thing !== null && typeof thing !== 'undefined';
+        label {
+            width: 100%;
+            margin: auto;
+            text-align: center;
+            font-size: 2em;
+        }
 
-                filter = name => {
-                    if (!defined(name))
-                        return;
-                    name = name.toLowerCase();
-                    if (!defined(status[name]))
-                        return;
+        input {
+            border: none;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        let init = () => {
+            const socket = io();
 
-                    status[name] = !status[name];
-                    socket.emit('filter', {name: name, display: status[name]});
-                    setButtonDisplay(name);
-                    const elements = document.getElementsByName(name);
-                    for (let i = 0; i < elements.length; i++)
-                        setDisplay(elements[i]);
-                };
-
-                socket.on('logs', lines => {
-                    document.getElementById('logs').innerHTML = lines.join('');
-                    if (settings.tail)
-                        tailChat();
-                });
-                socket.on('clear', () => document.getElementById('logs').innerHTML = '');
-
-                socket.on('display', html => {
-                    document.getElementById('logs').innerHTML += html;
-                    const element = document.getElementById('logs').lastChild;
-                    setDisplay(element);
-                    if (settings.tail)
-                        tailChat();
-                });
-
-                updateFilter = () => {
-                    const min = new Date(document.getElementById('setting_time_start').value).getTime();
-                    const max = new Date(document.getElementById('setting_time_end').value).getTime();
-                    settings.min = min;
-                    settings.max = max;
-                    const elements = document.getElementById('logs').children;
-                    for (let i = 0; i < elements.length; i++)
-                        elements[i].style.display = setDisplay(elements[i]);
-                };
-
-                updateTailing = () => {
-                    settings.tail = !settings.tail;
-                    setButtonDisplay('setting_tail');
-                    if (settings.tail)
-                        tailChat();
-                }
+            var settings = {
+                min: 0,
+                max: 5e+300,
+                tail: true,
             };
-            init();
-            init = null;
-        </script>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                const scripts = document.getElementsByTagName('script');
-                for(let i = 0; i < scripts.length; i++)
-                    scripts[i].parentNode.removeChild(scripts[i]);
-            }, false);
-        </script>
-        <title>Cytubebot webpage</title>
-    </head>
-    <body>
-        <div>
-            <div id="logs" style="overflow-x: hidden; overflow-y:scroll; height:100vh; margin:auto; width:85%; float:left"></div>
-            <div id="filter" style="width:15%; float:left">
 
-                <label for="setting_time">Log times</label>
-                <div id ="setting_time" style="width:215.42px; margin:auto">
-                        <label style="font-size:1em" for="setting_time_start">Start</label>
-                        <input id="setting_time_start" value="1000-01-01T00:00" type="datetime-local"/>
-                        <label style="font-size:1em" for="setting_time_end">End</label>
-                        <input id="setting_time_end" value="3000-01-01T00:00" type="datetime-local"/>
-                </div>
-                <button class="btn btn-primary" onclick="updateFilter()">Update display</button>
+            var status = {
+                chat: true,
+                commands: true,
+                system: true,
+                debug: true,
+                error: true,
+                shutdown: true
+            };
 
-                <label for="setting_misc">Misc options</label>
-                <div id="setting_misc" class="btn-group-vertical" style="width:100%">
-                    <button id ="setting_tail" class="btn btn-success" onclick="updateTailing()">Tail chat</button>
-                </div>
+            setButtonDisplay = id => {
+                const element = document.getElementById(id);
+                const isOn = element.className === 'btn btn-success';
+                element.className = isOn ? 'btn btn-danger' : 'btn btn-success';
+            };
 
-                <label for="setting_logtypes">Log type filters</label>
-                <div id="setting_logtypes" class="btn-group-vertical" style="width:100%">
-                    <button type="button" id="chat"      class="btn btn-success" onClick='filter("Chat")'>Chat</button>
-                    <button type="button" id="commands"  class="btn btn-success" onClick='filter("Commands")'>Commands</button>
-                    <button type="button" id="system"    class="btn btn-success" onClick='filter("System")'>System</button>
-                    <button type="button" id="debug"     class="btn btn-success" onClick='filter("Debug")'>Debug</button>
-                    <button type="button" id="error"     class="btn btn-success" onClick='filter("Error")'>Error</button>
-                    <button type="button" id="shutdown"  class="btn btn-success" onClick='filter("Shutdown")'>Shutdown</button>
-                </div>
-            </div>
+            setDisplay = element => {
+                const name = element.getAttribute('name');
+                const time = element.getAttribute('data-time');
+                const temp = status[name];
+                element.style.display =
+                    time < settings.min || time > settings.max || !defined(temp) || !temp
+                        ? 'none' : 'block';
+            };
+
+            tailChat = () => {
+                const element = document.getElementById('logs');
+                element.scrollTo(0, element.scrollHeight);
+            };
+
+            defined = (thing) => thing !== null && typeof thing !== 'undefined';
+
+            login = () => {
+                const pass = document.getElementById('login_password').value;
+                if (defined(pass) && pass.length > 0)
+                    socket.emit('login', pass);
+            };
+
+            filter = name => {
+                if (!defined(name))
+                    return;
+                name = name.toLowerCase();
+                if (!defined(status[name]))
+                    return;
+
+                status[name] = !status[name];
+                socket.emit('filter', {name: name, display: status[name]});
+                setButtonDisplay(name);
+                const elements = document.getElementsByName(name);
+                for (let i = 0; i < elements.length; i++)
+                    setDisplay(elements[i]);
+            };
+
+            socket.on('login', success => {
+                if (success)
+                    document.getElementById('login').style.display = 'none';
+                else
+                    alert('Wrong password, refresh to retry')
+            });
+
+            socket.on('logs', lines => {
+                document.getElementById('logs').innerHTML = lines.join('');
+                if (settings.tail)
+                    tailChat();
+            });
+            socket.on('clear', () => document.getElementById('logs').innerHTML = '');
+
+            socket.on('display', html => {
+                document.getElementById('logs').innerHTML += html;
+                const element = document.getElementById('logs').lastChild;
+                setDisplay(element);
+                if (settings.tail)
+                    tailChat();
+            });
+
+            updateFilter = () => {
+                const min = new Date(document.getElementById('setting_time_start').value).getTime();
+                const max = new Date(document.getElementById('setting_time_end').value).getTime();
+                settings.min = min;
+                settings.max = max;
+                const elements = document.getElementById('logs').children;
+                for (let i = 0; i < elements.length; i++)
+                    elements[i].style.display = setDisplay(elements[i]);
+            };
+
+            updateTailing = () => {
+                settings.tail = !settings.tail;
+                setButtonDisplay('setting_tail');
+                if (settings.tail)
+                    tailChat();
+            }
+        };
+        init();
+        init = null;
+    </script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const scripts = document.getElementsByTagName('script');
+            for (let i = 0; i < scripts.length; i++)
+                scripts[i].parentNode.removeChild(scripts[i]);
+        }, false);
+    </script>
+    <title>Cytubebot webpage</title>
+</head>
+<body>
+<div id="login" style="position:absolute; width:100%; height:100%; z-index: 999; ">
+    <div class="login">
+        <form method="POST">
+            <label for="login_password">Password</label>
+            <input style="width:100%" name="password" id="login_password" type="password" value=""/>
+        </form>
+        <button class="btn btn-primary" onClick="login()">Login</button>
+    </div>
+</div>
+<div>
+    <div id="logs"
+         style="overflow-x: hidden; overflow-y:scroll; height:100vh; margin:auto; width:85%; float:left"></div>
+    <div id="filter" style="width:15%; float:left">
+
+        <label for="setting_time">Log times</label>
+        <div id="setting_time" style="width:215.42px; margin:auto">
+            <label style="font-size:1em" for="setting_time_start">Start</label>
+            <input id="setting_time_start" value="1000-01-01T00:00" type="datetime-local"/>
+            <label style="font-size:1em" for="setting_time_end">End</label>
+            <input id="setting_time_end" value="3000-01-01T00:00" type="datetime-local"/>
         </div>
-    </body>
+        <button class="btn btn-primary" onclick="updateFilter()">Update display</button>
+
+        <label for="setting_misc">Misc options</label>
+        <div id="setting_misc" class="btn-group-vertical" style="width:100%">
+            <button id="setting_tail" class="btn btn-success" onclick="updateTailing()">Tail chat</button>
+        </div>
+
+        <label for="setting_logtypes">Log type filters</label>
+        <div id="setting_logtypes" class="btn-group-vertical" style="width:100%">
+            <button type="button" id="chat" class="btn btn-success" onClick='filter("Chat")'>Chat</button>
+            <button type="button" id="commands" class="btn btn-success" onClick='filter("Commands")'>Commands</button>
+            <button type="button" id="system" class="btn btn-success" onClick='filter("System")'>System</button>
+            <button type="button" id="debug" class="btn btn-success" onClick='filter("Debug")'>Debug</button>
+            <button type="button" id="error" class="btn btn-success" onClick='filter("Error")'>Error</button>
+            <button type="button" id="shutdown" class="btn btn-success" onClick='filter("Shutdown")'>Shutdown</button>
+        </div>
+    </div>
+</div>
+</body>
 </html>
