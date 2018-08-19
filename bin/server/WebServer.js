@@ -7,6 +7,7 @@ const App = require('express');
 const Http = require('http');
 const Io = require('socket.io');
 const utils = require('../core/Utils');
+const Time = require('../core/Time');
 const reader = require('read-last-lines');
 const Tunnel = require('localtunnel');
 
@@ -69,13 +70,32 @@ class WebServer {
 
         this.tunnel = null;
         if (webServer.public) {
-            this.tunnel = Tunnel(webServer.port, {subdomain: webServer.subdomain}, error => {
-                if (utils.isUsed(error))
-                    logger.error(`LocalTunnel error: ${error}`);
-            });
-            this.tunnel.on('error', error => logger.error(`LocalTunnel error: ${error}`));
-            //this.tunnel.on('request', request => logger.debug(request));
-            this.tunnel.on('close', () => logger.system('localtunnel is closing'));
+            const openTunnel = (attempts = 1) => {
+                logger.system(`Opening localtunnel, attempt ${attempts}`);
+
+                self.tunnel = Tunnel(webServer.port, {subdomain: webServer.subdomain}, error => {
+                    if (utils.isEmpty(error))
+                        return;
+                    logger.error(`LocalTunnel: ${error}`);
+                    self.tunnel.close();
+                    setTimeout(() => openTunnel(attempts + 1), Time.fromMinutes(1).millis);
+                });
+
+                self.tunnel.on('error', error => {
+                    logger.error(`LocalTunnel: ${error}`);
+                    self.tunnel.close();
+                });
+
+                //this.tunnel.on('request', request => logger.debug(request));
+
+                let closed = false;
+                self.tunnel.on('close', () => {
+                    if (closed) return;
+                    closed = true;
+                    logger.system('LocalTunnel is closing');
+                    setTimeout(() => openTunnel(), Time.fromMinutes(1).millis);
+                });
+            }
         }
 
         const app = App(), http = Http.Server(app), io = Io(http);

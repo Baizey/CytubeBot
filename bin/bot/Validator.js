@@ -93,7 +93,7 @@ class Validator {
      * @param {Function} after
      */
     add(video, after = () => {}) {
-        if(video.isIntermission())
+        if(video.isIntermission)
             return;
         if (!this.bot.db.needsValidation(video))
             return;

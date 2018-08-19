@@ -187,7 +187,11 @@ class Video {
         this.type = res.type;
     }
 
-    isIntermission() {
+    get isMovie (){
+        return !this.isIntermission;
+    }
+
+    get isIntermission() {
         return intermissionTime.isBiggerThan(this.time);
     }
 
@@ -208,7 +212,7 @@ class Video {
 
     asQueueObject() {
         return {
-            temp: this.isIntermission(),
+            temp: this.isIntermission,
             pos: "next",
             id: this.id,
             type: this.type

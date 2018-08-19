@@ -9,7 +9,7 @@ const Emit = require('../structure/Socket').Emit;
 
 function pollManager(bot, message, options) {
     const next = bot.playlist.getVideoFromCurrent(1);
-    if(next.isIntermission())
+    if(next.isIntermission)
         return setTimeout(() => pollManager(bot, message, options), 1000);
 
     bot.poll.close(new User(bot.connection.name));

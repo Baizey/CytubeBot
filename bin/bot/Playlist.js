@@ -44,12 +44,12 @@ class Playlist {
         if (at === -1)
             return result;
         
-        if (this.currentVideo.isIntermission())
+        if (this.currentVideo.isIntermission)
             result.intermissions.push(this.currentVideo);
 
         for(let i = at + 1; i !== at && at < this.playlist.length; i = (i + 1) % this.playlist.length) {
             const curr = this.playlist[i];
-            if(!curr.isIntermission()) {
+            if(curr.isMovie) {
                 result.next = curr;
                 return result;
             }

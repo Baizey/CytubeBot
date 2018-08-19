@@ -24,7 +24,7 @@ class Library {
     }
 
     handleResults(videos) {
-        videos = videos.filter(video => !video.isIntermission());
+        videos = videos.filter(video => video.isMovie);
         const db = this.bot.db;
         const table = db.structure.videos.table;
         const c = db.structure.videos.columns;

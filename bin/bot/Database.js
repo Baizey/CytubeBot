@@ -173,7 +173,7 @@ class Database {
      * @param {Video} video
      */
     insertVideo(video) {
-        if (utils.isUndefined(video) || video.isIntermission())
+        if (utils.isUndefined(video) || video.isIntermission)
             return;
         const table = structure.videos.table;
         const columns = structure.videos.columns;
