@@ -92,10 +92,11 @@ class WebServer {
                 self.tunnel.on('close', () => {
                     if (closed) return;
                     closed = true;
-                    logger.system('LocalTunnel is closing');
+                    logger.system('LocalTunnel is closed');
                     setTimeout(() => openTunnel(), Time.fromMinutes(1).millis);
                 });
-            }
+            };
+            openTunnel();
         }
 
         const app = App(), http = Http.Server(app), io = Io(http);
