@@ -3,6 +3,7 @@ const logger = require('./Logger');
 const utils = require("./Utils");
 const Response = require("../structure/Api").Response;
 const Available = require("../structure/Api").Available;
+const Url = require('url');
 const Video = require("../structure/Playlist").Video;
 
 class Api {
@@ -21,8 +22,15 @@ class Api {
                     return new Response(true, JSON.parse(result.text));
                 return new Response(true, result.text);
             }).catch(error => {
+                if (utils.isDefined(error.text))
+                    error = error.text;
                 try {
-                    return new Response(true, JSON.parse(error.text));
+                    const result = new Response(true, JSON.parse(error));
+                    if (utils.isUsed(result.error) || utils.isUsed(result.errors))
+                        result.success = false;
+                    if (result.isFailure)
+                        logger.error(`Request error: ${result.result}`);
+                    return result;
                 } catch (ignored) {
                     logger.error(`Request error: ${error}`);
                     return new Response(false, error);
@@ -42,31 +50,28 @@ class Api {
 
         const firstUrl = `api.themoviedb.org/3/search/movie?api_key=${bot.apikeys.themovieDB}&query=${video.title}${video.urlQueryYear()}`;
         let findings = await Api.request(firstUrl).then(async resp => {
-            resp.success &= utils.isUsed(resp.result.results);
-            if (!resp.success)
+            resp.isSuccess &= utils.isUsed(resp.result.results);
+            if (resp.isFailure)
                 bot.sendMsg(errorMsg, message);
             return resp;
         });
 
-        if (utils.isUndefined(requests) || !findings.success)
-            return findings;
+        requests = utils.isUndefined(requests) ? [] : (typeof requests === 'string' ? [requests] : requests).map(s => s.length === 0 ? s : '/' + s);
+
+        if (utils.isEmpty(requests) || findings.isFailure)
+            return requests.length > 1 ? requests.map(() => findings) : findings;
 
         findings = findings.result.results[0];
         bot.sendMsg(`Found ${findings.original_title} (${findings.release_date.split("-", 1)[0]})`, message);
-
-        console.log(requests);
-        requests = (typeof requests === 'string' ? [requests] : requests).map(s => s.length === 0 ? s : '/' + s);
-        console.log(requests);
 
         const result = [];
         for(let i = 0; i < requests.length; i++) {
             const secondUrl = `api.themoviedb.org/3/movie/${findings.id}${requests[i]}?api_key=${bot.apikeys.themovieDB}&language=en-US`;
             result.push(await Api.request(secondUrl).then(resp => {
-                if (!resp.success) {
+                if (resp.isFailure) {
                     bot.sendMsg(`Could not get information on ${findings.original_title}`, message);
                     logger.error(resp.result);
                 }
-                logger.debug(resp.result);
                 return resp;
             }));
         }
@@ -80,7 +85,7 @@ class Api {
      * @param {String} prefix
      * @returns {Promise<Response[]>}
      */
-    static async searchYoutube(bot, queries, prefix = "") {
+    static async searchYoutube(bot, queries, prefix = '') {
         const results = [];
 
         for (let i = 0; i < queries.length; i++) {
@@ -112,7 +117,7 @@ class Api {
             // Just pretend anything unknown is working... this is fiiiiine
             default:
                 return Api.request("")
-                    .then(resp => new Available(resp.success, resp.result, video));
+                    .then(resp => new Available(resp.isSuccess, resp.result, video));
         }
     }
 
@@ -126,7 +131,7 @@ class Api {
         const lackTitle = utils.isUndefined(video.title);
         const url = `vimeo.com/api/oembed.json?vimeo.com/${video.id}`;
         return Api.request(url).then(resp => {
-            const success = resp.success;
+            const success = resp.isSuccess;
             const result = resp.result;
             resp = new Available(success, result, video);
 
@@ -151,7 +156,7 @@ class Api {
         const lackTitle = utils.isUndefined(video.fullTitle);
         const url = `api.dailymotion.com/video/${video.id}`;
         return Api.request(url).then(resp => {
-            const success = resp.success;
+            const success = resp.isSuccess;
             const result = resp.result;
             resp = new Available(success, result, video);
 
@@ -174,7 +179,7 @@ class Api {
         let url = `www.googleapis.com/youtube/v3/videos?part=status,snippet&id=${video.id}&key=${bot.apikeys.google}`;
 
         return Api.request(url).then(resp => {
-            const success = resp.success;
+            const success = resp.isSuccess;
             const result = resp.result;
             const response = new Available(success, result, video);
 
@@ -211,7 +216,7 @@ class Api {
         const lackTitle = utils.isUndefined(video.fullTitle);
         let url = "www.googleapis.com/drive/v3/files/" + video.id + "?key=" + bot.apikeys.google + "&fields=webViewLink" + (lackTitle ? ",name" : "");
         return Api.request(url).then(resp => {
-            const success = resp.success;
+            const success = resp.isSuccess;
             const result = resp.result;
 
             const response = new Available(success, result, video);

@@ -1,19 +1,24 @@
 class Response {
     /**
      * @param {Boolean} success
-     * @param result
+     * @param {*} result
      * @constructor
      */
     constructor(success, result) {
-        this.success = success;
+        this.isSuccess = success;
         this.result = result;
     }
+
+    get isFailure() {
+        return !this.isSuccess;
+    }
+
 }
 
 class Available extends Response {
     /**
      * @param {Boolean} success
-     * @param result
+     * @param {*} result
      * @param {Video} video
      * @param {Boolean} avail
      * @param {Boolean} retry

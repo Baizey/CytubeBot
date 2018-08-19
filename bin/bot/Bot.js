@@ -4,6 +4,7 @@ const User = require("../structure/Message").User;
 const Message = require("../structure/Message").Message;
 const Validator = require("./Validator");
 const Playlist = require("./Playlist");
+const WebServer = require('../server/WebServer');
 const Patterns = require("./Pattern").Patterns;
 const Library = require("./Library");
 const Conversations = require("../structure/Conversations");
@@ -38,6 +39,7 @@ class CytubeBot {
         this.poll = new Poll(this);
         this.library = new Library(this);
         this.playlist = new Playlist(this);
+        this.webServer = new WebServer(this, config.web);
 
         // this.trivia = new Trivia();
 
@@ -60,7 +62,6 @@ class CytubeBot {
         const pm = receiver.isPm || forcePm;
         if (pm) pack.to = receiver.user.name;
         const type = pm ? Emit.chat.pm : Emit.chat.public;
-        logger.debug(messages);
         messages.forEach(message => {
             pack.msg = message;
             connection.emit(type, pack);
@@ -83,23 +84,13 @@ class CytubeBot {
         const message = new Message(utils.htmlDecode(data.msg.trim()), pm, user);
 
         // Ignore messages from sources we shouldn't take commands from
-        if (lowUser === lowName || lowUser === "[server]")
+        if (lowUser === lowName)
+            return logger.commandResponse(message);
+        if (lowUser === "[server]")
             return logger.chat(message);
 
         // Get long term info on user
         const dbUser = this.db.getUser(user);
-
-        // Ignore user if told to
-        if (utils.isDefined(dbUser) && dbUser.disallow)
-            return logger.system(`Disallowed: ${user.name}`);
-
-        // Ignore user if told to
-        if (message.command === 'unignore') {
-            this.handleCommand(message);
-            return logger.command(message);
-        }
-        if (utils.isDefined(dbUser) && dbUser.ignore)
-            return logger.system(`Ignoring: ${user.name}`);
 
         // Check if command
         if (utils.isDefined(message.command)) {
@@ -115,6 +106,13 @@ class CytubeBot {
 
         if (utils.isEmpty(message.command))
             return logger.chat(message);
+        else if (utils.isDefined(dbUser) && dbUser.disallow) {
+            logger.commands(message);
+            return logger.system(`Disallowed: ${user.name}`);
+        } else if (utils.isDefined(dbUser) && dbUser.ignore && message.command !== 'unignore') {
+            logger.commands(message);
+            return logger.system(`Ignoring: ${user.name}`);
+        }
 
         this.handleCommand(message);
     };
@@ -128,7 +126,7 @@ class CytubeBot {
             return this.sendMsg("Unknown command... do '$help'", message);
         if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);
-        logger.command(message);
+        logger.commands(message);
         command.function(this, message);
     };
 }

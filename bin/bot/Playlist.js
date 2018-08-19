@@ -26,8 +26,6 @@ class Playlist {
     add(video) {
         if (typeof video === "string")
             video = Video.fromUrl(video);
-        logger.debug(Emit.playlist.queue);
-        logger.debug(video.asQueueObject());
         this.bot.connection.emit(Emit.playlist.queue, video.asQueueObject());
         logger.system(`Queuing link: ${video.url}`);
     }

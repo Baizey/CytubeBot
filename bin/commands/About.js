@@ -13,7 +13,7 @@ module.exports = new Command(
             const detailsWrapper = resp[0];
             const credits = resp[1];
 
-            if(!detailsWrapper.success || !credits.success) return;
+            if(detailsWrapper.isFailure || credits.isFailure) return;
             const details = detailsWrapper.result;
             const actors = credits.result.cast.slice(0, 10).map(actor => actor.name).join(', ');
 
@@ -38,6 +38,6 @@ module.exports = new Command(
             saying.push(`**Imdb link** https://www.imdb.com/title/${details.imdb_id}/`);
 
             bot.sendMsg(saying, message);
-        });
+        }).catch(e => {throw e});
     }
 );

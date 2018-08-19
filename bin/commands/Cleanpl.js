@@ -29,7 +29,6 @@ module.exports = new Command(
 
         duplicates.forEach(list => {
             const say = ['Possible duplicates:'].concat(list.map(v => v.fullTitle));
-            logger.debug(say.join("\n"));
             bot.sendMsg(say, message, true);
             bot.sendMsg('------------', message, true);
             if (shouldManage)

@@ -1,9 +1,21 @@
 class Config {
     constructor(configData) {
+        this.web = new WebConfig(configData.webserver);
         this.databasePath = configData.databasePath;
         this.user = new BotUser(configData.user);
         this.channel = new Channel(configData.channel);
         this.apikeys = new ApiKeys(configData);
+    }
+}
+
+class WebConfig {
+    constructor(web) {
+        const publicWeb = web.public;
+        this.password = web.password;
+        this.subdomain = publicWeb.subdomain;
+        this.public = publicWeb.active;
+        this.active = web.active;
+        this.port = web.port;
     }
 }
 

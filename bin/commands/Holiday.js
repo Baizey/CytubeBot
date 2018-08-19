@@ -10,7 +10,7 @@ module.exports = new Command(
     (bot, message) => {
         const url = `checkiday.com/api/3/?d=today`;
         Api.request(url).then(resp => {
-            if(!resp.success)
+            if(resp.isFailure)
                 return;
             resp = resp.result.holidays;
             const list = [];

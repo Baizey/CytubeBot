@@ -346,11 +346,11 @@ class Database {
         const columns = structure.users.columns;
         const victim = message.msg.trim();
         const resp = bot.userlist.hasHigherRank(message.user, victim);
-        if (resp.success)
+        if (resp.isSuccess)
             this.prepareUpdate(table.name, columns.disallow.name, columns.name.where())
                 .run(value, victim);
         bot.sendMsg(resp.result, message);
-        return resp.success;
+        return resp.isSuccess;
     }
 
     /**

@@ -10,9 +10,9 @@ module.exports = new Command(
     (bot, message) => {
         const video = Video.fromMessage(bot, message);
         Api.searchTheMovieDatabase(bot, message, video, 'similar').then(resp => {
-            if (!resp.success) return;
+            if (resp.isFailure) return;
             bot.sendMsg('Found these similar movies', message);
             bot.sendMsg(resp.result.results.map(e => e.title).join(", "), message);
-        });
+        }).catch(e => {throw e});
     }
 );

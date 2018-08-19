@@ -30,15 +30,15 @@ class Connection {
     connect() {
         const self = this;
         if (self.isConnected)
-            return logger.debug('Already connected');
+            return logger.system('Already connected');
         const bot = this.bot;
 
         bot.validator.pause();
 
         const getServerUrl = async (attempt = 1) => {
             logger.system(`Connection attempt ${attempt}`);
-            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.channel.name}.json`);
-            if (request.success) {
+            const request = await Api.request(`www.cytu.be/socketconfig/${self.channel.name}.json`);
+            if (request.isSuccess) {
                 const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
                 if (utils.isUsed(serverUrl))
                     return connect(serverUrl);
@@ -48,7 +48,7 @@ class Connection {
 
         const connect = (url) => {
             if (self.isConnected)
-                return logger.debug('Already connected');
+                return logger.system('Already connected');
             logger.system(`Got server ${url}`);
             self.socket = socketClient.connect(url, {
                 reconnection: true,
@@ -62,7 +62,7 @@ class Connection {
             const socket = self.socket;
 
             socket.on(On.defaults.connect, () => {
-                logger.debug(`Connected`);
+                logger.system(`Connected`);
                 bot.validator.unpause();
                 bot.startTime = Time.current();
 
@@ -72,12 +72,12 @@ class Connection {
             });
 
             socket.on(On.defaults.timeout, () => {
-                logger.debug(`Connection timed out`);
+                logger.system(`Connection timed out`);
                 bot.validator.pause();
             });
 
             socket.on(On.defaults.disconnect, () => {
-                logger.debug(`Disconnected`);
+                logger.system(`Disconnected`);
                 bot.validator.pause();
             });
         };
@@ -94,18 +94,18 @@ class Connection {
     }
 
     handleChannelPassword() {
-        logger.debug("Room has password");
+        logger.system("Room has password");
         const room = this.channel;
         if (utils.isUndefined(room.password))
             exit.exit(exit.code.exit, "Have no channel password to give!");
-        logger.debug("Sending password...");
+        logger.system("Sending password...");
         this.emit(Emit.connect.channelPassword, room.password);
     };
 
     handleUserLogin(data) {
-        if (!data.success)
+        if (data.isFailure)
             exit.exit(exit.code.exit, `Failed to login as ${this.name}`);
-        logger.debug(`Logged in as ${data.name}`);
+        logger.system(`Logged in as ${data.name}`);
         this.emit(Emit.playlist.request);
     };
 }

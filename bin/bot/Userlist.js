@@ -76,7 +76,7 @@ class Users {
         if (user.rank <= victim.rank)
             return new Response(false, "You need to be higher rank than your victim");
 
-        return new Response(true, `Oh boi, ${victim.name} done fuck up`);
+        return new Response(true, `Target acquired, ${victim.name} will be ~~terminated~~ handled`);
     }
 }
 
