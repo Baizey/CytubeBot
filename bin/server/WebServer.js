@@ -107,10 +107,12 @@ class WebServer {
         http.listen(webServer.port);
         app.get('/', (req, res) => res.sendFile(join(__dirname, '.', `index.html`)));
         io.on('connection', socket => {
-            logger.system('Someone connected to web server');
-            socket.on('login', password => {
+            logger.system('Webserver connection established');
+            socket.on('login', user => {
+                const password = user.password;
+                const username = user.username;
                 if (webServer.password !== password) {
-                    logger.system(`User was wrong with ${password}`);
+                    logger.system(`${username} was wrong with ${password}`);
                     socket.emit('login', false);
                     socket.disconnect();
                     return;
@@ -118,7 +120,7 @@ class WebServer {
 
                 socket.emit('login', true);
 
-                logger.system('User logged in');
+                logger.system(`${username} logged into webserver`);
                 socket.emit('clear');
                 const filterStatus = {
                     chat: true,
@@ -132,7 +134,7 @@ class WebServer {
                 setTimeout(() => {
                     socket.emit('logs', self.logs);
                     setTimeout(() => {
-                        const uid = self.register(socket, filterStatus);
+                        const uid = self.register(socket, filterStatus, username);
                         socket.on('disconnect', () => self.unregister(uid));
                     }, 1000)
                 }, 1000);
@@ -163,13 +165,15 @@ class WebServer {
     /**
      * @param {Socket} socket
      * @param {object} filter
+     * @param {String} name
      * @returns {number}
      */
-    register(socket, filter) {
+    register(socket, filter, name) {
         let uid = Date.now();
         while(utils.isDefined(this.connections[uid]))
             uid += 'a';
         this.connections[uid] = {
+            name: name,
             socket: socket,
             filter: filter
         };
@@ -180,6 +184,8 @@ class WebServer {
      * @param {number} uid
      */
     unregister(uid) {
+        if (utils.isDefined(this.connections[uid]))
+            logger.system(`${this.connections[uid].name} disconnected from webserver`);
         delete this.connections[uid];
     }
 

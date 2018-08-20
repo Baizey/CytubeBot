@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
+
+        .btn-primary {
+            margin-top: 10px;
+        }
+
         body {
             color: lightgray
         }
@@ -89,8 +94,9 @@
 
             login = () => {
                 const pass = document.getElementById('login_password').value;
-                if (defined(pass) && pass.length > 0)
-                    socket.emit('login', pass);
+                const user = document.getElementById('login_username').value;
+                if (defined(pass) && defined(user) && user.length > 0)
+                    socket.emit('login', {password: pass, username: user});
             };
 
             filter = name => {
@@ -163,8 +169,11 @@
 <div id="login" style="position:absolute; width:100%; height:100%; z-index: 999; ">
     <div class="login">
         <form method="POST">
+            <label for="login_username">Username</label>
+            <input style="width:100%" name="username" id="login_username" type="text" value=""/>
             <label for="login_password">Password</label>
             <input style="width:100%" name="password" id="login_password" type="password" value=""/>
+            <button type="submit" style="display:none">Login</button>
         </form>
         <button class="btn btn-primary" onClick="login()">Login</button>
     </div>
