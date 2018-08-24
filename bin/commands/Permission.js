@@ -25,8 +25,6 @@ module.exports = new Command(
         const user = new User(message.msg.trim());
         const givenUser = utils.isUsed(user.name);
 
-        console.log(bot.db.getPermissions(givenUser ? user : message.user));
-
         if (message.hasTag('mine'))
             return bot.sendMsg(bot.db.getPermissions(givenUser ? user : message.user).join(", "), message);
 
@@ -46,9 +44,6 @@ module.exports = new Command(
         permissions.forEach(permission => {
             if (!message.hasTag(permission))
                 return;
-            console.log(message.getTag(permission));
-            console.log(utils.isDefined(grantsLookup[message.getTag(permission)]));
-            console.log(utils.isDefined(removesLookup[message.getTag(permission)]));
             if (utils.isDefined(grantsLookup[message.getTag(permission)]))
                 bot.db.insertPermission(user, permission);
             else if (utils.isDefined(removesLookup[message.getTag(permission)]))

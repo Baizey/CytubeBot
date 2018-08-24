@@ -49,7 +49,7 @@ class Database {
     deletePermission(user, permission) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
-        this.prepareDelete(table.name, `${columns.user.where()}, ${columns.type.where()}`).run(user.name, permission);
+        this.prepareDelete(table.name, `${columns.user.where()} AND ${columns.type.where()}`).run(user.name, permission);
     }
 
     /**
