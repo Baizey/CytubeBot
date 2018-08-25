@@ -2,6 +2,7 @@
  * KEYS ARE EXPECTED TO BE LOWERCASE
  */
 const commands = {
+    crash: require('../commands/Crash'),
     about: require("../commands/About.js"),
     add: require("../commands/Add.js"),
     allow: require("../commands/Allow.js"),

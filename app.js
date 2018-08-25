@@ -55,29 +55,10 @@ const configString = JSON.stringify(config)
     .join('\n');
 
 const configFile = './config.json';
-const shutdownLog = "./logs/shutdown.log";
+const shutdownLog = './logs/shutdown.log';
 fs.openSync(shutdownLog, 'a+');
 try { fs.writeFileSync(configFile, configString, {flag: 'wx'}); } catch (error) {}
-
-process.on('uncaughtException', error => {
-    console.log(Log.asLogFormat(error));
-    process.exit(1);
-});
-
-const child = new (forever.Monitor)('./bin/index.js', {
-    silent: false,
-    minUptime: 5000,
-    errFile: shutdownLog
-});
-
-child.on('stderr', error => {
-    console.log(Log.asLogFormat(error.toString()));
-    process.exit(1);
-});
-
-child.on('error', (error) => console.log(`\nBot got error: ${error}\n`));
-
-child.on('stop', () => console.log("\nBot is stopping\n"));
+const logger = Log.createLogger('shutdown');
 
 /**
  * Error codes:
@@ -86,25 +67,52 @@ child.on('stop', () => console.log("\nBot is stopping\n"));
  * 2 -> Expected exit / command
  * 3 -> Expected restart / command
  */
-child.on('exit:code', (code) => {
+const exit = (code) => {
     switch (code) {
         case 1:
-            console.log("\nBot crashed");
+            logger.log("Bot crashed");
         case 2:
-            console.log("\nBot is exiting\n");
+            logger.log("Bot is exiting");
             break;
         case 0:
-            console.log("\nBot lost connection");
+            logger.log("Bot lost connection");
         case 3:
-            console.log("\nBot is restarting\n");
+            logger.log("Bot is restarting");
             break;
         default:
-            console.log("Code: " + code);
+            logger.log("Exit code: " + code);
     }
     // Delay for time to log/send final messages
     if (code !== 0 && code !== 3)
         setTimeout(() => process.exit(code), 1000);
+};
+
+process.on('uncaughtException', error => {
+    logger.log(error);
+    exit(1);
 });
+
+const child = new (forever.Monitor)('./bin/index.js', {
+    silent: false,
+    minUptime: 5000
+});
+
+child.on('stderr', error => {
+    logger.log(error);
+    exit(1);
+});
+
+child.on('error', error => {
+    logger.log(error);
+    exit(1);
+});
+
+child.on('stop', () => {
+    logger.log("Bot is stopping");
+    exit(2);
+});
+
+child.on('exit:code', code => exit(code));
 
 // child.on("start", function(){});
 // child.on('exit', function() {});

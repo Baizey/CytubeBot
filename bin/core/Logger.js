@@ -2,6 +2,7 @@ const join = require("path").join;
 const fs = require('fs');
 const EventEmitter = require('events').EventEmitter;
 const removeUrlId = require('../structure/Playlist').removeUrlId;
+const utils = require('./Utils');
 
 class Log extends EventEmitter {
     constructor(path) {
@@ -11,6 +12,7 @@ class Log extends EventEmitter {
         this.writer = fs.createWriteStream(path, {flags: 'a+'});
         this.open = false;
         this.writer.on('open', () => self.open = true);
+        this.path = path;
     }
 
     /**
@@ -24,16 +26,25 @@ class Log extends EventEmitter {
     }
 
     static asLogFormat(thing) {
-        if (typeof thing === 'object')
-            thing = JSON.stringify(thing);
-
-        // Remove api keys
-        thing = (thing + '').replace(/([&?](?:api)?_?key=)[\w-]+/gi, (g0, g1) => `${g1}<hidden>`);
-        // Remove id's from video links
-        thing = removeUrlId(thing);
-
+        if (typeof thing !== 'string')
+            thing = Buffer.isBuffer(thing) ? thing.toString('utf8') : JSON.stringify(thing);
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1);
-        return thing.split('\n').map(line => `[${timestamp}] ${line}`).join('\n')
+        return thing
+            .split(/\r?\n/)
+            .map(line => line.replace(/([&?](?:api)?_?key=)[\w-]+/gi, (_, g) => `${g}<hidden>`))
+            .map(line => removeUrlId(line))
+            .map(line => line.replace(/c:(?:[\\\/]\w+)*([\\\/]cytubebot)\)/gi, (_, g) => `...${g}`))
+            .filter(line => utils.isUsed(line.trim()))
+            .map(line => `[${timestamp}] ${line}`)
+            .join('\n');
+    }
+
+    /**
+     * @param {String} name
+     * @returns {Log}
+     */
+    static createLogger(name) {
+        return new Log(shutdown);
     }
 }
 
