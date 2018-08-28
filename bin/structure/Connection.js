@@ -90,7 +90,7 @@ class Connection {
      * @param data
      */
     emit(type, data) {
-        logger.debug(`EMIT | ${type} | ${data}`);
+        logger.debug(`EMIT | ${type} | ${JSON.stringify(data)}`);
         this.socket.emit(type, data);
     }
 
