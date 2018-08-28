@@ -34,6 +34,7 @@ class Log extends EventEmitter {
             .map(line => line.replace(/([&?](?:api)?_?key=)[\w-]+/gi, (_, g) => `${g}<hidden>`))
             .map(line => removeUrlId(line))
             .map(line => line.replace(/c:(?:[\\\/]\w+)*([\\\/]cytubebot)\)/gi, (_, g) => `...${g}`))
+            .map(line => line.replace(/"id":\s* ".*?"/gi, '"id": "<hidden>"'))
             .filter(line => utils.isUsed(line.trim()))
             .map(line => `[${timestamp}] ${line}`)
             .join('\n');
