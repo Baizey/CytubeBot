@@ -76,17 +76,17 @@ class Video {
      * @returns {Video}
      */
     static fromMessage(bot, message) {
-        let title = message.msg.trim();
+        const title = message.msg.trim();
 
         if (utils.isEmpty(title))
             message.setTag('curr');
 
-        if (message.hasTag('curr'))
-            return bot.playlist.getVideoFromCurrent(0);
         if (message.hasTag('next'))
             return bot.playlist.getVideoFromCurrent(1);
         if (message.hasTag('prev'))
             return bot.playlist.getVideoFromCurrent(-1);
+        if (message.hasTag('curr'))
+            return bot.playlist.getVideoFromCurrent(0);
 
         const video = Video.empty();
         video.title = title;
