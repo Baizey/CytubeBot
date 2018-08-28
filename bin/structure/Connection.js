@@ -90,7 +90,14 @@ class Connection {
      * @param data
      */
     emit(type, data) {
-        logger.debug(`EMIT | ${type} | ${JSON.stringify(data)}`);
+        switch(type){
+            case Emit.connect.channelPassword:
+            case Emit.connect.login:
+                logger.debug(`EMIT | ${type} | <hidden>`);
+                break;
+            default:
+                logger.debug(`EMIT | ${type} | ${JSON.stringify(data)}`);
+        }
         this.socket.emit(type, data);
     }
 
