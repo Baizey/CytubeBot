@@ -25,6 +25,10 @@ class Log extends EventEmitter {
         super.emit('line', msg);
     }
 
+    /**
+     * @param {*} thing
+     * @returns {string}
+     */
     static asLogFormat(thing) {
         if (typeof thing !== 'string')
             thing = Buffer.isBuffer(thing) ? thing.toString('utf8') : JSON.stringify(thing);
@@ -34,7 +38,7 @@ class Log extends EventEmitter {
             .map(line => line.replace(/([&?](?:api)?_?key=)[\w-]+/gi, (_, g) => `${g}<hidden>`))
             .map(line => removeUrlId(line))
             .map(line => line.replace(/c:(?:[\\\/]\w+)*([\\\/]cytubebot)\)/gi, (_, g) => `...${g}`))
-            .map(line => line.replace(/"id":\s*"[\w\-]+"/gi, '"id": "<hidden>"'))
+            .map(line => line.replace(/("id":\s*")[\w\-]+(")/gi, (_, a, b) => `${a}<hidden>${b}`))
             .filter(line => utils.isUsed(line.trim()))
             .map(line => `[${timestamp}] ${line}`)
             .join('\n');
@@ -45,7 +49,7 @@ class Log extends EventEmitter {
      * @returns {Log}
      */
     static createLogger(name) {
-        return new Log(shutdown);
+        return createLog(name);
     }
 }
 
