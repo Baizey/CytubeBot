@@ -1,4 +1,5 @@
-const logger = require("../core/Logger");
+const logger = require("./Logger");
+const utils = require('./Utils');
 
 const code = {
     disconnect: 0,
@@ -14,20 +15,21 @@ module.exports = {
      * @param {String} reason
      */
     exit: (exitCode, reason = "") => {
-        switch (exitCode) {
-            case code.disconnect:
-                logger.system(`Disconnected: ${reason}`);
-                break;
-            case code.crash:
-                logger.system(`Crashed: ${reason}`);
-                break;
-            case code.exit:
-                logger.system(`Exiting: ${reason}`);
-                break;
-            case code.restart:
-                logger.system(`Restarting: ${reason}`);
-                break;
-        }
+        if (utils.isUsed(reason))
+            switch (exitCode) {
+                case code.disconnect:
+                    logger.system(`Disconnected: ${reason}`);
+                    break;
+                case code.crash:
+                    logger.system(`Crashed: ${reason}`);
+                    break;
+                case code.exit:
+                    logger.system(`Exiting: ${reason}`);
+                    break;
+                case code.restart:
+                    logger.system(`Restarting: ${reason}`);
+                    break;
+            }
         setTimeout(() => process.exit(exitCode), 500)
     }
 };

@@ -60,62 +60,49 @@ fs.openSync(shutdownLog, 'a+');
 try { fs.writeFileSync(configFile, configString, {flag: 'wx'}); } catch (error) {}
 const logger = Log.createLogger('shutdown');
 
-/**
- * Error codes:
- * 0 -> Unexpected restart / disconnect
- * 1 -> Unexpected exit / error
- * 2 -> Expected exit / command
- * 3 -> Expected restart / command
- */
-const exit = (code) => {
-    switch (code) {
-        case 1:
-            logger.log("Bot crashed");
-        case 2:
-            logger.log("Bot is exiting");
-            break;
-        case 0:
-            logger.log("Bot lost connection");
-        case 3:
-            logger.log("Bot is restarting");
-            break;
-        default:
-            logger.log("Exit code: " + code);
-    }
-    // Delay for time to log/send final messages
-    if (code !== 0 && code !== 3)
-        setTimeout(() => process.exit(code), 1000);
-};
-
-process.on('uncaughtException', error => {
-    logger.log(error);
-    exit(1);
-});
-
 const child = new (forever.Monitor)('./bin/index.js', {
     silent: false,
-    minUptime: 5000
+    minUptime: 5000,
+    spinSleepTime: 5000,
 });
 
-child.on('stderr', error => {
-    logger.log(error);
-    exit(1);
-});
+const shutdown = (code = 1, error = '') => {
+    if (error.length > 0)
+        logger.log(error);
+    child.stop();
+    child.kill();
+    setTimeout(() => process.exit(code), 1000);
+};
 
-child.on('error', error => {
-    logger.log(error);
-    exit(1);
-});
+/**
+ * @param {Number} code
+ * @param {String} error
+ * @returns {*}
+ */
+const exit = (code, error = '') => {
+    if (code === 3)
+        return logger.log("Bot restarting");
+    switch (code) {
+        case 1:
+            logger.log("Bot crashing");
+            break;
+        case 2:
+            logger.log("Bot exiting");
+            break;
+        default:
+            logger.log(`Exit code: ${code}`);
+            break;
+    }
+    shutdown(code, error);
+};
 
-child.on('stop', () => {
-    logger.log("Bot is stopping");
-    exit(2);
-});
+// process.on('uncaughtException', error => shutdown(error));
 
+//child.on('start', (proc, data) => {});
+//child.on('stop', () => exit(2));
+//child.on('restart', () => exit(3));
+//child.on('error', error => exit(1, error));
+child.on('stderr', error => exit(1, error));
 child.on('exit:code', code => exit(code));
-
-// child.on("start", function(){});
-// child.on('exit', function() {});
-// child.on('restart', function () {});
 
 child.start();
