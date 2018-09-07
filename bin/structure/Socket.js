@@ -61,7 +61,7 @@ const Emit = {
     },
     poll: {
         close: 'closePoll',
-        open: 'openPoll'
+        open: 'newPoll'
     },
     library: {
         search: 'searchMedia'

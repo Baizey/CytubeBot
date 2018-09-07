@@ -7,12 +7,7 @@ const utils = require('./Utils');
 class Log extends EventEmitter {
     constructor(path) {
         super();
-        const self = this;
-        //fs.openSync(path, 'a+');
         this.writer = fs.createWriteStream(path, {flags: 'a+'});
-        this.open = false;
-        this.writer.on('open', () => self.open = true);
-        this.path = path;
     }
 
     /**
@@ -31,7 +26,7 @@ class Log extends EventEmitter {
      */
     static asLogFormat(thing) {
         if (typeof thing !== 'string')
-            thing = Buffer.isBuffer(thing) ? thing.toString('utf8') : JSON.stringify(thing);
+            thing = Buffer.isBuffer(thing) ? thing.toString() : JSON.stringify(thing);
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1);
         return thing
             .split(/\r?\n/)
