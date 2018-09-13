@@ -39,7 +39,8 @@ class CytubeBot {
         this.poll = new Poll(this);
         this.library = new Library(this);
         this.playlist = new Playlist(this);
-        this.webServer = new WebServer(this, config.web);
+        if (config.web.active)
+            this.webServer = new WebServer(this, config.web);
 
         // this.trivia = new Trivia();
 

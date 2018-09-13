@@ -8,6 +8,15 @@ const handlers = require("../core/Handlers");
 const Emit = require("../structure/Socket").Emit;
 const On = require("../structure/Socket").On;
 
+/**
+ * @param {Connection} connection
+ */
+const timeoutLimiter = connection => {
+    if (!connection.connected)
+        if (Time.current().addMinutes(-10).millis > connection.lastTimeout.millis)
+            exit.exit(exit.code.disconnect, 'No connection for more than 10 minute');
+    setTimeout(() => timeoutLimiter(connection), Time.fromMinutes(1).millis);
+};
 
 class Connection {
     /**
@@ -21,6 +30,9 @@ class Connection {
         this.user = config.user;
         this.channel = config.channel;
         this.socket = null;
+        this.lastTimeout = Time.current();
+        this.connected = false;
+        timeoutLimiter(this);
     }
 
     get isConnected() {
@@ -69,16 +81,21 @@ class Connection {
                 self.emit(Emit.connect.init);
                 self.emit(Emit.connect.joinChannel, {name: self.channel.name});
                 self.emit(Emit.connect.login, {name: self.name, pw: self.password});
+                this.connected = true;
             });
 
             socket.on(On.defaults.timeout, () => {
                 logger.system(`Connection timed out`);
                 bot.validator.pause();
+                this.lastTimeout = Time.current();
+                this.connected = false;
             });
 
             socket.on(On.defaults.disconnect, () => {
                 logger.system(`Disconnected`);
                 bot.validator.pause();
+                this.lastTimeout = Time.current();
+                this.connected = false;
             });
         };
 

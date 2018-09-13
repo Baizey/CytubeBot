@@ -83,6 +83,9 @@ const exit = (code, error = '') => {
     if (code === 3)
         return logger.log("Bot restarting");
     switch (code) {
+        case 0:
+            logger.log("Bot disconnected");
+            break;
         case 1:
             logger.log("Bot crashing");
             break;
