@@ -1,5 +1,6 @@
 const utils = require("../core/Utils");
 const Api = require("../core/Api");
+const Time = require("../core/Time");
 
 class Conversations {
     /**
@@ -15,7 +16,7 @@ class Conversations {
      * @param {User} user
      */
     update(user) {
-        this.names[user.name] = utils.timestamp();
+        this.names[user.name] = Time.current();
     };
 
     /**
@@ -25,7 +26,7 @@ class Conversations {
     alive(user) {
         if (utils.isUndefined(this.names[user.name]))
             return false;
-        return this.names[user.name] + 15 >= utils.timestamp();
+        return Time.fromSeconds(15).add(this.names[user.name]).isBiggerThan(Time.current());
     };
 
     /**

@@ -25,9 +25,7 @@ const config = {
             'subdomain': ''
         }
     },
-    /**
-     * API keys
-     */
+
     // https://products.wolframalpha.com/api/
     'wolfram': '',
     // https://developers.google.com/apis-explorer/#p/
@@ -37,9 +35,12 @@ const config = {
     // https://www.omdbapi.com/
     'OMDB': '',
     // https://www.cleverbot.com/api/
-    'cleverbot': '',
+    'cleverbot': ''
 };
 
+/*
+ * Turns config into a pretty formatted json string
+ */
 let depth = 0;
 const configString = JSON.stringify(config)
     .replace(/:/g, ': ')
@@ -80,21 +81,12 @@ const shutdown = (code = 1, error = '') => {
  * @returns {*}
  */
 const exit = (code, error = '') => {
-    if (code === 3)
-        return logger.log("Bot restarting");
     switch (code) {
-        case 0:
-            logger.log("Bot disconnected");
-            break;
-        case 1:
-            logger.log("Bot crashing");
-            break;
-        case 2:
-            logger.log("Bot exiting");
-            break;
-        default:
-            logger.log(`Exit code: ${code}`);
-            break;
+        case 0: logger.log("Bot disconnected");
+        case 3: return logger.log("Bot restarting");
+        case 1: logger.log("Bot crashing");
+        case 2: logger.log("Bot exiting");
+        default: logger.log(`Exit code: ${code}`);
     }
     shutdown(code, error);
 };

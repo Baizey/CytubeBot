@@ -2,7 +2,7 @@ const logger = require("../core/Logger");
 const utils = require("../core/Utils");
 const Api = require("../core/Api");
 const socketClient = require("socket.io-client");
-const exit = require("../core/Exit");
+const Exit = require("../core/Exit");
 const Time = require("../core/Time");
 const handlers = require("../core/Handlers");
 const Emit = require("../structure/Socket").Emit;
@@ -12,10 +12,10 @@ const On = require("../structure/Socket").On;
  * @param {Connection} connection
  */
 const timeoutLimiter = connection => {
-    if (!connection.connected)
-        if (Time.current().addMinutes(-10).millis > connection.lastTimeout.millis)
-            exit.exit(exit.code.disconnect, 'No connection for more than 10 minute');
-    setTimeout(() => timeoutLimiter(connection), Time.fromMinutes(1).millis);
+    setTimeout(() => {
+        if (!connection.connected)
+            Exit.terminate(Exit.code.disconnect, 'No connection for more than 10 minute');
+    }, Time.fromMinutes(10).millis);
 };
 
 class Connection {
@@ -30,9 +30,7 @@ class Connection {
         this.user = config.user;
         this.channel = config.channel;
         this.socket = null;
-        this.lastTimeout = Time.current();
         this.connected = false;
-        timeoutLimiter(this);
     }
 
     get isConnected() {
@@ -87,15 +85,16 @@ class Connection {
             socket.on(On.defaults.timeout, () => {
                 logger.system(`Connection timed out`);
                 bot.validator.pause();
-                this.lastTimeout = Time.current();
                 this.connected = false;
+                timeoutLimiter(this);
             });
 
             socket.on(On.defaults.disconnect, () => {
                 logger.system(`Disconnected`);
                 bot.validator.pause();
-                this.lastTimeout = Time.current();
                 this.connected = false;
+                timeoutLimiter(this);
+
             });
         };
 
@@ -107,7 +106,7 @@ class Connection {
      * @param data
      */
     emit(type, data) {
-        switch(type){
+        switch (type) {
             case Emit.connect.channelPassword:
             case Emit.connect.login:
                 logger.debug(`EMIT | ${type} | <hidden>`);
@@ -122,14 +121,14 @@ class Connection {
         logger.system("Room has password");
         const room = this.channel;
         if (utils.isUndefined(room.password))
-            exit.exit(exit.code.exit, "Have no channel password to give!");
+            Exit.terminate(Exit.code.exit, "Have no channel password to give!");
         logger.system("Sending password...");
         this.emit(Emit.connect.channelPassword, room.password);
     };
 
     handleUserLogin(data) {
         if (data.isFailure)
-            exit.exit(exit.code.exit, `Failed to login as ${this.name}`);
+            Exit.terminate(Exit.code.exit, `Failed to login as ${this.name}`);
         logger.system(`Logged in as ${data.name}`);
         this.emit(Emit.playlist.request);
     };
