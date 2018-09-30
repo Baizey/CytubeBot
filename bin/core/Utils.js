@@ -94,6 +94,13 @@ const utils = {
     },
 
     /**
+     * @param {number} number
+     * @param {string} name
+     * @returns {string}
+     */
+    pluralise: (number, name) => `${number} ${name}${number > 1 ? 's' : ''}`,
+
+    /**
      * @param {String|String[]} msg
      * @returns {String[]}
      */

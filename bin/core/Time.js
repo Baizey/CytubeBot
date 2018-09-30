@@ -143,11 +143,10 @@ class Time {
         const bigUnit = Math.floor(time);
         const smallUnit = Math.floor(scale[i - 1] * (time - bigUnit));
 
-        const smallUnitString = smallUnit > 0 || i > 2
-            ? ` and ${smallUnit} ${names[i - 2]}${smallUnit > 1 ? 's' : ''}`
-            : '';
-
-        return `${bigUnit} ${names[i - 1]}${bigUnit > 1 ? 's' : ''}${smallUnitString}`;
+        const bigUnitString = utils.pluralise(bigUnit, names[i - 1]);
+        return smallUnit > 0 && i > 2
+            ? `${bigUnitString} and ${utils.pluralise(smallUnit, names[i - 2])}`
+            : bigUnitString;
     }
 
     /**
