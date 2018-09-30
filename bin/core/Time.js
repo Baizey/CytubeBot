@@ -123,7 +123,10 @@ class Time {
     }
 
     /**
-     * Time scaled to best fitting unit
+     * Time scaled to best fitting unit(s)
+     * fx 5 minutes
+     * or 3 minutes and 32 seconds
+     * milliseconds will only ever be displayed if there is no bigger unit fitting
      * @returns {string}
      */
     get asUnit() {
@@ -136,7 +139,15 @@ class Time {
             if (temp < 1) break;
             time = temp;
         }
-        return `${time.toFixed(2)} ${names[i - 1]}${time > 1 ? 's' : ''}`;
+
+        const bigUnit = Math.floor(time);
+        const smallUnit = Math.floor(scale[i - 1] * (time - bigUnit));
+
+        const smallUnitString = smallUnit > 0 || i > 2
+            ? ` and ${smallUnit} ${names[i - 2]}${smallUnit > 1 ? 's' : ''}`
+            : '';
+
+        return `${bigUnit} ${names[i - 1]}${bigUnit > 1 ? 's' : ''}${smallUnitString}`;
     }
 
     /**
