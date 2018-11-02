@@ -3,6 +3,7 @@ const fs = require('fs');
 const EventEmitter = require('events').EventEmitter;
 const removeUrlId = require('../structure/Playlist').removeUrlId;
 const utils = require('./Utils');
+const util = require('util');
 
 class Log extends EventEmitter {
     constructor(path) {
@@ -26,7 +27,9 @@ class Log extends EventEmitter {
      */
     static asLogFormat(thing) {
         if (typeof thing !== 'string')
-            thing = Buffer.isBuffer(thing) ? thing.toString() : JSON.stringify(thing);
+            thing = Buffer.isBuffer(thing)
+                ? thing.toString()
+                : JSON.stringify(util.inspect(thing));
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1);
         return thing
             .split(/\r?\n/)
