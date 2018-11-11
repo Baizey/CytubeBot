@@ -109,10 +109,12 @@ class Playlist {
      */
     moveEvent(fromUid, afterUid) {
         const fromIndex = this.indexFromUid(fromUid);
-        const afterIndex = this.indexFromUid(afterUid);
-        if (fromIndex === -1 || afterIndex === -1)
+        if (fromIndex === -1)
             return;
         const video = this.playlist.splice(fromIndex, 1)[0];
+        const afterIndex = this.indexFromUid(afterUid);
+        if (afterIndex === -1)
+            logger.error('Cannot move video after uid');
         this.playlist.splice(afterIndex + 1, 0, video);
     }
 
