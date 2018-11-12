@@ -1,4 +1,4 @@
-const request = require('snekfetch');
+const fetch = require('node-fetch').default;
 const logger = require('./Logger');
 const utils = require("./Utils");
 const Response = require("../structure/Api").Response;
@@ -16,14 +16,14 @@ class Api {
         if (!/^https?:\/\//.test(url))
             url = 'https://' + url;
         logger.system(`Sending url (${url})`);
-        return request.get(url)
+
+        return fetch(url)
+            .then(r => r.text())
             .then(result => {
                 if (isJson)
-                    return new Response(true, JSON.parse(result.text));
-                return new Response(true, result.text);
+                    return new Response(true, JSON.parse(result));
+                return new Response(true, result);
             }).catch(error => {
-                if (utils.isDefined(error.text))
-                    error = error.text;
                 try {
                     const result = new Response(true, JSON.parse(error));
                     if (utils.isUsed(result.error) || utils.isUsed(result.errors))
