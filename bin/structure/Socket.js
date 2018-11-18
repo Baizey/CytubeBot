@@ -1,4 +1,7 @@
 const On = {
+    actions: {
+        kicked: 'kick'
+    },
     defaults: {
         connect: 'connect',
         timeout: 'connect_timeout',

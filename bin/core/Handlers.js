@@ -3,6 +3,8 @@ const User = require("../structure/Message").User;
 const Option = require("../bot/Poll").Option;
 const Video = require("../structure/Playlist").Video;
 const Time = require("../core/Time");
+const Exit = require('./Exit');
+const Code = Exit.code;
 const utils = require("../core/Utils");
 const On = require("../structure/Socket").On;
 
@@ -13,6 +15,9 @@ const addHandlers = function (bot) {
     const playlist = bot.playlist;
     const botPoll = bot.poll;
     const socket = bot.connection.socket;
+
+    // On Actions taken against the bot
+    socket.on(On.actions.kicked, data => Exit.terminate(data.reason === `You're banned!` ? Code.banned : Code.kicked, data.reason));
 
     socket.on(On.playlist.get, (videos) => playlist.setPlaylist(videos.map(video => Video.fromCytube(video))));
     socket.on(On.playlist.update, (data) => playlist.updateCurrentMedia(data.currentTime, data.paused));

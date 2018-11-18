@@ -82,8 +82,10 @@ const shutdown = (code = 1, error = '') => {
  */
 const exit = (code, error = '') => {
     switch (code) {
+        case 4: logger.log('Bot got kicked');
         case 0: logger.log("Bot disconnected");
         case 3: return logger.log("Bot restarting");
+        case 5: logger.log('Bot got banned');
         case 1: logger.log("Bot crashing");
         case 2: logger.log("Bot exiting");
         default: logger.log(`Exit code: ${code}`);
