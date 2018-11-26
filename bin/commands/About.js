@@ -27,7 +27,11 @@ module.exports = new Command(
             if (utils.isDefined(details.tagline))
                 saying.push(`**${details.tagline}**`);
 
-            saying.push(`**Plot** ${details.overview}`);
+            const plot = message.hasTag('plot')
+                ? details.overview
+                : `Add '-plot' to command to see the plot`;
+
+            saying.push(`**Plot** ${plot}`);
 
             if (utils.isDefined(details.genres))
                 saying.push(`**Genres** ${details.genres.map(e => e.name).join(", ")}`);
