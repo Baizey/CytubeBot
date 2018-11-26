@@ -123,6 +123,8 @@ class CytubeBot {
      */
     handleCommand(message) {
         const command = commands[message.command.toLowerCase()];
+        if (/^\d.*/.test(command))
+            return; // Ignore commands starting with number (avoid american currency confusion)
         if (utils.isUndefined(command))
             return this.sendMsg("Unknown command... do '$help'", message);
         if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
