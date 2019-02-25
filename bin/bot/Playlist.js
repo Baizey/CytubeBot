@@ -43,13 +43,16 @@ class Playlist {
         let at = this.indexFromUid(this.currentUID);
         if (at === -1)
             return result;
-        
+
         if (this.currentVideo.isIntermission)
             result.intermissions.push(this.currentVideo);
 
-        for(let i = at + 1; i !== at && at < this.playlist.length; i = (i + 1) % this.playlist.length) {
+        for (let i = at + 1; i !== at && at < this.playlist.length; i = (i + 1) % this.playlist.length) {
             const curr = this.playlist[i];
-            if(curr.isMovie) {
+            if (curr.fullTitle === 'the next movie in queue')
+                continue;
+
+            if (curr.isMovie) {
                 result.next = curr;
                 return result;
             }
