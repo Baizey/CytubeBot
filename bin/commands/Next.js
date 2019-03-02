@@ -14,7 +14,7 @@ module.exports = new Command(
 
         bot.sendMsg([
             `${data.time.asUnit} before next movie (${data.intermissions.length} intermissions)`,
-            `Next movie in the queue is ${data.next.displayTitle}`
+            `Next movie in the queue is ${data.next.displayTitle}, a poll or moderator may change this`
         ], message);
     }
 );
