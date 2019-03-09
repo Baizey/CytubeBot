@@ -49,13 +49,12 @@ class Playlist {
 
         for (let i = at + 1; i !== at && at < this.playlist.length; i = (i + 1) % this.playlist.length) {
             const curr = this.playlist[i];
-            if (curr.fullTitle === 'the next movie in queue')
-                continue;
 
             if (curr.isMovie) {
                 result.next = curr;
                 return result;
             }
+            
             result.intermissions.push(curr);
             result.time.add(curr.time);
         }
