@@ -31,7 +31,7 @@ class Dice {
             else if (number === 1)
                 result.push(`Critical Failure`);
             else
-                result.push(utils.random(1, this.sides + 1));
+                result.push(number);
         }
         return `Rolling ${this.amount} d${this.sides}... ${result.join(', ')}`;
     }
