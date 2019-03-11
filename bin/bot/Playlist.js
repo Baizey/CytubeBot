@@ -54,7 +54,7 @@ class Playlist {
                 result.next = curr;
                 return result;
             }
-            
+
             result.intermissions.push(curr);
             result.time.add(curr.time);
         }
