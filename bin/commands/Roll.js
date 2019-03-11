@@ -9,7 +9,7 @@ module.exports = new Command(
     "",
     (bot, message) => {
         const dices = message.msg.split(' ')
-            .filter(d => d.test(/\d+d\d+/))
+            .filter(d => /^\d+d\d+$/.test(d))
             .map(d => new Dice(d));
         bot.sendMsg(dices.map(d => d.roll()), message);
     }
