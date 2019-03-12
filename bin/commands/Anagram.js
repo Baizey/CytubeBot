@@ -22,10 +22,13 @@ module.exports = new Command(
             logger.debug(resp.result);
 
             // TODO: remove hack, Hack to get anagram results as the api doesnt have an actual api :(
-            const anagrams = $(resp.result).getElementsByClassName('p402_premium')[0].innerText.split('Displaying all:')[1].trim().split('\n');
+            const anagrams = resp.result.split('Displaying all:')[1].split('<script>')[0].replace(/<br>|<\/b>/g, '').trim().split('\n')
 
             logger.debug(anagrams);
 
-            bot.sendMsg(`Anagram: ${utils.random(anagrams)}`, message);
+            if (anagrams.length > 0)
+                bot.sendMsg(`Anagram: ${utils.random(anagrams)}`, message);
+            else
+                bot.sendMsg(`Found no anagrams for ${message.msg}`, message);
         })
 );
