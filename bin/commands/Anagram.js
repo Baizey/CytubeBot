@@ -14,7 +14,7 @@ const utils = require('../core/Utils');
 module.exports = new Command(
     rank.user,
     "",
-    (bot, message) => api.request(baseUrl + message.msg)
+    (bot, message) => api.request(baseUrl + message.msg, false)
         .then(resp => {
             if (resp.isFailure)
                 return bot.sendMsg('Something went wrong finding anagrams :(', message);
