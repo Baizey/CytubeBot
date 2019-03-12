@@ -1,12 +1,15 @@
 const baseUrl = `https://new.wordsmith.org/anagram/anagram.cgi?language=english&t=500&d=&include=&exclude=&n=&m=&a=n&l=n&q=n&k=1&source=adv&anagram=`;
 
+const jsdom = require("jsdom");
+const {JSDOM} = jsdom;
+const dom = new JSDOM();
+const $ = require("jquery")(dom.window);
+
 const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
 const api = require('../core/Api');
-const dom = new JSDOM();
 const logger = require('../core/Logger');
 const utils = require('../core/Utils');
-const $ = require("jquery")(dom.window);
 
 module.exports = new Command(
     rank.user,
