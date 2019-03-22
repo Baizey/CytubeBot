@@ -7,7 +7,7 @@ const utils = require("../core/Utils");
 const quality = require("../core/VideoQuality").rank;
 const Emit = require('../structure/Socket').Emit;
 
-function pollManager(bot, message, options) {
+async function pollManager(bot, message, options) {
     const next = bot.playlist.getVideoFromCurrent(1);
     if(next.isIntermission)
         return setTimeout(() => pollManager(bot, message, options), 1000);
@@ -17,12 +17,11 @@ function pollManager(bot, message, options) {
     const winner = options[bot.poll.pickWinner().title];
     bot.sendMsg(`The winner is ${winner.title}`, message);
 
-    let videos = bot.db.getVideosByTitle(winner.title);
-    if(Math.round(winner.year) !== 0)
-        videos = videos.filter(video => video.year === winner.year);
-    if (videos.length === 0) {
+    let videos = await bot.db.getVideos(winner.title, Math.round(winner.year));
+
+    if (videos.length === 0)
         return bot.sendMsg('No video to queue as winner...?', message, true);
-    }
+
     videos.sort((a, b) => quality(b.quality) - quality(a.quality));
     bot.playlist.add(videos[0]);
 }
@@ -31,12 +30,12 @@ function pollManager(bot, message, options) {
  * @param {CytubeBot} bot
  * @param {Message} message
  */
-function queuePollFromNomination(bot, message) {
-    let nominations = bot.db.getNominations(bot.userlist.getNames());
+async function queuePollFromNomination(bot, message) {
+    let nominations = await bot.db.getNominations(bot.userlist.getNames());
     nominations = nominations.slice(0, Math.min(5, nominations.length));
     bot.poll.create(
         'Next movie',
-        nominations.map(e => e.key),
+        nominations.map(e => `${e.year} - ${e.title}`),
         message.hasTag('anon'));
 
     if (!message.hasTag('manage'))

@@ -12,7 +12,7 @@ module.exports = new Command(
      * @param {CytubeBot} bot
      * @param {Message} message
      */
-    (bot, message) => {
+    async (bot, message) => {
         const title = message.msg.trim();
         if (message.msg.trim().startsWith('http')) {
             const video = Video.fromUrl(title);
@@ -21,9 +21,7 @@ module.exports = new Command(
             let year = message.getTag('year') - 0;
             year = isNaN(year) ? 0 : Math.floor(year);
 
-            let videos = bot.db.getVideosByTitle(title);
-            if (year !== 0)
-                videos = videos.filter(video => video.year === year);
+            let videos = await bot.db.getVideos(title, year);
 
             if (videos.length === 0)
                 return bot.sendMsg(`No movie with the title '${title}' to queue`, message);
