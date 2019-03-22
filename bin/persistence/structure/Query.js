@@ -1,3 +1,5 @@
+const Tables = require('./Tables');
+
 module.exports = class Query {
     /**
      * @param {module.Connection} conn
@@ -80,7 +82,7 @@ module.exports = class Query {
                 return `SELECT ${columns} FROM ${table}${where}${selectLimit}`;
             case 'insert':
                 const insertColumns = this._columns.map(e => `$(${e})`).join(', ');
-                return `INSERT INTO ${table} (${columns}) values (${insertColumns}) ON CONFLICT DO NOTHING`;
+                return `INSERT INTO ${table} (${columns}) values (${insertColumns})`;
             case 'update':
                 const updateColumns = this._columns.map(e => `${e} = $(${e})`).join(', ');
                 return `UPDATE ${table} SET ${updateColumns}${where}`;
@@ -94,6 +96,16 @@ module.exports = class Query {
      * @returns {Promise<object[]>}
      */
     execute(params = {}) {
+        if (this._type === 'insert') {
+            const table = Tables[this._table];
+            const conn = this._conn;
+            const sql = this.sql;
+            return this._conn.select(table.name)
+                .where(table.table.whereKeys)
+                .execute(params)
+                .catch(() => [])
+                .then(async found => found.length > 0 ? [] : (await conn.execute(sql, params)))
+        }
         return this._conn.execute(this.sql, params);
     }
 

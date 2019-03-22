@@ -184,11 +184,12 @@ module.exports = class Database {
      * @returns {Promise<Object[]>}
      */
     runQuery(query, params = {}) {
-
+        /*
         if (Array.isArray(params))
             console.log(query.sql.replace(/\$(\d+)/g, (all, word) => params[word - 1] ? params[word - 1] : all));
         else
             console.log(query.sql.replace(/\$\((\w+)\)/g, (all, word) => params[word] ? params[word] : all));
+        */
 
         if (this._ready) return query.execute(params).catch(handleError);
         return this._waitForReady
@@ -322,6 +323,7 @@ module.exports = class Database {
      * @return {Promise<{title: string, year: number, votes: int}[]>}
      */
     getNominations(users) {
+        if (users.length === 0) return new Promise(r => r());
         const sql = [];
         for (let i = 0; i < users.length; i++)
             sql.push(`username = $${i + 1}`);
@@ -446,6 +448,7 @@ module.exports = class Database {
      * @return {Promise<void>}
      */
     deleteNominationsByTitleAndOnlineUsers(title, onlineUsers) {
+        if (onlineUsers.length === 0) return new Promise(r => r());
         const sql = [];
         for (let i = 0; i < onlineUsers.length; i++)
             sql.push(`username = $${i + 2}`);

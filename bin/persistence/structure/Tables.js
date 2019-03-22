@@ -65,11 +65,12 @@ const tables = {
             command: new Column('command'),
             rest: new Column('rest'),
         },
-        primary: [],
+        primary: ['regex', 'command', 'rest'],
         table: new Table('patterns')
             .withColumn('regex', Column.text())
             .withColumn('command', Column.text())
             .withColumn('rest', Column.text())
+            .withKeys(['regex', 'command', 'rest'])
     },
     deadlinks: {
         name: 'deadlinks',
