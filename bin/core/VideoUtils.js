@@ -1,4 +1,5 @@
 const Video = require("../structure/Playlist").Video;
+const Latin = require('./Latinizer');
 
 const sentenceFilter = [
     "movieji com",
@@ -119,12 +120,16 @@ const utils = require("./Utils");
 
 const wordLookup = utils.listToMap(wordFilter);
 
+const removeNonAsciiCharacters = title => Latin.secure(title).replace(/[^\x00-\x7F]/g, '');
+
+const joinAbbreviations = title => title.replace(/( |^)([a-zA-Z](?: [a-zA-Z])+)( |$)/g, (a, b, c, d) => b + c.replace(/ /g, '') + d);
+
 /**
  * @param {String} title
  * @returns {string}
  */
 function applyBasicFilter(title) {
-    return title.replace(/[,_~/\\\-]+/g, ' ')                                               // Handle space replacer
+    return title.replace(/[,_~/\\\-]+/g, ' ')                                       // Handle space replacer
         .replace(/(^|[ .])\w+\.(com|org|net)($|[ .])/g, `$1${wordFilter[0]}$3`)     // Remove simple urls
         .replace(/\.+/g, ' ')                                                       // Handle dots after url
         .trim().replace(/  +/g, ' ')                                                // Remove redundant whitespace
@@ -246,7 +251,8 @@ class MovieInfo {
     constructor(fullTitle) {
         this.fullTitle = fullTitle;
 
-        this.title = applyBasicFilter(fullTitle);
+        this.title = removeNonAsciiCharacters(this.fullTitle);
+        this.title = applyBasicFilter(this.title);
         const words = splitToWords(this.title);
 
         this.releaseYear = guessReleaseYear(words);
@@ -256,6 +262,7 @@ class MovieInfo {
         this.titleWithReleaseYear = filterTitle(this.titleWithReleaseYear);
 
         this.title = removeBrackets(this.title);
+        this.title = joinAbbreviations(this.title);
         this.title = removeReleaseYear(this.title, this.releaseYear);
         this.title = filterTitle(this.title);
     }

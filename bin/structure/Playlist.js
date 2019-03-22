@@ -172,7 +172,7 @@ class Video {
         this.url = uniteLink(id, type);
     }
 
-    asKey(){
+    asKey() {
         return `${this.type}|${this.id}`;
     }
 
@@ -187,7 +187,7 @@ class Video {
         this.type = res.type;
     }
 
-    get isMovie (){
+    get isMovie() {
         return !this.isIntermission;
     }
 
@@ -209,6 +209,18 @@ class Video {
         this.year = ignoreReleaseYear ? 0 : Math.round(filtered.releaseYear);
     }
 
+    asDatabaseObject() {
+        return {
+            title: this.title,
+            fulltitle: this.fullTitle,
+            year: this.year,
+            id: this.id,
+            type: this.type,
+            quality: this.quality,
+            duration: this.time.seconds,
+            validateBy: this.validateBy.seconds
+        }
+    }
 
     asQueueObject() {
         return {
@@ -250,16 +262,6 @@ class Video {
         if (utils.isEmpty(this.title))
             return "";
         return this.title.charAt(0).toUpperCase() + this.title.slice(1);
-    }
-
-    /**
-     * @param {CytubeBot} bot
-     * @returns {Boolean}
-     */
-    inDatabase(bot) {
-        if (bot.db.isDead(this))
-            return false;
-        return utils.isDefined(bot.db.getVideoExact(this));
     }
 }
 

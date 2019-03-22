@@ -3,26 +3,27 @@ const Command = require("../structure/Command");
 module.exports = new Command(
     rank.user,
     "",
-    (bot, message) => {
+    async (bot, message) => {
         if (message.hasTag('mine')) {
-            const nominations = bot.db.getNominations([message.user.name])
-                .map(n => `${n.key} | ${n.votes} votes`);
+            const nominations = await bot.db.getNominationsByUsername(message.user.name);
             bot.sendMsg('Your nominations are as following:', message, true);
-            nominations.forEach(n => bot.sendMsg(n, message, true));
-        }
-        else if (message.hasTag('top')) {
-            const nominations = bot.db.getNominations(bot.userlist.getNames())
-                .map(n => `${n.key} | ${n.votes} votes`);
+            bot.sendMsg(
+                nominations,
+                message,
+                true
+            );
+        } else if (message.hasTag('top')) {
+            const nominations = await bot.db.getNominations(bot.userlist.getNames());
             bot.sendMsg('Top 5 nominations are as following:', message);
-            nominations.slice(0, Math.min(5, nominations.length)).forEach(n => bot.sendMsg(n, message));
-        }
-        else if(message.hasTag('delete')) {
-            const table = bot.db.structure.nominate.table;
-            const columns = bot.db.structure.nominate.columns;
-            bot.db.prepareDelete(table.name, columns.user.where()).run(message.user.name);
+            bot.sendMsg(
+                nominations.slice(0, 5).map(n => `${n.title} ${n.year ? `(${n.year})` : ''} | ${n.votes} votes`),
+                message,
+            );
+        } else if (message.hasTag('delete')) {
+            bot.db.deleteNominationsByUsername(message.user.name).finally();
             bot.sendMsg('Deleted all your previous nominations :)', message);
         } else {
-            const resp = bot.db.insertNomination(message);
+            const resp = await bot.db.insertNomination(message);
             bot.sendMsg(resp.result, message);
         }
     }

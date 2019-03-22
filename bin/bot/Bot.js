@@ -9,7 +9,7 @@ const Patterns = require("./Pattern").Patterns;
 const Library = require("./Library");
 const Conversations = require("../structure/Conversations");
 const Config = require("../structure/Config");
-const Database = require("./Database").Database;
+const Database = require("../persistence/Database");
 const utils = require("../core/Utils");
 const Poll = require("./Poll").Poll;
 const commands = require("../structure/CommandDictionary");
@@ -31,7 +31,7 @@ class CytubeBot {
         this.connection = new Connection(this, config);
 
         // Initiate structures for internal record keeping
-        this.db = new Database(this, config.databasePath);
+        this.db = new Database(config.database);
         this.validator = new Validator(this);
         this.userlist = new Users(this);
         this.patterns = new Patterns(this);
@@ -73,7 +73,7 @@ class CytubeBot {
      * @param data
      * @param {Boolean} pm
      */
-    receiveMessage(data, pm) {
+    async receiveMessage(data, pm) {
         if (this.startTime.isBiggerThan(Time.from(data.time).addSeconds(1)))
             return;
 
@@ -91,17 +91,17 @@ class CytubeBot {
             return logger.chat(message);
 
         // Get long term info on user
-        const dbUser = this.db.getUser(user);
+        const dbUser = await this.db.getUser(user);
 
         // Check if command
         if (utils.isDefined(message.command)) {
             // Everything is handled on Message creation
 
-        // Check if command-pattern is made
+            // Check if command-pattern is made
         } else if (this.patterns.match(message)) {
             // Everything is handled inside .match
 
-        // Check if conversation is to be kept
+            // Check if conversation is to be kept
         } else if (lowMsg.indexOf(lowName) >= 0 || this.conversations.alive(user))
             message.command = 'talk';
 
@@ -115,19 +115,24 @@ class CytubeBot {
             return logger.system(`Ignoring: ${user.name}`);
         }
 
-        this.handleCommand(message);
+        await this.handleCommand(message);
     };
 
     /**
      * @param {Message} message
      */
-    handleCommand(message) {
+    async handleCommand(message) {
         const command = commands[message.command.toLowerCase()];
         if (/^\d.*/.test(command))
             return; // Ignore commands starting with number (avoid american currency confusion)
         if (utils.isUndefined(command))
             return this.sendMsg("Unknown command... do '$help'", message);
-        if (!command.hasAccess(message.user) && !message.user.hasPermission(message.command))
+
+        const hasAccess = command.hasAccess(message.user);
+        let hasPermission;
+        if (!hasAccess)
+            hasPermission = await message.user.hasPermission(message.command);
+        if (!hasAccess && !hasPermission)
             return this.sendMsg("Unauthorized access, terminators has been dispatched", message);
         logger.commands(message);
         command.function(this, message);

@@ -8,7 +8,10 @@ class Patterns {
      */
     constructor(bot) {
         this.bot = bot;
-        this.patterns = bot.db.getPatterns();
+        this.patterns = [];
+        const self = this;
+        bot.db.getPatterns()
+            .then(patterns => self.patterns = patterns);
     }
 
     /**
@@ -51,7 +54,7 @@ class Patterns {
         if (utils.isUndefined(rest))
             rest = "";
 
-        this.bot.db.insertPattern(command, regex, rest);
+        this.bot.db.insertPattern(command, regex, rest).finally();
         this.patterns.push(new Pattern(command, regex, rest));
         this.bot.sendMsg(`Pattern has been added... world domination at ${utils.random(1, 99)}%`, message);
     };
@@ -61,7 +64,7 @@ class Patterns {
      * @param {Message} message
      */
     delete(command, message) {
-        this.bot.db.deletePattern(command);
+        this.bot.db.deletePatternByCommand(command).finally();
         this.patterns = this.patterns.filter(pattern => pattern.command !== command);
         this.bot.sendMsg(`Pattern has been removed... it will be assimilated later`, message);
     };

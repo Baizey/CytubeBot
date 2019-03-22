@@ -3,7 +3,7 @@ const Command = require("../structure/Command");
 const utils = require("../core/Utils");
 
 module.exports = new Command(
-    rank.mod,
+    rank.user,
     "",
     (bot, message) => {
         const data = bot.playlist.dataTillNextMovie;

@@ -46,6 +46,8 @@ class Validator {
 
     checkQueue() {
         const self = this;
+        const bot = this.bot;
+        const db = bot.db;
         if (this.queue.length === 0) return;
         const item = this.queue.shift();
         const video = item.video;
@@ -53,32 +55,32 @@ class Validator {
         logger.system(`Validating: ${video.fullTitle}`);
 
         // Not worth validating intermissions
-        if(Playlist.intermissionLimit.isBiggerThan(video.time))
+        if (Playlist.intermissionLimit.isBiggerThan(video.time))
             return;
 
-        // Not worth re-validating dead links
-        if (this.bot.db.isDead(video))
-            return;
+        db.hasDeadVideo(video).then(async hasDeadVideo => {
+            if (hasDeadVideo) return;
 
-        // We must have queued this link for validation more than once... whoops
-        if (!this.bot.db.needsValidation(video))
-            return;
+            const needValidation = await db.isVideoNeedingValidation(video.id, video.type);
 
-        Api.validateVideo(this.bot, video).then(resp => {
-            const vidstring = `${video.title} (${video.url})`;
+            if (!needValidation)
+                return;
+
+            const resp = await Api.validateVideo(bot, video);
+            const logString = `${video.title} (${video.url})`;
 
             if (resp.retry) {
-                logger.error(`Retry: ${vidstring}`);
-                this.add(item.video, item.after);
+                logger.error(`Retry: ${logString}`);
+                self.add(item.video, item.after);
             } else if (resp.avail) {
-                logger.system(`Valid: ${vidstring}`);
-                self.bot.db.moveToAlive(video);
+                logger.system(`Valid: ${logString}`);
+                db.moveVideoToAlive(video).finally();
             } else {
-                logger.system(`Dead : ${vidstring}`);
-                self.bot.db.moveToDead(video);
+                logger.system(`Dead : ${logString}`);
+                db.moveVideoToDead(video).finally();
             }
 
-            if(utils.isDefined(item.after) && typeof item.after === "function")
+            if (utils.isDefined(item.after) && typeof item.after === "function")
                 item.after(resp);
         });
     }
@@ -92,12 +94,16 @@ class Validator {
      * @param {Video} video
      * @param {Function} after
      */
-    add(video, after = () => {}) {
-        if(video.isIntermission)
+    add(video, after = () => {
+    }) {
+        if (video.isIntermission)
             return;
-        if (!this.bot.db.needsValidation(video))
-            return;
-        this.queue.push(new Item(video, after));
+        const self = this;
+        this.bot.db.isVideoNeedingValidation(video.id, video.type)
+            .then(needValidation => {
+                if (needValidation)
+                    self.queue.push(new Item(video, after));
+            });
     }
 
 }

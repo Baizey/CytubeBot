@@ -7,7 +7,7 @@ module.exports = new Command(
     rank.guest,
     "",
     (bot, message) => {
-        message.msg = message.user.name;
-        bot.db.setIgnoreUser(0, bot, message);
+        bot.db.setIgnoreUser(message.user.name, false)
+            .then(resp => bot.sendMsg(resp.result, message, true));
     }
 );

@@ -7,9 +7,16 @@ module.exports = new Command(
     rank.mod,
     "",
     (bot, message) => {
-        if (bot.db.setDisallowUser(1, bot, message))
-            logger.system(`Disallowed ${message.msg}`);
-        else
-            logger.system(`${message.user.name} is not high enough rank to allow ${message.msg}`)
+        const victim = message.msg.trim();
+        bot.userlist.hasHigherRank(message.user, victim)
+            .then(async resp => {
+                if (resp.isFailure) {
+                    logger.system(`${message.user.name} is not high enough rank to disallow ${message.msg}`);
+                    return bot.sendMsg(resp.result, message, true);
+                }
+                resp = await bot.db.setDisallowUser(victim, true);
+                logger.system(`Disallowed ${message.msg}`);
+                bot.sendMsg(resp.result, message, true);
+            });
     }
 );

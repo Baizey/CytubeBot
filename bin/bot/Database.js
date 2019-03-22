@@ -24,7 +24,7 @@ class Database {
 
         Object.keys(structure).forEach(key => {
             const table = structure[key].table;
-            self.db.prepare(`CREATE TABLE IF NOT EXISTS ${table.name} (${table.getColumns()})`).run();
+            self.db.prepare(`CREATE TABLE IF NOT EXISTS ${table.name} (${table.getColumns()})`).runQuery();
         });
     }
 
@@ -39,7 +39,7 @@ class Database {
     insertPermission(user, permission) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
-        this.prepareInsert(table.name, `${columns.user.name}, ${columns.type.name}`, "?, ?").run(user.name, permission);
+        this.prepareInsert(table.name, `${columns.user.name}, ${columns.type.name}`, "?, ?").runQuery(user.name, permission);
     }
 
     /**
@@ -49,7 +49,7 @@ class Database {
     deletePermission(user, permission) {
         const table = structure.permissions.table;
         const columns = structure.permissions.columns;
-        this.prepareDelete(table.name, `${columns.user.where()} AND ${columns.type.where()}`).run(user.name, permission);
+        this.prepareDelete(table.name, `${columns.user.where()} AND ${columns.type.where()}`).runQuery(user.name, permission);
     }
 
     /**
@@ -266,7 +266,7 @@ class Database {
         this.prepareInsert(nominate.table.name,
             `${c.title.name}, ${c.user.name}, ${c.year.name}`,
             nominate.table.getInsert())
-            .run(videoTitle, message.user.name, videoYear);
+            .runQuery(videoTitle, message.user.name, videoYear);
 
         return new Response(true, 'Your nomination has been accepted');
     }
@@ -287,13 +287,13 @@ class Database {
         const columns = structure.patterns.columns;
         this.prepareInsert(table.name,
             `${columns.command.name}, ${columns.regex.name}, ${columns.rest.name}`, table.getInsert())
-            .run(command, regex, rest);
+            .runQuery(command, regex, rest);
     };
 
     deletePattern(command) {
         const table = structure.patterns.table;
         const columns = structure.patterns.columns;
-        this.prepareDelete(table.name, columns.command.where()).run(command);
+        this.prepareDelete(table.name, columns.command.where()).runQuery(command);
     };
 
     /*
@@ -328,11 +328,11 @@ class Database {
         const table = structure.users.table;
         const columns = structure.users.columns;
         this.prepareInsert(table.name, columns.name.name, table.getInsert())
-            .run(user.name);
+            .runQuery(user.name);
         this.prepareUpdate(table.name, columns.lastonline.name, columns.name.where())
-            .run(Time.current().seconds, user.name);
+            .runQuery(Time.current().seconds, user.name);
         this.prepareUpdate(table.name, columns.rank.name, columns.name.where())
-            .run(user.rank, user.name);
+            .runQuery(user.rank, user.name);
     };
 
     /**
@@ -348,7 +348,7 @@ class Database {
         const resp = bot.userlist.hasHigherRank(message.user, victim);
         if (resp.isSuccess)
             this.prepareUpdate(table.name, columns.disallow.name, columns.name.where())
-                .run(value, victim);
+                .runQuery(value, victim);
         bot.sendMsg(resp.result, message);
         return resp.isSuccess;
     }
@@ -364,7 +364,7 @@ class Database {
         const columns = structure.users.columns;
         const victim = message.msg.trim();
         this.prepareUpdate(table.name, columns.ignore.name, columns.name.where())
-            .run(value, victim);
+            .runQuery(value, victim);
     }
 
     /*
@@ -377,8 +377,8 @@ class Database {
         const videos = structure.videos.table;
         const dead = structure.deadlinks.table;
         const dc = structure.deadlinks.columns;
-        this.prepareDelete(videos.name, videos.keysWhere()).run(video.id, video.type);
-        this.prepareInsert(dead.name, `${dc.id.name}, ${dc.type.name}`, dead.getInsert()).run(video.id, video.type);
+        this.prepareDelete(videos.name, videos.keysWhere()).runQuery(video.id, video.type);
+        this.prepareInsert(dead.name, `${dc.id.name}, ${dc.type.name}`, dead.getInsert()).runQuery(video.id, video.type);
     };
 
     /**
@@ -386,7 +386,7 @@ class Database {
      */
     moveToAlive(video) {
         const dead = structure.deadlinks.table;
-        this.prepareDelete(dead.name, dead.keysWhere()).run(video.id, video.type);
+        this.prepareDelete(dead.name, dead.keysWhere()).runQuery(video.id, video.type);
         this.insertVideo(video);
     }
 

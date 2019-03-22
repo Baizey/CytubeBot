@@ -75,10 +75,11 @@ class User {
 
     /**
      * @param {String} permission
-     * @returns {Boolean}
+     * @return {Promise<boolean>}
      */
     hasPermission(permission) {
-        return User.static.bot.db.hasPermission(this, permission);
+        const self = this;
+        return User.static.bot.db.hasPermission(self.name, permission);
     }
 
     /**

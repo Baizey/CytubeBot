@@ -8,11 +8,11 @@ const Video = require("../structure/Playlist").Video;
 module.exports = new Command(
     rank.user,
     "",
-    (bot, message) => {
+    async (bot, message) => {
         const video = Video.fromMessage(bot, message);
         const year = video.queryYear;
 
-        let videos = bot.db.getVideosLike(video.title, year);
+        let videos = await bot.db.getVideosLike(video.title, year);
 
         // Filter by title and year, keep highest quality video
         const map = {};

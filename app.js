@@ -6,7 +6,6 @@ const Log = require('./bin/core/Logger').Log;
  * Initial config file to create if none exist
  */
 const config = {
-    'databasePath': '',
     'user': {
         'name': '',
         'password': '',
@@ -25,17 +24,26 @@ const config = {
             'subdomain': ''
         }
     },
+    'database': {
+        'host': 'localhost',
+        'port': 5432,
+        'database': '',
+        'user': '',
+        'password': ''
+    },
 
-    // https://products.wolframalpha.com/api/
-    'wolfram': '',
-    // https://developers.google.com/apis-explorer/#p/
-    'google': '',
-    // https://www.themoviedb.org/documentation/api
-    'TheMovieDB': '',
-    // https://www.omdbapi.com/
-    'OMDB': '',
-    // https://www.cleverbot.com/api/
-    'cleverbot': ''
+    'apikeys': {
+        // https://products.wolframalpha.com/api/
+        'wolfram': '',
+        // https://developers.google.com/apis-explorer/#p/
+        'google': '',
+        // https://www.themoviedb.org/documentation/api
+        'TheMovieDB': '',
+        // https://www.omdbapi.com/
+        'OMDB': '',
+        // https://www.cleverbot.com/api/
+        'cleverbot': ''
+    }
 };
 
 /*
@@ -58,7 +66,10 @@ const configString = JSON.stringify(config)
 const configFile = './config.json';
 const shutdownLog = './logs/shutdown.log';
 fs.openSync(shutdownLog, 'a+');
-try { fs.writeFileSync(configFile, configString, {flag: 'wx'}); } catch (error) {}
+try {
+    fs.writeFileSync(configFile, configString, {flag: 'wx'});
+} catch (error) {
+}
 const logger = Log.createLogger('shutdown');
 
 const child = new (forever.Monitor)('./bin/index.js', {
@@ -82,13 +93,20 @@ const shutdown = (code = 1, error = '') => {
  */
 const exit = (code, error = '') => {
     switch (code) {
-        case 4: logger.log('Bot got kicked');
-        case 0: logger.log("Bot disconnected");
-        case 3: return logger.log("Bot restarting");
-        case 5: logger.log('Bot got banned');
-        case 1: logger.log("Bot crashing");
-        case 2: logger.log("Bot exiting");
-        default: logger.log(`Exit code: ${code}`);
+        case 4:
+            logger.log('Bot got kicked');
+        case 0:
+            logger.log("Bot disconnected");
+        case 3:
+            return logger.log("Bot restarting");
+        case 5:
+            logger.log('Bot got banned');
+        case 1:
+            logger.log("Bot crashing");
+        case 2:
+            logger.log("Bot exiting");
+        default:
+            logger.log(`Exit code: ${code}`);
     }
     shutdown(code, error);
 };

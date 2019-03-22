@@ -21,7 +21,11 @@ const addHandlers = function (bot) {
 
     socket.on(On.playlist.get, (videos) => playlist.setPlaylist(videos.map(video => Video.fromCytube(video))));
     socket.on(On.playlist.update, (data) => playlist.updateCurrentMedia(data.currentTime, data.paused));
-    socket.on(On.playlist.change, (data) => playlist.changeMedia(data.currentTime, Video.fromCytube(data)));
+    socket.on(On.playlist.change, (data) => {
+        const video = Video.fromCytube(data);
+        playlist.changeMedia(data.currentTime, video);
+        db.deleteNominationsByTitle(video.title).finally();
+    });
     socket.on(On.playlist.setCurrent, (id) => playlist.updateMedia(id));
     socket.on(On.playlist.move, (data) => playlist.moveEvent(data.from, data.after));
     socket.on(On.playlist.setTemp, (video) => playlist.setTemp(video.uid, video.temp));
@@ -29,10 +33,9 @@ const addHandlers = function (bot) {
     socket.on(On.playlist.setLeader, (user) => playlist.setLeader(user.name));
     socket.on(On.playlist.queue, (media) => {
         const video = Video.fromCytube(media.item);
-        db.moveToAlive(video);
+        db.moveVideoToAlive(video).finally();
         logger.debug(`Alive: ${video.title} (${video.url})`);
         playlist.addEvent(media.after, video);
-        db.insertVideo(video);
     });
 
     socket.on(On.poll.update, (poll) => {
@@ -58,12 +61,7 @@ const addHandlers = function (bot) {
             options.push(new Option(utils.htmlDecode(poll.options[i]), poll.counts[i]))
         botPoll.openEvent(options);
     });
-    socket.on(On.poll.close, () => {
-        const table = db.structure.nominate.table;
-        const c = db.structure.nominate.columns;
-        db.prepareDelete(table.name, c.title.where()).run(bot.poll.pickWinner().title.replace(/.*[\-|]/, ''));
-        botPoll.closeEvent();
-    });
+    socket.on(On.poll.close, () => botPoll.closeEvent());
 
     socket.on(On.userlist.add, (user) => userlist.add(new User(user.name, user.rank)));
     socket.on(On.userlist.setRank, (user) => userlist.updateRank(new User(user.name, user.rank)));
@@ -84,7 +82,7 @@ const addHandlers = function (bot) {
     socket.on(On.error.unknown, (err) => logger.error(err));
     socket.on(On.error.queue, data => {
         const video = Video.fromUrl(data.link);
-        db.moveToDead(video);
+        db.moveVideoToDead(video).finally();
         logger.debug(`Dead: ${video.url}`);
     });
 

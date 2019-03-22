@@ -20,7 +20,7 @@ class Users {
         self.users = {};
         users.forEach(user => {
             self.users[user.name] = user;
-            self.bot.db.insertUser(user);
+            self.bot.db.insertUser(user).finally();
         });
     }
 
@@ -28,7 +28,7 @@ class Users {
      * @param {User} user
      */
     add(user) {
-        this.bot.db.insertUser(user);
+        this.bot.db.insertUser(user).finally();
         this.users[user.name] = user;
     }
 
@@ -36,7 +36,7 @@ class Users {
      * @param {User} user
      */
     remove(user) {
-        this.bot.db.insertUser(user);
+        this.bot.db.insertUser(user).finally();
         delete this.users[user.name];
     }
 
@@ -65,18 +65,19 @@ class Users {
     /**
      * @param {User} user
      * @param {String} victimName
-     * @returns {Response}
+     * @return {Promise<Response>}
      */
     hasHigherRank(user, victimName) {
-        const victim = this.bot.db.getUser(new User(victimName));
+        return this.bot.db.getUserByName(victimName)
+            .then(victim => {
+                if (utils.isUndefined(victim))
+                    return new Response(false, "Victim need to exist in the archives");
 
-        if (utils.isUndefined(victim))
-            return new Response(false, "Victim need to exist in the archives");
+                if (user.rank <= victim.rank)
+                    return new Response(false, "You need to be higher rank than your victim");
 
-        if (user.rank <= victim.rank)
-            return new Response(false, "You need to be higher rank than your victim");
-
-        return new Response(true, `Target acquired, ${victim.name} will be ~~terminated~~ handled`);
+                return new Response(true, `Target acquired, ${victim.name} will be ~~terminated~~ handled`);
+            });
     }
 }
 

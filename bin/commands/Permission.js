@@ -37,7 +37,7 @@ module.exports = new Command(
             if (utils.isDefined(grantsLookup[message.getTag("all")]))
                 permissions.forEach(permission => bot.db.insertPermission(user, permission));
             else if (utils.isDefined(removesLookup[message.getTag("all")]))
-                bot.db.prepareDelete(table.name, columns.user.where()).run(user.name);
+                bot.db.prepareDelete(table.name, columns.user.where()).runQuery(user.name);
             return;
         }
 
