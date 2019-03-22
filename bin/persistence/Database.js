@@ -433,7 +433,7 @@ module.exports = class Database {
     }
 
     /**
-     * @param {string} title
+     * @param {string} username
      * @return {Promise<void>}
      */
     deleteNominationsByUsername(username) {
@@ -442,10 +442,19 @@ module.exports = class Database {
 
     /**
      * @param {string} title
+     * @param {string[]} onlineUsers
      * @return {Promise<void>}
      */
-    deleteNominationsByTitle(title) {
-        return this.runQuery(this.queries.deleteNominationsByTitle, {title: title});
+    deleteNominationsByTitleAndOnlineUsers(title, onlineUsers) {
+        const sql = [];
+        for (let i = 0; i < onlineUsers.length; i++)
+            sql.push(`username = $${i + 2}`);
+        const query = this.connection
+            .select(Tables.nominate.name)
+            .where(sql.join(' OR '))
+            .where(`title = $1`);
+        onlineUsers.unshift(title);
+        return this.runQuery(query, onlineUsers);
     }
 
     /**

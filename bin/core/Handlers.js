@@ -24,7 +24,7 @@ const addHandlers = function (bot) {
     socket.on(On.playlist.change, (data) => {
         const video = Video.fromCytube(data);
         playlist.changeMedia(data.currentTime, video);
-        db.deleteNominationsByTitle(video.title).finally();
+        db.deleteNominationsByTitleAndOnlineUsers(video.title, userlist.getNames()).finally();
     });
     socket.on(On.playlist.setCurrent, (id) => playlist.updateMedia(id));
     socket.on(On.playlist.move, (data) => playlist.moveEvent(data.from, data.after));
