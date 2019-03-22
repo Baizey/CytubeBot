@@ -1,6 +1,5 @@
 const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
-const structure = require("../structure/Database").structure;
 const logger = require('../core/Logger');
 
 module.exports = new Command(

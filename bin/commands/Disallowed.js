@@ -2,8 +2,6 @@ const rank = require("../structure/Ranks");
 const Command = require("../structure/Command");
 const Tables = require("../persistence/structure/Tables");
 
-const structure = require("../structure/Database").structure;
-
 module.exports = new Command(
     rank.mod,
     "",
