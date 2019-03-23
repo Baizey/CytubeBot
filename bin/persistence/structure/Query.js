@@ -1,6 +1,6 @@
 const Tables = require('./Tables');
-const logger = require('../core/Logger');
-const Exit = require('../core/Exit');
+const logger = require('../../core/Logger');
+const Exit = require('../../core/Exit');
 
 const handleError = error => {
     logger.error(error);
