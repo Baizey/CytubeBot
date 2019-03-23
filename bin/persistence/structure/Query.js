@@ -1,4 +1,11 @@
 const Tables = require('./Tables');
+const logger = require('../core/Logger');
+const Exit = require('../core/Exit');
+
+const handleError = error => {
+    logger.error(error);
+    Exit.terminate(Exit.code.crash, error);
+};
 
 module.exports = class Query {
     /**
@@ -98,7 +105,10 @@ module.exports = class Query {
     execute(params = {}) {
         const query = this._conn.execute(this.sql, params);
         return this._type === 'insert'
-            ? query.catch(() => [])
+            ? query.catch(error => {
+                const message = (typeof error === 'string') ? error : String(error.error);
+                return message.startsWith('duplicate key value') ? [] : handleError(error);
+            })
             : query;
     }
 
