@@ -293,7 +293,7 @@ module.exports = class Database {
      */
     getVideosNeedingValidation() {
         return this.runQuery(this.queries.getVideosNeedingValidation, {validateBy: Time.current().seconds})
-            .map(Video.fromDatabase)
+            .then(videos => videos.map(Video.fromDatabase))
     }
 
     /**

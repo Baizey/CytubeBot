@@ -20,7 +20,7 @@ const checkQueue = async function (validator) {
  */
 const getOldLinks = async function (validator) {
     if (!validator.isPaused)
-        validator.addOldLinksToQueue();
+        validator.addOldLinksToQueue().finally();
     setTimeout(() => getOldLinks(validator), Time.fromHours(2, 30).millis);
 };
 
@@ -85,9 +85,10 @@ class Validator {
         });
     }
 
-    addOldLinksToQueue() {
-        const videos = this.bot.db.getVideosNeedingValidation();
-        videos.forEach(video => this.add(video, null));
+    async addOldLinksToQueue() {
+        const self = this;
+        const videos = await this.bot.db.getVideosNeedingValidation();
+        videos.forEach(video => self.add(video, null));
     }
 
     /**
