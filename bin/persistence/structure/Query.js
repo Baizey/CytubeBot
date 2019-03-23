@@ -100,8 +100,8 @@ module.exports = class Query {
         const query = this._conn.execute(this.sql, params);
         return this._type === 'insert'
             ? query.catch(error => {
-                const message = (typeof error === 'string') ? error : String(error.error);
-                return message.startsWith('duplicate key value') ? [] : handleError(error);
+                const message = (typeof error === 'string') ? error : error.error;
+                return message.indexOf('duplicate key value') >= 0 ? [] : handleError(error);
             })
             : query;
     }
