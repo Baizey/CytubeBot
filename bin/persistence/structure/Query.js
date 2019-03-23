@@ -99,10 +99,7 @@ module.exports = class Query {
     execute(params = {}) {
         const query = this._conn.execute(this.sql, params);
         return this._type === 'insert'
-            ? query.catch(error => {
-                const message = (typeof error === 'string') ? error : error.error;
-                return message.indexOf('duplicate key value') >= 0 ? [] : handleError(error);
-            })
+            ? query.catch(error => error.routine.trim() === '_bt_check_unique' ? [] : handleError(error))
             : query;
     }
 
