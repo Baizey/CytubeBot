@@ -96,17 +96,10 @@ module.exports = class Query {
      * @returns {Promise<object[]>}
      */
     execute(params = {}) {
-        if (this._type === 'insert') {
-            const table = Tables[this._table];
-            const conn = this._conn;
-            const sql = this.sql;
-            return this._conn.select(table.name)
-                .where(table.table.whereKeys)
-                .execute(params)
-                .catch(() => [])
-                .then(async found => found.length > 0 ? [] : (await conn.execute(sql, params)))
-        }
-        return this._conn.execute(this.sql, params);
+        const query = this._conn.execute(this.sql, params);
+        return this._type === 'insert'
+            ? query.catch(() => [])
+            : query;
     }
 
 };
