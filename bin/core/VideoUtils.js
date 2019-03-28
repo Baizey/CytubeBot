@@ -2,6 +2,8 @@ const Video = require("../structure/Playlist").Video;
 const Latin = require('./Latinizer');
 
 const sentenceFilter = [
+    "lk21 tv",
+    "lk21 me",
     "movieji com",
     "the film crew",
     'robert donat',
@@ -19,8 +21,10 @@ const sentenceFilter = [
     "silent movie",
     "eng dub",
     "hindi dubbed movie",
+    "full eng dub",
     "english sub",
     "full movie online",
+    'full length movie',
     "watch full movie",
     "full movie",
     "copy of the",
@@ -32,13 +36,21 @@ const sentenceFilter = [
     "anniversary edition",
     "for free on openmovies",
     "icinema27 com",
+    'western terence hill and bud spencer',
+    'raoul walsh',
+    'pam grier yaphet kotto godfrey cambridge feature',
+    'classic john wayne movie oldtv western tv film',
     "8bro com",
+    'an evening with kevin smith',
     "Patrick Swayze & Jamie Lee Curtis in",
     "short film",
     "phim74 net"
 ];
 
 const wordFilter = [
+    'acefile',
+    '710x480p',
+    'arw',
     "http",
     "https",
     "www",
@@ -147,8 +159,10 @@ function filterTitle(title) {
     // Remove IMDB ids
     title = title.replace(/tt\d+/g, wordFilter[0]);
 
+    title = title.replace(/0[1-9]\d{2}/g, wordFilter[0]);
+
     // Split title into words
-    const words = title.trim().replace(/ +/g, ' ').split(" ");
+    const words = title.trim().replace(/ {2,}/g, ' ').split(' ');
 
     // Figure out what parts of the title is the actual movie title
     let i = 0;

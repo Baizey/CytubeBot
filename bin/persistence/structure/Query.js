@@ -74,16 +74,17 @@ module.exports = class Query {
      * @private
      */
     get _generate() {
-        const where = this._where.length > 0 ? ' WHERE ' + this._where.map(w => `(${w})`).join(' AND ') : '';
-        const columns = this._columns.length > 0 ? this._columns.join(', ') : '*';
+        const where = this._where.length > 0 ? ` WHERE ${this._where.map(w => `(${w})`).join(' AND ')}` : '';
         const table = this._table;
         switch (this._type) {
             case 'select':
+                const selectColumns = this._columns.length > 0 ? this._columns.join(', ') : '*';
                 const selectLimit = this._limit ? ` limit ${this._limit}` : '';
-                return `SELECT ${columns} FROM ${table}${where}${selectLimit}`;
+                return `SELECT ${selectColumns} FROM ${table}${where}${selectLimit}`;
             case 'insert':
-                const insertColumns = this._columns.map(e => `$(${e})`).join(', ');
-                return `INSERT INTO ${table} (${columns}) values (${insertColumns})`;
+                const insertColumns = this._columns.length > 0 ? this._columns.join(', ') : '';
+                const insertValues = this._columns.map(e => `$(${e})`).join(', ');
+                return `INSERT INTO ${table} (${insertColumns}) values (${insertValues})`;
             case 'update':
                 const updateColumns = this._columns.map(e => `${e} = $(${e})`).join(', ');
                 return `UPDATE ${table} SET ${updateColumns}${where}`;
@@ -100,7 +101,7 @@ module.exports = class Query {
         const query = this._conn.execute(this.sql, params);
         return this._type === 'insert'
             ? query.catch(() => [])//.catch(error => error.routine.trim() === '_bt_check_unique' ? [] : handleError(error))
-            : query;
+            : query.catch(handleError);
     }
 
 };

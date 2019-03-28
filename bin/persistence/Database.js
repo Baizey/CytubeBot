@@ -191,10 +191,9 @@ module.exports = class Database {
             console.log(query.sql.replace(/\$\((\w+)\)/g, (all, word) => params[word] ? params[word] : all));
         */
 
-        if (this._ready) return query.execute(params).catch(handleError);
+        if (this._ready) return query.execute(params);
         return this._waitForReady
-            .then(async () => await query.execute(params))
-            .catch(handleError);
+            .then(async () => await query.execute(params));
     }
 
     /**
