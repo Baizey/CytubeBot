@@ -288,6 +288,7 @@ class MovieInfo {
         this.quality = guessQuality(words);
 
         this.titleWithReleaseYear = removeBrackets(this.title);
+        this.titleWithReleaseYear = joinAbbreviations(this.titleWithReleaseYear);
         this.titleWithReleaseYear = filterTitle(this.titleWithReleaseYear);
 
         this.title = removeBrackets(this.title);
