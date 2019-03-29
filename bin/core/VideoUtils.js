@@ -127,12 +127,27 @@ const wordFilter = [
     "axxo",
 ];
 
+const romanNumbers = {
+    ii: 2,
+    iii: 3,
+    iv: 4,
+    v: 5,
+    vi: 6,
+    vii: 7,
+    viii: 8,
+    iix: 8,
+    ix: 9,
+    x: 10,
+};
+
 const Quality = require("./VideoQuality");
 const utils = require("./Utils");
 
 const wordLookup = utils.listToMap(wordFilter);
 
 const removeNonAsciiCharacters = title => Latin.secure(title).replace(/[^\x00-\x7F]/g, '');
+
+const convertRomanNumbers = word => romanNumbers[word] ? romanNumbers[word] : word;
 
 const joinAbbreviations = title => title.replace(/( |^)([a-zA-Z](?: [a-zA-Z])+)( |$)/g, (a, b, c, d) => b + c.replace(/ /g, '') + d);
 
@@ -162,7 +177,7 @@ function filterTitle(title) {
     title = title.replace(/0[1-9]\d{2}/g, wordFilter[0]);
 
     // Split title into words
-    const words = title.trim().replace(/ {2,}/g, ' ').split(' ');
+    const words = title.trim().replace(/ {2,}/g, ' ').split(' ').map(convertRomanNumbers);
 
     // Figure out what parts of the title is the actual movie title
     let i = 0;
