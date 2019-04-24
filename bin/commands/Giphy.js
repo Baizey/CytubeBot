@@ -10,6 +10,11 @@ module.exports = new Command(
     "",
     (bot, message) => {
         Giphy.search(message.msg.trim()).then(resp => {
+            if (!resp.data || !resp.data.length) {
+                log.error(resp);
+                return bot.sendMsg('No gif found', message);
+            }
+
             if (resp.data.length === 0)
                 return bot.sendMsg("The memes has escaped!", message);
             resp = resp.data;
