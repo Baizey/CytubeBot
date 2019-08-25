@@ -1,7 +1,7 @@
 {
   "name": "cytubebot",
   "version": "5.0.0",
-  "private": true,
+  "type": "module",
   "dependencies": {
     "babel-loader": "^8.0.6",
     "chai": "^4.2.0",

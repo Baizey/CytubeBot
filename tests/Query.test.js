@@ -1,3 +1,5 @@
+import {Query} from "../src/database/sql/Query";
+
 describe("Query tests", () => {
 
     it('Parsing where equal', () => {

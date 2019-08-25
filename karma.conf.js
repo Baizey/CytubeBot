@@ -28,16 +28,13 @@ module.exports = function (config) {
             optimization: {},
             devtool: false
         },
-        frameworks: ['jasmine', 'browserify'],
-        preprocessors: {
-            'tests/*.js': ['browserify']
-        },
+        frameworks: ['jasmine'],
+        preprocessors: {},
         plugins: [
             'karma-jasmine',
-            'karma-chrome-launcher',
-            'karma-browserify'
+            'karma-chrome-launcher'
         ],
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
         autoWatch: true,
         singleRun: true,
         concurrency: Infinity,

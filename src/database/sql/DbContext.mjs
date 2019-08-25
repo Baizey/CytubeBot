@@ -1,7 +1,12 @@
-const Postgres = require('pg-promise')();
-import { Query } from './Query';
+import {InsertQuery} from "./InsertQuery.mjs";
+import {DeleteQuery} from "./DeleteQuery.mjs";
+import {UpdateQuery} from "./UpdateQuery.mjs";
+import {SelectQuery} from "./SelectQuery.mjs";
 
-export class DbContext {
+import * as tempPostgres from 'pg-promise';
+const Postgres = tempPostgres();
+
+class DbContext {
     /**
      * @param {DatabaseConfig} config
      * @returns {DbContext}
@@ -37,18 +42,21 @@ export class DbContext {
     }
 
     select(table) {
-        return Query.select(table, this);
+        return new SelectQuery(table, this);
     }
 
     insert(table) {
-        return Query.insert(table, this);
+        return new InsertQuery(table, this);
     }
 
     delete(table) {
-        return Query.delete(table, this);
+        return new DeleteQuery(table, this);
     }
 
     update(table) {
-        return Query.update(table, this);
+        return new UpdateQuery(table, this);
     }
 }
+
+export {DbContext}
+export default DbContext;

@@ -1,6 +1,6 @@
-const forever = require('forever-monitor');
-const fs = require('fs');
-const Log = require('./bin/core/Logger').Log;
+import * as forever from "forever-monitor";
+const Monitor = forever.default.Monitor;
+import * as fs from "fs";
 
 /**
  * Initial config file to create if none exist
@@ -66,21 +66,23 @@ const configString = JSON.stringify(config)
 const configFile = './config.json';
 const shutdownLog = './logs/shutdown.log';
 fs.openSync(shutdownLog, 'a+');
+const log = data => fs.writeFileSync(shutdownLog, data, {flag: 'a+'});
+
 try {
     fs.writeFileSync(configFile, configString, {flag: 'wx'});
 } catch (error) {
 }
-const logger = Log.createLogger('shutdown');
 
-const child = new (forever.Monitor)('./bin/index.js', {
+const child = new Monitor('./src/index.mjs', {
     silent: false,
     minUptime: 5000,
     spinSleepTime: 5000,
+    command: "node --experimental-modules",
 });
 
 const shutdown = (code = 1, error = '') => {
     if (error.length > 0)
-        logger.log(error);
+        log(error);
     child.stop();
     child.kill();
     setTimeout(() => process.exit(code), 1000);
@@ -94,19 +96,19 @@ const shutdown = (code = 1, error = '') => {
 const exit = (code, error = '') => {
     switch (code) {
         case 4:
-            logger.log('Bot got kicked');
+            log('Bot got kicked');
         case 0:
-            logger.log("Bot disconnected");
+            log("Bot disconnected");
         case 3:
-            return logger.log("Bot restarting");
+            return log("Bot restarting");
         case 5:
-            logger.log('Bot got banned');
+            log('Bot got banned');
         case 1:
-            logger.log("Bot crashing");
+            log("Bot crashing");
         case 2:
-            logger.log("Bot exiting");
+            log("Bot exiting");
         default:
-            logger.log(`Exit code: ${code}`);
+            log(`Exit code: ${code}`);
     }
     shutdown(code, error);
 };

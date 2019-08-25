@@ -24,7 +24,7 @@ const utils = {
      * @param {*} thing
      * @returns {Boolean}
      */
-    isDefined: thing => typeof(thing) !== 'undefined' && thing !== null,
+    isDefined: thing => typeof (thing) !== 'undefined' && thing !== null,
 
     /**
      * @param {*} thing
@@ -41,12 +41,17 @@ const utils = {
         if (utils.isUndefined(thing))
             return true;
         // noinspection FallThroughInSwitchStatementJS
-        switch (typeof(thing)) {
-            case "object": thing = Object.keys(thing);
-            case "string": thing = thing.length;
-            case "number": thing = thing === 0;
-            case "boolean": return thing;
-            default: return false;
+        switch (typeof (thing)) {
+            case "object":
+                thing = Object.keys(thing);
+            case "string":
+                thing = thing.length;
+            case "number":
+                thing = thing === 0;
+            case "boolean":
+                return thing;
+            default:
+                return false;
         }
     },
 
@@ -132,7 +137,7 @@ const utils = {
                 current = [];
                 length = 0;
             }
-            if(current.length > 0) length++;
+            if (current.length > 0) length++;
             current.push(word);
             length += word.length;
         });
@@ -163,7 +168,7 @@ const utils = {
         const result = [];
         let curr = '';
         msgs.forEach(msg => {
-            if(utils.isEmpty(curr))
+            if (utils.isEmpty(curr))
                 return (curr = msg);
             const temp = utils.asExtraLine(msg);
             if (curr.length + temp.length <= chatLimit)
@@ -171,7 +176,7 @@ const utils = {
             result.push(curr);
             curr = msg;
         });
-        if(utils.isUsed(curr))
+        if (utils.isUsed(curr))
             result.push(curr);
         return result;
     },
