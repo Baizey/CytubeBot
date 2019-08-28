@@ -1,4 +1,13 @@
-class Pattern {
+export default class Pattern {
+
+    /**
+     * @param {object} pattern
+     * @returns {Pattern}
+     */
+    static fromDatabase(pattern) {
+        return pattern ? new Pattern(pattern.regex, pattern.command, pattern.rest) : null;
+    }
+
     /**
      * @param {string} regex
      * @param {string} command

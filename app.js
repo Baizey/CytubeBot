@@ -73,7 +73,7 @@ try {
 } catch (error) {
 }
 
-const child = new Monitor('./src/index.mjs', {
+const child = new Monitor('./src/index.js', {
     silent: false,
     minUptime: 5000,
     spinSleepTime: 5000,

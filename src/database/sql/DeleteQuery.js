@@ -1,4 +1,4 @@
-import {Query} from "./Query.mjs";
+import {Query} from "./Query.js";
 
 
 export class DeleteQuery extends Query {
@@ -6,16 +6,17 @@ export class DeleteQuery extends Query {
      * @param {string} table
      * @param {DbContext} context
      */
-    constructor(table, context) {
+    constructor(table, context = undefined) {
         super(table, context);
     }
 
     /**
-     * @param {function(row):boolean} statement
+     * @param {function(User|Nomination|Pattern|AliveLink|DeadLink):boolean} statement
+     * @param {*} variables
      * @returns {DeleteQuery}
      */
-    filter(statement) {
-        super.filter(statement);
+    where(statement, ...variables) {
+        super.where(statement, variables);
         return this;
     }
 
@@ -27,10 +28,9 @@ export class DeleteQuery extends Query {
     }
 
     /**
-     * @param {object} parameters
      * @returns {Promise<any[]>}
      */
-    execute(parameters = {}) {
-        return this._context.execute(this.generateSql, parameters)
+    execute() {
+        return super._execute(this.generateSql);
     }
 }

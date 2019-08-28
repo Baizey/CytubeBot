@@ -1,11 +1,20 @@
-export class Nomination {
+export default class Nomination {
+
     /**
-     * @param {User} user
+     * @param {object} pattern
+     * @returns {Nomination}
+     */
+    static fromDatabase(pattern) {
+        return pattern ? new Nomination(pattern.username, pattern.title, pattern.year) : null;
+    }
+
+    /**
+     * @param {User} username
      * @param {string} title
      * @param {number} year
      */
-    constructor(user, title, year) {
-        this.user = user;
+    constructor(username, title, year) {
+        this.username = username;
         this.title = title;
         this.year = year;
     }

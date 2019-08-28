@@ -1,11 +1,11 @@
-import {Query} from "./Query.mjs";
+import {Query} from "./Query.js";
 
 export class SelectQuery extends Query {
     /**
      * @param {string} table
      * @param {DbContext} context
      */
-    constructor(table, context) {
+    constructor(table, context = undefined) {
         super(table, context);
         this._columns = [];
     }
@@ -20,11 +20,12 @@ export class SelectQuery extends Query {
     }
 
     /**
-     * @param {function(row):boolean} statement
+     * @param {function(User|Nomination|Pattern|AliveLink|DeadLink):boolean} statement
+     * @param {*} variables
      * @returns {SelectQuery}
      */
-    filter(statement) {
-        super.filter(statement);
+    where(statement, ...variables) {
+        super.where(statement, variables);
         return this;
     }
 
@@ -32,8 +33,7 @@ export class SelectQuery extends Query {
      * @returns {string}
      */
     get _generateSelectSql() {
-        if (this._columns.length === 0) return '*';
-        return this._columns.join(', ');
+        return this._columns.length === 0 ? '*' : this._columns.join(', ');
     }
 
     /**
@@ -44,10 +44,9 @@ export class SelectQuery extends Query {
     }
 
     /**
-     * @param {object} parameters
      * @returns {Promise<any[]>}
      */
-    execute(parameters = {}) {
-        return this._context.execute(this.generateSql, parameters)
+    execute() {
+        return super._execute(this.generateSql);
     }
 }

@@ -1,11 +1,11 @@
-import {Query} from "./Query.mjs";
+import {Query} from "./Query.js";
 
 export class UpdateQuery extends Query {
     /**
      * @param {string} table
      * @param {DbContext} context
      */
-    constructor(table, context) {
+    constructor(table, context = undefined) {
         super(table, context);
     }
 
@@ -13,17 +13,19 @@ export class UpdateQuery extends Query {
      * @param {object} columns
      * @returns {UpdateQuery}
      */
-    map(columns) {
+    update(columns) {
+        this._parameters = {...this._parameters, ...columns};
         this._columns = columns;
         return this;
     }
 
     /**
-     * @param {function(row):boolean} statement
+     * @param {function(User|Nomination|Pattern|AliveLink|DeadLink):boolean} statement
+     * @param {*} variables
      * @returns {UpdateQuery}
      */
-    filter(statement) {
-        super.filter(statement);
+    where(statement, ...variables) {
+        super.where(statement, variables);
         return this;
     }
 
@@ -31,7 +33,7 @@ export class UpdateQuery extends Query {
      * @returns {string}
      */
     get _generateUpdateSql() {
-        return Object.keys(this._columns).map(e => `${e} = \${${this._columns[e]}}`).join(', ');
+        return Object.keys(this._columns).map(key => `${key} = \${${key}}`).join(', ');
     }
 
     /**
@@ -42,10 +44,9 @@ export class UpdateQuery extends Query {
     }
 
     /**
-     * @param {object} parameters
      * @returns {Promise<any[]>}
      */
-    execute(parameters = {}) {
-        return this._context.execute(this.generateSql, parameters)
+    execute() {
+        return super._execute(this.generateSql);
     }
 }

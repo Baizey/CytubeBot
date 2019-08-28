@@ -1,10 +1,10 @@
-import {Channel} from "./Channel.mjs";
-import {BotUser} from "./BotUser.mjs";
-import {DatabaseConfig} from "./DatabaseConfig.mjs";
-import {WebConfig} from "./WebConfig.mjs";
-import {ApiKeys} from "./ApiKeys.mjs";
+import {Channel} from "./Channel.js";
+import {BotUser} from "./BotUser.js";
+import {DatabaseConfig} from "./DatabaseConfig.js";
+import {WebConfig} from "./WebConfig.js";
+import {ApiKeys} from "./ApiKeys.js";
 
-class Config {
+export default class Config {
     constructor(configData) {
         this.web = new WebConfig(configData.webserver);
         this.user = new BotUser(configData.user);
@@ -13,6 +13,3 @@ class Config {
         this.database = new DatabaseConfig(configData.database);
     }
 }
-
-export {Config}
-export default Config;

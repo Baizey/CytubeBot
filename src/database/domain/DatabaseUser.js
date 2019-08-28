@@ -1,4 +1,13 @@
-export class User {
+export default class DatabaseUser {
+
+    /**
+     * @param {object} user
+     * @returns {DatabaseUser}
+     */
+    static fromDatabase(user) {
+        return user ? new DatabaseUser(user.name, user.lastOnline, user.rank, user.disallow, user.ignore) : null;
+    }
+
     /**
      * @param {string} name
      * @param {number} lastOnline

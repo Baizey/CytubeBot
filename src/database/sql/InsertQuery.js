@@ -1,11 +1,11 @@
-import {Query} from "./Query.mjs";
+import {Query} from "./Query.js";
 
 export class InsertQuery extends Query {
     /**
      * @param {string} table
      * @param {DbContext} context
      */
-    constructor(table, context) {
+    constructor(table, context = undefined) {
         super(table, context);
     }
 
@@ -14,23 +14,25 @@ export class InsertQuery extends Query {
      * @returns {InsertQuery}
      */
     insert(columns) {
+        this._parameters = {...this._parameters, ...columns};
         this._columns = columns;
         return this;
     }
 
     /**
-     * @param {function(row):boolean} statement
+     * @param {function(User|Nomination|Pattern|AliveLink|DeadLink):boolean} statement
+     * @param {*} variables
      * @returns {InsertQuery}
      */
-    filter(statement) {
-        super.filter(statement);
+    where(statement, ...variables) {
+        super.where(statement, variables);
         return this;
     }
 
     /**
      * @returns {string}
      */
-    get _generateInsertColumnsSql() {
+    get _generateInsertKeysSql() {
         return Object.keys(this._columns).join(', ');
     }
 
@@ -38,21 +40,22 @@ export class InsertQuery extends Query {
      * @returns {string}
      */
     get _generateInsertValuesSql() {
-        return Object.keys(this._columns).map(e => `\${${this._columns[e]}}`).join(', ');
+        return Object.keys(this._columns).map(key => `\${${key}}`).join(', ');
     }
 
     /**
      * @returns {string}
      */
     get generateSql() {
-        return `INSERT INTO ${this._table} (${this._generateInsertColumnsSql}) values (${this._generateInsertValuesSql})`;
+        const keys = this._generateInsertKeysSql;
+        const values = this._generateInsertValuesSql;
+        return `INSERT INTO ${this._table} (${keys}) values (${values})`;
     }
 
     /**
-     * @param {object} parameters
      * @returns {Promise<any[]>}
      */
-    execute(parameters = {}) {
-        return this._context.execute(this.generateSql, parameters)
+    execute() {
+        return super._execute(this.generateSql);
     }
 }

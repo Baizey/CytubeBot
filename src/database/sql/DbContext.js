@@ -1,12 +1,12 @@
-import {InsertQuery} from "./InsertQuery.mjs";
-import {DeleteQuery} from "./DeleteQuery.mjs";
-import {UpdateQuery} from "./UpdateQuery.mjs";
-import {SelectQuery} from "./SelectQuery.mjs";
+import {InsertQuery} from "./InsertQuery.js";
+import {DeleteQuery} from "./DeleteQuery.js";
+import {UpdateQuery} from "./UpdateQuery.js";
+import {SelectQuery} from "./SelectQuery.js";
 
 import * as tempPostgres from 'pg-promise';
 const Postgres = tempPostgres();
 
-class DbContext {
+export default class DbContext {
     /**
      * @param {DatabaseConfig} config
      * @returns {DbContext}
@@ -19,15 +19,15 @@ class DbContext {
      * @param {string} host
      * @param {number} port
      * @param {string} database
-     * @param {string} user
+     * @param {string} username
      * @param {string} password
      */
-    constructor(host, port, database, user, password) {
+    constructor(host, port, database, username, password) {
         this._db = Postgres({
             host: host,
             port: port,
             database: database,
-            user: user,
+            user: username,
             password: password
         });
     }
@@ -57,6 +57,3 @@ class DbContext {
         return new UpdateQuery(table, this);
     }
 }
-
-export {DbContext}
-export default DbContext;

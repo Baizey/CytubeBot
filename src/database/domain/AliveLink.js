@@ -1,6 +1,24 @@
-import {Link} from "./Link";
+import Link from "./Link.js";
 
-class AliveLink extends Link {
+export default class AliveLink extends Link {
+
+    /**
+     * @param {object} link
+     * @returns {AliveLink}
+     */
+    static fromDatabase(link) {
+        return link ? new AliveLink(
+            link.id,
+            link.type,
+            link.title,
+            link.fullTitle,
+            link.year,
+            link.duration,
+            link.quality,
+            link.validateBy
+        ) : null;
+    }
+
     /**
      * @param {string} id
      * @param {string} type
