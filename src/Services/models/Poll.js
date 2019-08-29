@@ -25,7 +25,7 @@ export default class Poll {
     close() {
         this.isActive = false;
     }
-
+    
     /**
      * @returns {string}
      */
@@ -45,7 +45,7 @@ class Option {
      * @param {number} votes
      */
     constructor(option, votes) {
-        this.option = option;
+        this.title = option;
         this.votes = votes;
     }
 }

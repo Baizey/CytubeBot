@@ -1,5 +1,6 @@
 import Database from "../database/Database.js";
 import PollService from "../Services/PollService.js";
+import UserlistService from "../Services/UserlistService.js";
 
 export default class Bot {
 
@@ -14,9 +15,11 @@ export default class Bot {
         this.database = database;
 
         this.pollService = new PollService(cytube);
+        this.userlistService = new UserlistService(cytube, database.users);
 
         this.cytube.connect().finally(() => {
             this.pollService.subscribe();
+            this.userlistService.subscribe();
         });
     }
 
