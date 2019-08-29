@@ -6,7 +6,11 @@ export default class NominationDatabaseAgent extends BaseDatabaseAgent {
      * @param {DbContext} context
      */
     constructor(context) {
-        super(context, 'nominations');
+        const create = context.create('nominations');
+        create.text('username').primary().reference('users', 'name');
+        create.text('title').primary();
+        create.int('year').default(0);
+        super(context, create);
     }
 
     /**
@@ -14,6 +18,16 @@ export default class NominationDatabaseAgent extends BaseDatabaseAgent {
      */
     getAll() {
         return super.select()
+            .execute()
+            .then(e => e ? e.map(e => Nomination.fromDatabase(e)) : []);
+    }
+
+    /**
+     * @param {string[]} names
+     * @returns {Promise<Nomination[]>}
+     */
+    getByUsernames(names) {
+        return this.select().where(e => e.username in $, names)
             .execute()
             .then(e => e ? e.map(e => Nomination.fromDatabase(e)) : []);
     }
@@ -43,20 +57,16 @@ export default class NominationDatabaseAgent extends BaseDatabaseAgent {
      * @param {string} title
      * @returns {Promise<void>}
      */
-    deleteByTitle(title) {
-        return this.delete().where(e => e.title === $, title)
-            .execute()
-            .then();
+    async deleteByTitle(title) {
+        await this.delete().where(e => e.title === $, title).execute();
     }
 
     /**
      * @param {string} name
      * @returns {Promise<void>}
      */
-    deleteByUsername(name) {
-        return this.delete().where(e => e.username === $, name)
-            .execute()
-            .then();
+    async deleteByUsername(name) {
+        await this.delete().where(e => e.username === $, name).execute();
     }
 
     /**
@@ -64,19 +74,15 @@ export default class NominationDatabaseAgent extends BaseDatabaseAgent {
      * @param {string} title
      * @returns {Promise<void>}
      */
-    deleteByUsernameAndTitle(name, title) {
-        return this.delete().where(e => e.username === $ && e.title === $, name, title)
-            .execute()
-            .then();
+    async deleteByUsernameAndTitle(name, title) {
+        await this.delete().where(e => e.username === $ && e.title === $, name, title).execute();
     }
 
     /**
      * @param {Nomination} nomination
      * @returns {Promise<void>}
      */
-    add(nomination) {
-        return super.insert(nomination)
-            .execute()
-            .then();
+    async add(nomination) {
+        await super.insert(nomination).execute();
     }
 }

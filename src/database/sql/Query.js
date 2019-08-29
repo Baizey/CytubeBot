@@ -1,4 +1,4 @@
-export class Query {
+export default class Query {
     /**
      * @param {string} table
      * @param {DbContext} context
@@ -45,19 +45,28 @@ export class Query {
             .replace(/\s*!==\s*/g, ' <> ')
             .replace(/\s*==\s*/g, ' LIKE ')
             .replace(/\s*!=\s*/g, ' NOT LIKE ')
+            .replace(/\s+in\s*\$/g, ' IN $')
             .split(`${row}.`).join('').trim()
             .replace(/ {2,}/g, ' ');
 
-        if (this._variables && this._variables.length > 0)
-            statement = statement
-                .split('$')
-                .map((e, i) => {
-                    const value = this._variables[i];
-                    const key = `auto_param_${i}`;
+        if (this._variables && this._variables.length > 0) {
+            statement = statement.split('$').map((e, i) => {
+                if (i >= this._variables.length) return e;
+                const value = this._variables[i];
+                const key = `auto_param_${i}`;
+                if (Array.isArray(value)) {
+                    const values = value.map((v, i) => {
+                        const arrayKey = `${key}_${i}`;
+                        this._parameters[arrayKey] = v;
+                        return `\${${arrayKey}}`;
+                    }).join(', ');
+                    return `${e}(${values})`;
+                } else {
                     this._parameters[key] = value;
-                    return e + (this._variables[i] ? `\${${key}}` : '')
-                })
-                .join('');
+                    return `${e}\${${key}}`
+                }
+            }).join('');
+        }
 
         this._whereSql = statement ? `WHERE ${statement}` : '';
         return this._whereSql;

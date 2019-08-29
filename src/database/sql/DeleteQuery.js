@@ -1,7 +1,7 @@
-import {Query} from "./Query.js";
+import Query from "./Query.js";
 
 
-export class DeleteQuery extends Query {
+export default class DeleteQuery extends Query {
     /**
      * @param {string} table
      * @param {DbContext} context

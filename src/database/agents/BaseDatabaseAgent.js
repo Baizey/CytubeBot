@@ -2,11 +2,19 @@ export default class BaseDatabaseAgent {
 
     /**
      * @param {DbContext} context
-     * @param {string} table
+     * @param {CreateQuery} createQuery
      */
-    constructor(context, table) {
+    constructor(context, createQuery) {
         this._context = context;
-        this._table = table;
+        this._table = createQuery._table;
+        this._create = createQuery;
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    setup() {
+        return this._create.execute();
     }
 
     /**

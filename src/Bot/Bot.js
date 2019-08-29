@@ -17,7 +17,9 @@ export default class Bot {
         this.pollService = new PollService(cytube);
         this.userlistService = new UserlistService(cytube, database.users);
 
-        this.cytube.connect().finally(() => {
+        this.database.setup().finally(async () => {
+            await this.cytube.connect();
+
             this.pollService.subscribe();
             this.userlistService.subscribe();
         });

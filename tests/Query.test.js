@@ -1,7 +1,8 @@
-import {InsertQuery} from "../src/database/sql/InsertQuery.js";
-import {SelectQuery} from "../src/database/sql/SelectQuery.js";
-import {UpdateQuery} from "../src/database/sql/UpdateQuery.js";
-import {DeleteQuery} from "../src/database/sql/DeleteQuery.js";
+import InsertQuery from "../src/database/sql/InsertQuery.js";
+import SelectQuery from "../src/database/sql/SelectQuery.js";
+import UpdateQuery from "../src/database/sql/UpdateQuery.js";
+import DeleteQuery from "../src/database/sql/DeleteQuery.js";
+import CreateQuery from "../src/database/sql/CreateQuery.js";
 // noinspection ES6UnusedImports
 import should from "should";
 
@@ -38,6 +39,19 @@ describe("SQL Linq tests", () => {
             const expected = 'WHERE id = ${auto_param_0} AND id = ${auto_param_1}';
             const query = new SelectQuery('table_name')
                 .where(e => e.id === $ && e.id === $, true, true);
+
+            // Act
+            const actual = query._generateWhereSql;
+
+            // Assert
+            actual.should.equal(expected);
+        });
+
+        it('Parsing where array variables', () => {
+            // Setup
+            const expected = 'WHERE id IN (${auto_param_0_0}, ${auto_param_0_1}, ${auto_param_0_2}) AND id = ${auto_param_1}';
+            const query = new SelectQuery('table_name')
+                .where(e => e.id in $ && e.id === $, ['a', 'b', 'c'], true);
 
             // Act
             const actual = query._generateWhereSql;
@@ -135,4 +149,105 @@ describe("SQL Linq tests", () => {
         // Assert
         actual.should.equal(expected);
     });
+
+    describe('Create tests', () => {
+        it('Create empty table', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name ()';
+           const query = new CreateQuery('table_name');
+           const sql = query.generateSql;
+           sql.should.equal(expected);
+        });
+        it('Create int column', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column int)';
+            const query = new CreateQuery('table_name');
+            query.int('column');
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create string column', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column text)';
+            const query = new CreateQuery('table_name');
+            query.text('column');
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create number column', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column real)';
+            const query = new CreateQuery('table_name');
+            query.real('column');
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create boolean column', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column boolean)';
+            const query = new CreateQuery('table_name');
+            query.bool('column');
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+
+        it('Create 1 primary', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column boolean PRIMARY KEY)';
+            const query = new CreateQuery('table_name');
+            query.bool('column').primary();
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create multi primary', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nPRIMARY KEY (column1, column2))';
+            const query = new CreateQuery('table_name');
+            query.bool('column1').primary();
+            query.bool('column2').primary();
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create 1 unique', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column boolean UNIQUE)';
+            const query = new CreateQuery('table_name');
+            query.bool('column').unique();
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create multi unique', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nUNIQUE (column1, column2))';
+            const query = new CreateQuery('table_name');
+            query.bool('column1').unique();
+            query.bool('column2').unique();
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create multi unique and primary', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nPRIMARY KEY (column1, column2),\nUNIQUE (column1, column2))';
+            const query = new CreateQuery('table_name');
+            query.bool('column1').unique().primary();
+            query.bool('column2').unique().primary();
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+        it('Create column not null', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column boolean NOT NULL)';
+            const query = new CreateQuery('table_name');
+            query.bool('column').nullable(false);
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+
+        it('Create column foreign key', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table1 (column1 boolean REFERENCES table2(column2))';
+            const query = new CreateQuery('table1');
+            query.bool('column1').reference('table2', 'column2');
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+
+        it('Create column  defaults', () => {
+            const expected = 'CREATE TABLE IF NOT EXISTS table (int int DEFAULT 0,\nstring text DEFAULT "monkey")';
+            const query = new CreateQuery('table');
+            query.int('int').default(0);
+            query.text('string').default("monkey");
+            const sql = query.generateSql;
+            sql.should.equal(expected);
+        });
+    });
+
 });

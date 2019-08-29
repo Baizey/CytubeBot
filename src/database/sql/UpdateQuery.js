@@ -1,6 +1,6 @@
-import {Query} from "./Query.js";
+import Query from "./Query.js";
 
-export class UpdateQuery extends Query {
+export default class UpdateQuery extends Query {
     /**
      * @param {string} table
      * @param {DbContext} context

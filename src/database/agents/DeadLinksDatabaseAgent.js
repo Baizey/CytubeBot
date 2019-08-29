@@ -6,7 +6,10 @@ export default class DeadLinksDatabaseAgent extends BaseDatabaseAgent {
      * @param {DbContext} context
      */
     constructor(context) {
-        super(context, 'deadlinks');
+        const create = context.create('deadlinks');
+        create.text('id').primary();
+        create.text('type').primary();
+        super(context, create);
     }
 
     /**

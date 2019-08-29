@@ -15,4 +15,15 @@ export default class Database {
         this.aliveLinks = new AliveLinksDatabaseAgent(context);
         this.deadLinks = new DeadLinksDatabaseAgent(context);
     }
+
+    async setup() {
+        await this.users.setup();
+
+        // Requires users to be setup
+        await this.nominations.setup();
+
+        await this.patterns.setup();
+        await this.aliveLinks.setup();
+        await this.deadLinks.setup();
+    }
 }

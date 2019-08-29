@@ -6,7 +6,11 @@ export default class PatternDatabaseAgent extends BaseDatabaseAgent {
      * @param {DbContext} context
      */
     constructor(context) {
-        super(context, 'patterns');
+        const create = context.create('patterns');
+        create.text('regex').primary();
+        create.text('command').primary();
+        create.text('rest').primary();
+        super(context, create);
     }
 
     /**
