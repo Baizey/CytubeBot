@@ -17,15 +17,14 @@ export default class UserlistService {
     constructor(cytube, database) {
         this._cytube = cytube;
         this._db = database;
-        this.users = {};
+        this.online = {};
     }
 
     subscribe() {
         this._cytube.on(Subscribe.add, (user) => this.add(CytubeUser.fromCytubeServer(user)));
         this._cytube.on(Subscribe.setRank, (user) => this.update(user.name, {rank: user.rank}));
         this._cytube.on(Subscribe.leave, (user) => this.setOffline(user.name));
-        this._cytube.on(Subscribe.get, (users) => this.addAll(
-            Object.keys(users).map(e => users[e]).map(e => CytubeUser.fromCytubeServer(e))));
+        this._cytube.on(Subscribe.get, (users) => this.addAll(users.map(e => CytubeUser.fromCytubeServer(e))));
     }
 
     /**
@@ -33,7 +32,7 @@ export default class UserlistService {
      * @returns {Promise<void>}
      */
     async addAll(users) {
-        this.users = {};
+        this.online = {};
         await Promise.all(users.map(e => this.add(e)));
     }
 
@@ -47,12 +46,12 @@ export default class UserlistService {
         if (dbUser) {
             if (dbUser.rank === user.rank) return;
             dbUser.rank = user.rank;
-            this.users[user.name] = dbUser;
+            this.online[user.name] = dbUser;
             await this._db.update(dbUser.asDatabaseUser);
             return;
         }
         // Otherwise insert
-        this.users[user.name] = user;
+        this.online[user.name] = user;
         await this._db.add(user.asDatabaseUser);
     }
 
@@ -61,13 +60,9 @@ export default class UserlistService {
      * @returns {Promise<void>}
      */
     async setOffline(name) {
-        const user = this.users[name];
-        if (!user) return;
-
         // Update last online to now
-        await this.update(user);
-
-        delete this.users[name];
+        await this.update(name);
+        delete this.online[name];
     }
 
     /**
@@ -76,7 +71,7 @@ export default class UserlistService {
      * @returns {Promise<void>}
      */
     async update(name, data = {}) {
-        const user = this.users[name];
+        const user = this.online[name];
 
         if (!user) return;
 
@@ -94,21 +89,12 @@ export default class UserlistService {
     }
 
     /**
-     * @param {CytubeUser} user
-     * @returns {CytubeUser}
-     */
-    async fillFromDatabase(user) {
-        const dbUser = await this._db.getByName(user.name);
-        const storedUser = CytubeUser.fromDatabaseUser(dbUser);
-    }
-
-    /**
      * @param {string} name
      * @returns {CytubeUser}
      */
     async get(name) {
-        if (this.users[name])
-            return this.users[name];
+        if (this.online[name])
+            return this.online[name];
         return CytubeUser.fromDatabaseUser(await this._db.getByName(name));
     }
 
@@ -117,7 +103,7 @@ export default class UserlistService {
      * @returns {boolean}
      */
     isOnline(name) {
-        return !!this.users[name];
+        return !!this.online[name];
     }
 
 
