@@ -42,17 +42,15 @@ export default class UserlistService {
      */
     async add(user) {
         const dbUser = await this.get(user.name);
-        // If user already exist, only update rank if needed
+        // If user already exist, update rank
         if (dbUser) {
-            if (dbUser.rank === user.rank) return;
-            dbUser.rank = user.rank;
             this.online[user.name] = dbUser;
-            await this._db.update(dbUser.asDatabaseUser);
-            return;
+            await this.update(user.name, {rank: user.rank});
+        } else {
+            // Otherwise insert user
+            this.online[user.name] = user;
+            await this._db.add(user.asDatabaseUser);
         }
-        // Otherwise insert
-        this.online[user.name] = user;
-        await this._db.add(user.asDatabaseUser);
     }
 
     /**
@@ -72,7 +70,6 @@ export default class UserlistService {
      */
     async update(name, data = {}) {
         const user = this.online[name];
-
         if (!user) return;
 
         user.rank = typeof data.rank === 'number'
@@ -85,7 +82,8 @@ export default class UserlistService {
             ? data.ignore
             : user.ignore;
 
-        await this._db.update(user.asDatabaseUser);
+        // Always update lastOnline if nothing else
+        await this._db.alter(user.asDatabaseUser);
     }
 
     /**
