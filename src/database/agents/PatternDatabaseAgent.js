@@ -1,4 +1,4 @@
-import Pattern from '../domain/Pattern.js'
+import DatabasePattern from '../domain/DatabasePattern.js'
 import BaseDatabaseAgent from "./BaseDatabaseAgent.js";
 
 export default class PatternDatabaseAgent extends BaseDatabaseAgent {
@@ -14,16 +14,16 @@ export default class PatternDatabaseAgent extends BaseDatabaseAgent {
     }
 
     /**
-     * @returns {Promise<Pattern[]>}
+     * @returns {Promise<DatabasePattern[]>}
      */
     getAll() {
         return super.select()
             .execute()
-            .then(e => e ? e.map(e => Pattern.fromDatabase(e)) : []);
+            .then(e => e ? e.map(e => DatabasePattern.fromDatabase(e)) : []);
     }
 
     /**
-     * @param {Pattern} pattern
+     * @param {DatabasePattern} pattern
      * @returns {Promise<void>}
      */
     async add(pattern) {

@@ -1,5 +1,7 @@
 import "../infrastructure/prototype/string.js";
 import "../infrastructure/prototype/array.js";
+import {EventEmitter} from 'events';
+
 
 const Publish = {
     pm: 'pm',
@@ -15,12 +17,10 @@ export default class MessageService extends EventEmitter {
 
     /**
      * @param {CytubeService} cytube
-     * @param {UserlistService} userService
      */
-    constructor(cytube, userService) {
+    constructor(cytube) {
         super();
         this._cytube = cytube;
-        this._userlistService = userService;
     }
 
     subscribe() {
@@ -41,10 +41,9 @@ export default class MessageService extends EventEmitter {
         const name = data.username;
         const timestamp = new Date(data.time);
         const text = data.msg.htmlDecode();
-        const user = await this._userlistService.get(name);
         const command = Command.fromMessage(text);
-        const message = new Message(name, text, timestamp, isPm, user, command);
-        this.emit('message', message);
+        const message = new Message(name, text, timestamp, isPm, command);
+        super.emit('message', message);
         return message;
     }
 
@@ -158,14 +157,12 @@ class Message {
      * @param {string} message
      * @param {Date} timestamp
      * @param {boolean} isPm
-     * @param {CytubeUser} user
      * @param {Command} command
      */
-    constructor(name, message, timestamp, isPm, user, command) {
+    constructor(name, message, timestamp, isPm, command) {
         this.isPm = isPm;
         this.message = message;
         this.name = name;
-        this.user = user;
         this.timestamp = timestamp;
         this.command = command;
     }

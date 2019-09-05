@@ -39,6 +39,14 @@ export default class CreateQuery {
      * @param {string} name
      * @returns {Column}
      */
+    string(name) {
+        return this.text(name);
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Column}
+     */
     text(name) {
         return this.addColumn(name, 'text');
     }

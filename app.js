@@ -66,7 +66,7 @@ const configString = JSON.stringify(config)
 const configFile = './config.json';
 const shutdownLog = './logs/shutdown.log';
 fs.openSync(shutdownLog, 'a+');
-const log = data => fs.writeFileSync(shutdownLog, data, {flag: 'a+'});
+const log = data => fs.writeFileSync(shutdownLog, data + '\n', {flag: 'a+'});
 
 try {
     fs.writeFileSync(configFile, configString, {flag: 'wx'});
@@ -81,6 +81,7 @@ const child = new Monitor('./src/index.js', {
 });
 
 const shutdown = (code = 1, error = '') => {
+    if (Buffer.isBuffer(error)) error = error.toString();
     if (error.length > 0)
         log(error);
     child.stop();
