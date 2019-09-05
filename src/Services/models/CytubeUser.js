@@ -15,6 +15,7 @@ export default class CytubeUser {
      * @returns {CytubeUser}
      */
     static fromDatabaseUser(user) {
+        if (!user) return undefined;
         return new CytubeUser(user.name, user.rank, user.disallow, user.ignore, user.lastOnline);
     }
 

@@ -4,9 +4,9 @@ import UpdateQuery from "./UpdateQuery.js";
 import SelectQuery from "./SelectQuery.js";
 import CreateQuery from "./CreateQuery.js";
 
-import * as tempPostgres from 'pg-promise';
+import * as pgp from 'pg-promise';
 
-const Postgres = tempPostgres();
+const Postgres = pgp.default();
 
 export default class DbContext {
     /**

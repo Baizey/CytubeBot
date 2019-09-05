@@ -1,7 +1,7 @@
 import Database from "../database/Database.js";
 import PollService from "../Services/PollService.js";
 import UserlistService from "../Services/UserlistService.js";
-import PlaylistService from "../Services/models/PlaylistVideo.js";
+import PlaylistService from "../Services/PlaylistService.js";
 
 export default class Bot {
 
@@ -15,16 +15,16 @@ export default class Bot {
         this.config = config;
         this.database = database;
 
-        this.pollService = new PollService(cytube);
-        this.userlistService = new UserlistService(cytube, database.users);
-        this.playlistService = new PlaylistService(cytube, database.aliveLinks, data.deadLinks);
+        this.poll = new PollService(cytube);
+        this.userlist = new UserlistService(cytube, database.users);
+        this.playlist = new PlaylistService(cytube, database.aliveLinks, database.deadLinks);
         
         this.database.setup().finally(async () => {
             await this.cytube.connect();
 
-            this.pollService.subscribe();
-            this.userlistService.subscribe();
-            this.playlistService.subscribe();
+            this.poll.subscribe();
+            this.userlist.subscribe();
+            this.playlist.subscribe();
         });
     }
 

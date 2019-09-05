@@ -15,7 +15,7 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
         create.int('year').default(0);
         create.int('duration').default(0);
         create.text('quality');
-        create.int('validateBy').default(0);
+        create.bigint('validateBy').default(0);
         super(context, create);
     }
 
@@ -24,7 +24,7 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
      * @returns {Promise<void>}
      */
     async add(link) {
-        await this.insert(link).execute();
+        await super.insert(link).execute();
     }
 
     /**

@@ -5,7 +5,7 @@ import Bot from "./Bot/Bot.js";
 import Config from "./infrastructure/config/Config.js";
 import DbContext from "./database/sql/DbContext.js";
 
-const rawConfig = fs.readFileSync('./config.json') + '';
+const rawConfig = fs.readFileSync('./config.json').toString();
 
 const config = new Config(JSON.parse(rawConfig));
 const context = DbContext.with(config.database);

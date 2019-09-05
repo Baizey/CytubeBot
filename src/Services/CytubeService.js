@@ -1,5 +1,19 @@
 import socketClient from "socket.io-client";
 import {default as fetch} from 'node-fetch';
+import Utils from "../infrastructure/Utils.js";
+
+const Subscribe = {
+    connect: 'connect',
+    timeout: 'connect_timeout',
+    disconnect: 'disconnect'
+};
+
+const Publish = {
+    channelPassword: 'channelPassword',
+    joinChannel: 'joinChannel',
+    init: 'initChannelCallbacks',
+    login: 'login',
+};
 
 /**
  * @param {CytubeService} cytube
@@ -15,18 +29,18 @@ const connect = (cytube, url) => {
         autoConnect: true,
     });
 
-    socket.on(On.defaults.connect, () => {
-        cytube.emit(Emit.connect.init);
-        cytube.emit(Emit.connect.joinChannel, {name: cytube._channel.name});
-        cytube.emit(Emit.connect.login, {name: cytube._user.name, pw: cytube._user.password});
+    socket.on(Subscribe.connect, () => {
+        socket.emit(Publish.init);
+        socket.emit(Publish.login, {name: cytube._user.name, pw: cytube._user.password});
+        socket.emit(Publish.joinChannel, {name: cytube._channel.name});
         cytube._connected = true;
     });
 
-    socket.on(On.defaults.timeout, () => {
+    socket.on(Subscribe.timeout, () => {
         cytube._connected = false;
     });
 
-    socket.on(On.defaults.disconnect, () => {
+    socket.on(Subscribe.disconnect, () => {
         cytube._connected = false;
     });
 
@@ -34,22 +48,26 @@ const connect = (cytube, url) => {
 };
 
 /**
- * @param cytube
- * @param attempt
+ * @param {CytubeService} cytube
  * @returns {Promise<Socket>}
  */
-const getUrlAndConnect = async (cytube, attempt = 1) => {
-    const cytubeUrl = `https://www.cytu.be/socketconfig/${cytube._channel.name}.json`;
-    const request = await fetch(cytubeUrl).then(e => e.json()).catch(() => false);
-    if (request) {
-        const serverUrl = request.servers.filter(server => server.secure)[0].url;
-        if (serverUrl) return connect(cytube, serverUrl);
-    }
+const getUrlAndConnect = async (cytube) => {
     const second = 1000;
     const minute = second * 60;
     const hour = minute * 60;
-    const exponent = Math.pow(attempt, 2);
-    setTimeout(() => getUrlAndConnect(attempt + 1), Math.min(exponent * second + 5 * second, hour));
+
+    for (let attempt = 1; true; attempt++) {
+        const cytubeUrl = `https://www.cytu.be/socketconfig/${cytube._channel.name}.json`;
+        const request = await fetch(cytubeUrl).then(e => e.json()).catch(() => false);
+        if (request) {
+            const serverUrl = request.servers.filter(server => server.secure)[0].url;
+            if (serverUrl) return connect(cytube, serverUrl);
+        }
+
+        const exponent = Math.pow(attempt, 2);
+        const time = Math.min(exponent * second + 5 * second, hour);
+        await Utils.await(time);
+    }
 };
 
 

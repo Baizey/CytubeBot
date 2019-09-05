@@ -23,12 +23,12 @@ export default class PlaylistService {
 
     /**
      * @param {CytubeService} cytube
-     * @param {AliveLinksDatabaseAgent} videos
+     * @param {AliveLinksDatabaseAgent} aliveLinks
      * @param {DeadLinksDatabaseAgent} deadLinks
      */
-    constructor(cytube, videos, deadLinks) {
+    constructor(cytube, aliveLinks, deadLinks) {
         this._cytube = cytube;
-        this._alive = videos;
+        this._alive = aliveLinks;
         this._dead = deadLinks;
         this.playlist = [];
         this.currentUid = null;

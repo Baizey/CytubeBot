@@ -5,7 +5,7 @@ const Subscribe = {
     add: 'addUser',
     setRank: 'setUserRank',
     leave: 'userLeave',
-    get: 'userlist'
+    userlist: 'userlist'
 };
 
 export default class UserlistService {
@@ -24,7 +24,7 @@ export default class UserlistService {
         this._cytube.on(Subscribe.add, (user) => this.add(CytubeUser.fromCytubeServer(user)));
         this._cytube.on(Subscribe.setRank, (user) => this.update(user.name, {rank: user.rank}));
         this._cytube.on(Subscribe.leave, (user) => this.setOffline(user.name));
-        this._cytube.on(Subscribe.get, (users) => this.addAll(users.map(e => CytubeUser.fromCytubeServer(e))));
+        this._cytube.on(Subscribe.userlist, (users) => this.addAll(users.map(e => CytubeUser.fromCytubeServer(e))));
     }
 
     /**
@@ -93,7 +93,9 @@ export default class UserlistService {
     async get(name) {
         if (this.online[name])
             return Promise.resolve(this.online[name]);
-        return CytubeUser.fromDatabaseUser(await this._db.getByName(name));
+        const dbUser = await this._db.getByName(name);
+        const user = CytubeUser.fromDatabaseUser(dbUser);
+        return user;
     }
 
     /**

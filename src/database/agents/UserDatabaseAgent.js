@@ -8,7 +8,7 @@ export default class UserDatabaseAgent extends BaseDatabaseAgent {
     constructor(context) {
         const create = context.create('users');
         create.text('name').primary();
-        create.int('lastonline').default(0);
+        create.bigint('lastonline').default(0);
         create.int('rank').default(0);
         create.bool('disallow').default(false);
         create.bool('ignore').default(false);

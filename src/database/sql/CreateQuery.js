@@ -23,6 +23,14 @@ export default class CreateQuery {
      * @param {string} name
      * @returns {Column}
      */
+    bigint(name) {
+        return this.addColumn(name, 'bigint');
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Column}
+     */
     int(name) {
         return this.addColumn(name, 'int');
     }
