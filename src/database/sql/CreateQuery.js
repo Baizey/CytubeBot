@@ -84,6 +84,7 @@ class Column {
         this._isUnique = false;
         this._isPrimary = false;
         this._isNullable = true;
+        this._isSerial = false;
         this._defaultValue = undefined;
         this._referenceValue = undefined;
     }
@@ -93,6 +94,14 @@ class Column {
      */
     unique() {
         this._isUnique = true;
+        return this;
+    }
+
+    /**
+     * @returns {Column}
+     */
+    serial() {
+        this._isSerial = true;
         return this;
     }
 
@@ -148,7 +157,8 @@ class Column {
             : ` UNIQUE`;
         const primary = !this._isPrimary || multiPrimary ? ''
             : ` PRIMARY KEY`;
+        const serial = this._isSerial ? ' SERIAL' : '';
 
-        return `${this._name} ${this._type}${nullable}${def}${foreign}${unique}${primary}`;
+        return `${this._name} ${this._type}${nullable}${def}${foreign}${unique}${primary}${serial}`;
     }
 }

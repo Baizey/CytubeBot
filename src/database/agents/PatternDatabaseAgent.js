@@ -26,19 +26,15 @@ export default class PatternDatabaseAgent extends BaseDatabaseAgent {
      * @param {Pattern} pattern
      * @returns {Promise<void>}
      */
-    add(pattern) {
-        return super.insert(pattern)
-            .execute()
-            .then();
+    async add(pattern) {
+        await super.insert(pattern).execute();
     }
 
     /**
      * @param {string} command
      * @returns {Promise<void>}
      */
-    deleteByCommand(command) {
-        return this.delete().where(e => e.command === $, command)
-            .execute()
-            .then();
+    async deleteByCommand(command) {
+        await this.delete().where(e => e.command === $, command).execute();
     }
 }

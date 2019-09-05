@@ -56,18 +56,6 @@ const utils = {
     },
 
     /**
-     * @param {String} v
-     * @returns {String}
-     */
-    htmlDecode: (v) => $('<textarea/>').html(v).text(),
-
-    /**
-     * @param {String} v
-     * @returns {String}
-     */
-    htmlEncode: (v) => htmlEncode(v),
-
-    /**
      * @param {Object[]} list
      * @param {Function} keyFunction
      * @param {Function} valueFunction
@@ -130,7 +118,7 @@ const utils = {
         const messages = [];
         let current = [];
         let length = 0;
-        msg.split(" ").forEach(word => {
+                msg.split(" ").forEach(word => {
             if (current.length > 0
                 && length + 1 + word.length > chatLimit) {
                 messages.push(current.join(" "));

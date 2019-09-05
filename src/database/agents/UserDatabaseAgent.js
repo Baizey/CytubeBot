@@ -40,29 +40,23 @@ export default class UserDatabaseAgent extends BaseDatabaseAgent {
      * @param {DatabaseUser} user
      * @returns {Promise<void>}
      */
-    add(user) {
-        return super.insert(user)
-            .execute()
-            .then();
+    async add(user) {
+        await super.insert(user).execute()
     }
 
     /**
      * @param {DatabaseUser} user
      * @returns {Promise<void>}
      */
-    alter(user) {
-        return super.update(user).where(e => e.name === $, user.name)
-            .execute()
-            .then();
+    async alter(user) {
+        await super.update(user).where(e => e.name === $, user.name).execute();
     }
 
     /**
      * @param {string} name
      * @returns {Promise<void>}
      */
-    deleteByName(name) {
-        return super.delete().where(e => e.name === $, name)
-            .execute()
-            .then();
+    async deleteByName(name) {
+        await super.delete().where(e => e.name === $, name).execute();
     }
 }

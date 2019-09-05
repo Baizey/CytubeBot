@@ -88,11 +88,11 @@ export default class UserlistService {
 
     /**
      * @param {string} name
-     * @returns {CytubeUser}
+     * @returns {Promise<CytubeUser>}
      */
     async get(name) {
         if (this.online[name])
-            return this.online[name];
+            return Promise.resolve(this.online[name]);
         return CytubeUser.fromDatabaseUser(await this._db.getByName(name));
     }
 

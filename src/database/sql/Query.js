@@ -7,7 +7,6 @@ export default class Query {
         this._table = table;
         this._context = context;
         this._where = null;
-        this._whereSql = null;
         this._variables = [];
         this._parameters = {};
     }
@@ -20,7 +19,6 @@ export default class Query {
     where(statement, variables) {
         this._where = statement;
         this._variables = variables;
-        this._whereSql = null;
         return this;
     }
 
@@ -29,7 +27,6 @@ export default class Query {
      */
     get _generateWhereSql() {
         if (!this._where) return '';
-        if (this._whereSql) return this._whereSql;
 
         const str = this._where.toString();
         let row, statement;
@@ -63,13 +60,12 @@ export default class Query {
                     return `${e}(${values})`;
                 } else {
                     this._parameters[key] = value;
-                    return `${e}\${${key}}`
+                    return `${e}\${${key}}`;
                 }
             }).join('');
         }
 
-        this._whereSql = statement ? `WHERE ${statement}` : '';
-        return this._whereSql;
+        return statement ? `WHERE ${statement}` : '';
     }
 
     /***

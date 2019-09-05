@@ -27,10 +27,8 @@ export default class DeadLinksDatabaseAgent extends BaseDatabaseAgent {
      * @param {DeadLink} link
      * @returns {Promise<void>}
      */
-    add(link) {
-        return this.insert(link)
-            .execute()
-            .then();
+    async add(link) {
+        await this.insert(link).execute();
     }
 
     /**
@@ -38,10 +36,8 @@ export default class DeadLinksDatabaseAgent extends BaseDatabaseAgent {
      * @param {string} type
      * @returns {Promise<void>}
      */
-    remove(id, type) {
-        return this.delete().where(e => e.id === $ && e.type === $, id, type)
-            .execute()
-            .then()
+    async remove(id, type) {
+        await this.delete().where(e => e.id === $ && e.type === $, id, type).execute();
     }
 
 }
