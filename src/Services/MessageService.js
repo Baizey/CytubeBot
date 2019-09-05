@@ -1,6 +1,8 @@
 import "../infrastructure/prototype/string.js";
 import "../infrastructure/prototype/array.js";
 import {EventEmitter} from 'events';
+import Message from "./models/Message.js";
+import Command from "./models/Command.js";
 
 
 const Publish = {
@@ -112,60 +114,3 @@ export default class MessageService extends EventEmitter {
     }
 }
 
-class Command {
-
-    static fromMessage(message) {
-        const tagRegex = /[\-\[](\w+)(?::(\w+))?]?/g;
-        const commandRegex = /^\s*[$!](\w+)/;
-        const rawCmd = commandRegex.exec(message);
-        if (rawCmd) {
-            const command = rawCmd[1];
-            const tags = {};
-            message = message.trim().replace(tagRegex, (raw, type, value) => {
-                tags[type] = value || type;
-                return ''
-            });
-            return new Command(command, tags, message);
-        }
-        return undefined;
-    }
-
-    /**
-     * @param {string} command
-     * @param {object} tags
-     * @param {string} message
-     */
-    constructor(command, tags, message) {
-        this.message = message;
-        this.command = command;
-        this.tags = tags;
-    }
-
-    /**
-     * @returns {string[]}
-     */
-    get array() {
-        return this.message.split(';').trim().filter(e => e);
-    }
-
-}
-
-class Message {
-
-    /**
-     * @param {string} name
-     * @param {string} message
-     * @param {Date} timestamp
-     * @param {boolean} isPm
-     * @param {Command} command
-     */
-    constructor(name, message, timestamp, isPm, command) {
-        this.isPm = isPm;
-        this.message = message;
-        this.name = name;
-        this.timestamp = timestamp;
-        this.command = command;
-    }
-
-
-}

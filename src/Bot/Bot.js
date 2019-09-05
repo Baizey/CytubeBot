@@ -5,6 +5,7 @@ import PlaylistService from "../Services/PlaylistService.js";
 import PatternService from "../Services/PatternService.js";
 import MessageService from "../Services/MessageService.js";
 import CytubeUser from "../Services/models/CytubeUser.js";
+import CytubeCommand from "../Services/models/CytubeCommand.js";
 
 const Subscribe = {
     message: 'message'
@@ -41,11 +42,12 @@ export default class Bot {
     }
 
     /**
-     * @param {Message} message
+     * @param {CytubeMessage} message
+     * @returns {Promise<void>}
      */
     async handleMessage(message) {
-        const now = Date.now() - 5000;
         // Ignore messages older than 5 seconds
+        const now = Date.now() - 5000;
         if (now > message.timestamp.getTime())
             return;
 
@@ -53,25 +55,33 @@ export default class Bot {
         if (message.name === '[server]' || message.name === this.config.user.name)
             return;
 
+        // If no command found, check for command patterns
         if (!message.command) {
             const pattern = this.patterns.match(message.message);
-            if (pattern) {
-                message.command = pattern.command;
-                message.message = pattern.message;
-            }
+            if (pattern)
+                message.command = new CytubeCommand(pattern.command, pattern.message);
         }
 
         // Just chat
         if (!message.command)
             return;
 
-        const user = await this.userlist.get(message.name) || new CytubeUser(message.name, 0);
-
-        // Ignore specific user
+        // Get user rank and check if disallowed or has set ignore on
+        const user = (await this.userlist.get(message.name)) || new CytubeUser(message.name, 0);
         if (user.ignore || user.disallow)
             return;
 
         // Do command
+        await this.handleCommand(message.command, user, message.isPm);
+    }
+
+    /**
+     * @param {CytubeCommand} command
+     * @param {CytubeUser} user
+     * @param {boolean} isPm
+     * @returns {Promise<void>}
+     */
+    async handleCommand(command, user, isPm) {
     }
 
 }

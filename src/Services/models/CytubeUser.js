@@ -1,4 +1,5 @@
 import DatabaseUser from "../../database/domain/DatabaseUser.js";
+import Rank from "./Rank.js";
 
 export default class CytubeUser {
 
@@ -28,7 +29,7 @@ export default class CytubeUser {
      */
     constructor(name, rank, disallow = false, ignore = false, lastOnline = Date.now()) {
         this.name = name;
-        this.rank = rank;
+        this.rank = new Rank(rank);
         this.disallow = disallow;
         this.ignore = ignore;
         this.lastOnline = lastOnline;
@@ -38,14 +39,22 @@ export default class CytubeUser {
      * @param {CytubeUser} victim
      * @returns {boolean}
      */
-    hasHigherRankThan(victim) {
-        return this.rank > victim.rank;
+    higherRankThan(victim) {
+        return this.rank.higherThan(victim.rank);
+    }
+
+    /**
+     * @param {CytubeUser} victim
+     * @returns {boolean}
+     */
+    higherOrEqualRankThan(victim) {
+        return this.rank.higherOrEqualThan(victim.rank);
     }
 
     /**
      * @returns {DatabaseUser}
      */
     get asDatabaseUser() {
-        return new DatabaseUser(this.name, Date.now(), this.rank, this.disallow, this.ignore);
+        return new DatabaseUser(this.name, Date.now(), this.rank.value, this.disallow, this.ignore);
     }
 }
