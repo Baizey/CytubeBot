@@ -1,13 +1,13 @@
-import Link from "./Link.js";
+import DatabaseLink from "./DatabaseLink.js";
 
-export default class DeadLink extends Link {
+export default class DeadLink extends DatabaseLink {
 
     /**
      * @param {object} link
      * @returns {DeadLink}
      */
     static fromDatabase(link) {
-        return link ? new DeadLink(link.id, link.type) : null;
+        return link ? new DeadLink(link.id, link.type) : undefined;
     }
 
     /**

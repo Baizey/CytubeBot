@@ -1,5 +1,6 @@
 import AliveLink from "../../database/domain/AliveLink.js";
 import DeadLink from "../../database/domain/DeadLink.js";
+import Link from "../../infrastructure/video/Link.js";
 
 export default class PlaylistVideo {
 
@@ -24,6 +25,7 @@ export default class PlaylistVideo {
      * @returns {PlaylistVideo}
      */
     static fromDeadLink(link) {
+        if (!link) return undefined;
         return new PlaylistVideo(link.id, link.type);
     }
 
@@ -47,8 +49,7 @@ export default class PlaylistVideo {
      * @param {string} type
      */
     constructor(id, type) {
-        this.id = id;
-        this.type = type;
+        this.link = new Link(id, type);
         this.title = undefined;
         this.year = undefined;
         this.quality = undefined;
@@ -68,14 +69,14 @@ export default class PlaylistVideo {
      * @returns {AliveLink}
      */
     get asAliveDatabaseLink() {
-        return new AliveLink(this.id, this.type, this.title, this.fullTitle, this.year, this.duration, this.quality, 0);
+        return new AliveLink(this.link.id, this.link.type, this.title, this.fullTitle, this.year, this.duration, this.quality, 0);
     }
 
     /**
      * @returns {DeadLink}
      */
     get asDeadDatabaseLink() {
-        return new DeadLink(this.id, this.type);
+        return new DeadLink(this.link.id, this.link.type);
     }
 
     /**
@@ -85,8 +86,8 @@ export default class PlaylistVideo {
         return {
             temp: this.isIntermission,
             pos: "next",
-            id: this.id,
-            type: this.type
+            id: this.link.id,
+            type: this.link.type
         };
     }
 

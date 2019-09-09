@@ -8,9 +8,10 @@ export default class PatternService {
     constructor(patternDb) {
         this._db = patternDb;
         this.patterns = [];
-        this._db.getAll()
-            .then(patterns => patterns.map(e => Pattern.fromDatabase(e)))
-            .then(patterns => this.patterns = patterns);
+    }
+
+    async subscribe() {
+        this.patterns = await this._db.getAll().then(patterns => patterns.map(e => Pattern.fromDatabase(e)));
     }
 
     /**

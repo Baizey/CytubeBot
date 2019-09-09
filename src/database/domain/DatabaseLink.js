@@ -1,4 +1,4 @@
-export default class Link {
+export default class DatabaseLink {
     /**
      * @param {string} id
      * @param {string} type

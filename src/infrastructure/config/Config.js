@@ -6,7 +6,6 @@ import {ApiKeys} from "./ApiKeys.js";
 
 export default class Config {
     constructor(configData) {
-        this.web = new WebConfig(configData.webserver);
         this.user = new BotUser(configData.user);
         this.channel = new Channel(configData.channel);
         this.apikeys = new ApiKeys(configData.apikeys);

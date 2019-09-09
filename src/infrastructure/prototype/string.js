@@ -1,15 +1,16 @@
 import * as html from "html-encoder-decoder";
+const htmlDefault = html.default;
 
 /**
  * @returns {string}
  */
 String.prototype.htmlDecode = function () {
-    return html.decode(this);
+    return htmlDefault.decode(this);
 };
 
 /**
  * @returns {string}
  */
 String.prototype.htmlEncode = function () {
-    return html.encode(this);
+    return htmlDefault.encode(this);
 };

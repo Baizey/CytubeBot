@@ -1,6 +1,6 @@
-import Link from "./Link.js";
+import DatabaseLink from "./DatabaseLink.js";
 
-export default class AliveLink extends Link {
+export default class AliveLink extends DatabaseLink {
 
     /**
      * @param {object} link
@@ -16,7 +16,7 @@ export default class AliveLink extends Link {
             link.duration,
             link.quality,
             link.validateBy
-        ) : null;
+        ) : undefined;
     }
 
     /**

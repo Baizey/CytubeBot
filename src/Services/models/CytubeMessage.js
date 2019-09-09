@@ -5,7 +5,7 @@ export default class CytubeMessage {
      * @param {string} message
      * @param {Date} timestamp
      * @param {boolean} isPm
-     * @param {Command} command
+     * @param {CytubeCommand} command
      */
     constructor(name, message, timestamp, isPm, command) {
         this.isPm = isPm;

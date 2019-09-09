@@ -1,8 +1,8 @@
 import "../infrastructure/prototype/string.js";
 import "../infrastructure/prototype/array.js";
 import {EventEmitter} from 'events';
-import Message from "./models/Message.js";
-import Command from "./models/Command.js";
+import CytubeCommand from "./models/CytubeCommand.js";
+import CytubeMessage from "./models/CytubeMessage.js";
 
 
 const Publish = {
@@ -37,14 +37,14 @@ export default class MessageService extends EventEmitter {
      *     msg: string
      * }} data
      * @param {boolean} isPm
-     * @returns {Promise<Message>}
+     * @returns {Promise<CytubeMessage>}
      */
     async receive(data, isPm) {
         const name = data.username;
         const timestamp = new Date(data.time);
         const text = data.msg.htmlDecode();
-        const command = Command.fromMessage(text);
-        const message = new Message(name, text, timestamp, isPm, command);
+        const command = CytubeCommand.fromMessage(text);
+        const message = new CytubeMessage(name, text, timestamp, isPm, command);
         super.emit('message', message);
         return message;
     }

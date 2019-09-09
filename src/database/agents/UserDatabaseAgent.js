@@ -1,5 +1,6 @@
 import DatabaseUser from '../domain/DatabaseUser.js'
 import BaseDatabaseAgent from "./BaseDatabaseAgent.js";
+import 'regenerator-runtime';
 
 export default class UserDatabaseAgent extends BaseDatabaseAgent {
     /**

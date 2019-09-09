@@ -75,9 +75,9 @@ export default class CreateQuery {
         const primary = this.columns.filter(e => e._isPrimary);
         const multipleUnique = unique.length >= 2;
         const multiplePrimary = primary.length >= 2;
-        const primaryKeys = multiplePrimary ? `,\nPRIMARY KEY (${primary.map(e => e._name).join(', ')})` : '';
-        const uniqueKeys = multipleUnique ? `,\nUNIQUE (${unique.map(e => e._name).join(', ')})` : '';
-        const columns = this.columns.map(e => e.generateSql(multiplePrimary, multipleUnique)).join(',\n');
+        const primaryKeys = multiplePrimary ? `, PRIMARY KEY (${primary.map(e => e._name).join(', ')})` : '';
+        const uniqueKeys = multipleUnique ? `, UNIQUE (${unique.map(e => e._name).join(', ')})` : '';
+        const columns = this.columns.map(e => e.generateSql(multiplePrimary, multipleUnique)).join(', ');
         return `CREATE TABLE IF NOT EXISTS ${this._table} (${columns}${primaryKeys}${uniqueKeys})`;
     }
 

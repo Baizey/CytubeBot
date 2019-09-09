@@ -73,11 +73,12 @@ const getUrlAndConnect = async (cytube) => {
 
 export default class CytubeService {
     /**
-     * @param {Config} config
+     * @param {Channel} channel
+     * @param {BotUser} user
      */
-    constructor(config) {
-        this._channel = config.channel;
-        this._user = config.user;
+    constructor(channel, user) {
+        this._channel = channel;
+        this._user = user;
         this._connected = false;
         this._socket = undefined;
     }

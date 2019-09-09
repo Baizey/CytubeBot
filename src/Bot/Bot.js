@@ -6,6 +6,9 @@ import PatternService from "../Services/PatternService.js";
 import MessageService from "../Services/MessageService.js";
 import CytubeUser from "../Services/models/CytubeUser.js";
 import CytubeCommand from "../Services/models/CytubeCommand.js";
+import TmdbAgent from "../agents/TmdbAgent.js";
+import OmdbAgent from "../agents/OmdbAgent.js";
+import Logger from '../infrastructure/logger/Logger.js';
 
 const Subscribe = {
     message: 'message'
@@ -23,6 +26,10 @@ export default class Bot {
         this.config = config;
         this.database = database;
 
+        const apiKeys = config.apikeys;
+        this.tmdb = new TmdbAgent(apiKeys.themovieDB);
+        this.omdb = new OmdbAgent(apiKeys.omdb);
+
         this.patterns = new PatternService(database.patterns);
         this.messageService = new MessageService(cytube);
         this.poll = new PollService(cytube);
@@ -31,14 +38,20 @@ export default class Bot {
 
         this.messageService.on(Subscribe.message, message => this.handleMessage(message));
 
-        this.database.setup().then(async () => {
-            await this.cytube.connect();
+        this.database.setup()
+            .then(async () => {
+                await this.cytube.connect();
 
-            this.poll.subscribe();
-            this.userlist.subscribe();
-            this.playlist.subscribe();
-            this.messageService.subscribe();
-        });
+                this.poll.subscribe();
+                this.userlist.subscribe();
+                this.playlist.subscribe();
+                this.messageService.subscribe();
+                await this.patterns.subscribe();
+            })
+            .catch(error => {
+                Logger.error(error);
+                throw error;
+            });
     }
 
     /**
@@ -51,9 +64,13 @@ export default class Bot {
         if (now > message.timestamp.getTime())
             return;
 
-        // Ignore server and bots own messages
-        if (message.name === '[server]' || message.name === this.config.user.name)
+        // Ignore server
+        if (message.name === '[server]')
             return;
+
+        // Log own messages
+        if (message.name === this.config.user.name)
+            return Logger.command(message, true);
 
         // If no command found, check for command patterns
         if (!message.command) {
@@ -64,14 +81,17 @@ export default class Bot {
 
         // Just chat
         if (!message.command)
-            return;
+            return Logger.chat(message);
 
-        // Get user rank and check if disallowed or has set ignore on
+        // Get user info
         const user = (await this.userlist.get(message.name)) || new CytubeUser(message.name, 0);
+
+        // Check if user is ignored or disallowed
         if (user.ignore || user.disallow)
             return;
 
         // Do command
+        Logger.command(message, false);
         await this.handleCommand(message.command, user, message.isPm);
     }
 

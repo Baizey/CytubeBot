@@ -3,10 +3,11 @@ import DeleteQuery from "./DeleteQuery.js";
 import UpdateQuery from "./UpdateQuery.js";
 import SelectQuery from "./SelectQuery.js";
 import CreateQuery from "./CreateQuery.js";
+import '../../infrastructure/prototype/object.js';
+import '../../infrastructure/prototype/array.js';
+import Logger from '../../infrastructure/logger/Logger.js';
 
-import * as pgp from 'pg-promise';
-
-const Postgres = pgp.default();
+import * as pg from 'pg';
 
 export default class DbContext {
     /**
@@ -25,7 +26,8 @@ export default class DbContext {
      * @param {string} password
      */
     constructor(host, port, database, username, password) {
-        this._db = Postgres({
+        // Actually pg.Pool but that didnt work so fuck it, here we are
+        this._connection = pg.default.Pool({
             host: host,
             port: port,
             database: database,
@@ -35,13 +37,29 @@ export default class DbContext {
     }
 
     /**
+     * Shitty work-around since pg-promise with named parameters broke
+     * We're manually reworking it to work here with $1, $2 etc for normal pg
      * @param {string} sql
      * @param {object} params
-     * @returns {Promise<any[]>}
+     * @returns {Promise<*>}
      */
-    execute(sql, params = {}) {
-        return this._db.any(sql, params);
+    async execute(sql, params = {}) {
+        const values = [];
+        sql = sql.replace(/\${([^}]+)}/g, (raw, key) => {
+            values.push(params[key]);
+            return '$' + values.length;
+        });
+
+        const client = await this._connection.connect();
+        const resp = await client.query({
+            text: sql,
+            values: values
+        });
+        client.release();
+
+        return resp.rows;
     }
+
 
     select(table) {
         return new SelectQuery(table, this);

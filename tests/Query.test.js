@@ -194,7 +194,7 @@ describe("SQL Linq tests", () => {
             sql.should.equal(expected);
         });
         it('Create multi primary', () => {
-            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nPRIMARY KEY (column1, column2))';
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean, column2 boolean, PRIMARY KEY (column1, column2))';
             const query = new CreateQuery('table_name');
             query.bool('column1').primary();
             query.bool('column2').primary();
@@ -209,7 +209,7 @@ describe("SQL Linq tests", () => {
             sql.should.equal(expected);
         });
         it('Create multi unique', () => {
-            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nUNIQUE (column1, column2))';
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean, column2 boolean, UNIQUE (column1, column2))';
             const query = new CreateQuery('table_name');
             query.bool('column1').unique();
             query.bool('column2').unique();
@@ -217,7 +217,7 @@ describe("SQL Linq tests", () => {
             sql.should.equal(expected);
         });
         it('Create multi unique and primary', () => {
-            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean,\ncolumn2 boolean,\nPRIMARY KEY (column1, column2),\nUNIQUE (column1, column2))';
+            const expected = 'CREATE TABLE IF NOT EXISTS table_name (column1 boolean, column2 boolean, PRIMARY KEY (column1, column2), UNIQUE (column1, column2))';
             const query = new CreateQuery('table_name');
             query.bool('column1').unique().primary();
             query.bool('column2').unique().primary();
@@ -241,7 +241,7 @@ describe("SQL Linq tests", () => {
         });
 
         it('Create column  defaults', () => {
-            const expected = 'CREATE TABLE IF NOT EXISTS table (int int DEFAULT 0,\nstring text DEFAULT "monkey")';
+            const expected = 'CREATE TABLE IF NOT EXISTS table (int int DEFAULT 0, string text DEFAULT "monkey")';
             const query = new CreateQuery('table');
             query.int('int').default(0);
             query.text('string').default("monkey");
