@@ -15,6 +15,13 @@ describe("Prototype tests", () => {
         it("not contains", () => {
             [1].contains('1').should.false();
         });
+        it("toObject", () => {
+           [1,2].toObject(e => e + '', e => e)
+               .should.deepEqual({
+               1: 1,
+               2: 2,
+           })
+        });
     });
 
     describe('string', () => {

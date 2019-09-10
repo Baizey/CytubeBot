@@ -8,7 +8,10 @@ export default class CytubeUser {
      * @returns {CytubeUser}
      */
     static fromCytubeServer(data) {
-        return new CytubeUser(data.name, data.rank);
+        const user = new CytubeUser(data.name, data.rank);
+        if (data.meta)
+            user.muted = data.meta.muted || data.meta.smuted;
+        return user;
     }
 
     /**
@@ -33,6 +36,7 @@ export default class CytubeUser {
         this.disallow = disallow;
         this.ignore = ignore;
         this.lastOnline = lastOnline;
+        this.muted = false;
     }
 
     /**

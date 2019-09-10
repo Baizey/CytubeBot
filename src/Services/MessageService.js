@@ -51,6 +51,18 @@ export default class MessageService extends EventEmitter {
 
     /**
      * @param {string|string[]} messages
+     * @param {boolean} isPm
+     * @param {string} receiver
+     */
+    send(messages, isPm, receiver) {
+        if (!messages || messages.length === 0)
+            return;
+        if (isPm) return this.sendPrivate(messages, receiver);
+        return this.sendPublic(messages);
+    }
+
+    /**
+     * @param {string|string[]} messages
      */
     sendPublic(messages) {
         messages = this._splitMessage(messages);

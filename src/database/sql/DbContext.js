@@ -50,6 +50,8 @@ export default class DbContext {
             return '$' + values.length;
         });
 
+        Logger.system(sql + ' : ' + JSON.stringify(values));
+
         const client = await this._connection.connect();
         const resp = await client.query({
             text: sql,

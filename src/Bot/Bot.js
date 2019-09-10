@@ -9,6 +9,7 @@ import CytubeCommand from "../Services/models/CytubeCommand.js";
 import TmdbAgent from "../agents/TmdbAgent.js";
 import OmdbAgent from "../agents/OmdbAgent.js";
 import Logger from '../infrastructure/logger/Logger.js';
+import CommandService from "../Services/CommandService.js";
 
 const Subscribe = {
     message: 'message'
@@ -30,6 +31,7 @@ export default class Bot {
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);
         this.omdb = new OmdbAgent(apiKeys.omdb);
 
+        this.commands = new CommandService(this);
         this.patterns = new PatternService(database.patterns);
         this.messageService = new MessageService(cytube);
         this.poll = new PollService(cytube);
@@ -86,22 +88,15 @@ export default class Bot {
         // Get user info
         const user = (await this.userlist.get(message.name)) || new CytubeUser(message.name, 0);
 
-        // Check if user is ignored or disallowed
-        if (user.ignore || user.disallow)
+        // Dont execute commands of user if disallowed in some way
+        if (user.ignore || user.disallow || user.muted)
             return;
 
         // Do command
         Logger.command(message, false);
-        await this.handleCommand(message.command, user, message.isPm);
-    }
 
-    /**
-     * @param {CytubeCommand} command
-     * @param {CytubeUser} user
-     * @param {boolean} isPm
-     * @returns {Promise<void>}
-     */
-    async handleCommand(command, user, isPm) {
+        const response = this.commands.run(message.command, user, message.isPm);
+        this.messageService.send(response.messages, response.isPm, user.name);
     }
 
 }

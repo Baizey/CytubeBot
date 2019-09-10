@@ -7,7 +7,8 @@ class Log extends EventEmitter {
 
     constructor(name) {
         super();
-        this.path = path.join(path.resolve(), '../..', `logs/${name}.log`);
+        const base = path.resolve();
+        this.path = path.join(base, `logs/${name}.log`);
         this._writer = fs.createWriteStream(this.path, {flags: 'a+'});
     }
 
@@ -141,6 +142,7 @@ export default class Logger {
         if (isBot) {
             const pm = message.isPm ? ' (pm)' : '';
             Logger.instance.commands.log(`${message.name}${pm}: ${message.message}`);
+            return;
         }
         const command = message.command;
         const tags = Object.keys(command.tags).map(e => e + ': ' + command.tags[e]).join(', ');

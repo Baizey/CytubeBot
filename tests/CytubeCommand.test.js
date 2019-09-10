@@ -3,7 +3,7 @@ import should from "should";
 import CytubeCommand from "../src/Services/models/CytubeCommand.js";
 
 
-describe("Cytube command tests", () => {
+describe("Command parsing tests", () => {
 
     it(`Catch command name correctly`, () => {
         const command = CytubeCommand.fromMessage('$command -a:b a;b;c');

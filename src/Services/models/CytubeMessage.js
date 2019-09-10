@@ -1,5 +1,4 @@
 export default class CytubeMessage {
-
     /**
      * @param {string} name
      * @param {string} message

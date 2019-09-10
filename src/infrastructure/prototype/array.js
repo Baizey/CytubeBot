@@ -12,5 +12,8 @@ Array.prototype.contains = function (value) {
  * @returns {object}
  */
 Array.prototype.toObject = function (keyFunc = e => '' + e, valueFunc = e => true) {
-    return this.reduce((obj, value) => obj[keyFunc(value)] = valueFunc(value), {});
+    return this.reduce((obj, value) => {
+        obj[keyFunc(value)] = valueFunc(value);
+        return obj;
+    }, {});
 };

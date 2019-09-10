@@ -1,11 +1,13 @@
 import CytubeService from "./CytubeService.js";
 import CytubeUser from "./models/CytubeUser.js";
+import Rank from "./models/Rank.js";
 
 const Subscribe = {
     add: 'addUser',
     setRank: 'setUserRank',
     leave: 'userLeave',
-    userlist: 'userlist'
+    userlist: 'userlist',
+    setMeta: 'setUserMeta'
 };
 
 export default class UserlistService {
@@ -21,19 +23,15 @@ export default class UserlistService {
     }
 
     subscribe() {
-        this._cytube.on(Subscribe.add, (user) => this.add(CytubeUser.fromCytubeServer(user)));
-        this._cytube.on(Subscribe.setRank, (user) => this.update(user.name, {rank: user.rank}));
+        this._cytube.on(Subscribe.add, async user => await this.add(CytubeUser.fromCytubeServer(user)));
+        this._cytube.on(Subscribe.setRank, async user => await this.update(user.name, {rank: new Rank(user.rank)}));
+        this._cytube.on(Subscribe.setMeta, data => {
+            const user = this.online[data.name];
+            if (!user) return;
+            user.muted = data.meta.muted || data.meta.smuted;
+        });
         this._cytube.on(Subscribe.leave, (user) => this.setOffline(user.name));
-        this._cytube.on(Subscribe.userlist, (users) => this.addAll(users.map(e => CytubeUser.fromCytubeServer(e))));
-    }
-
-    /**
-     * @param {CytubeUser[]} users
-     * @returns {Promise<void>}
-     */
-    async addAll(users) {
-        this.online = {};
-        await Promise.all(users.map(e => this.add(e)));
+        this._cytube.on(Subscribe.userlist, (users) => users.forEach(user => this.add(CytubeUser.fromCytubeServer(user))));
     }
 
     /**
@@ -45,7 +43,7 @@ export default class UserlistService {
         // If user already exist, update rank
         if (dbUser) {
             this.online[user.name] = dbUser;
-            await this.update(user.name, {rank: user.rank});
+            await this.update(user.name);
         } else {
             // Otherwise insert user
             this.online[user.name] = user;
@@ -65,14 +63,14 @@ export default class UserlistService {
 
     /**
      * @param {string} name
-     * @param {{rank: number|undefined, disallow: boolean|undefined, ignore: boolean|undefined}} data
+     * @param {{rank: Rank|undefined, disallow: boolean|undefined, ignore: boolean|undefined}} data
      * @returns {Promise<void>}
      */
     async update(name, data = {}) {
         const user = this.online[name];
         if (!user) return;
 
-        user.rank = typeof data.rank === 'number'
+        user.rank = data.rank
             ? data.rank
             : user.rank;
         user.disallow = typeof data.disallow === 'boolean'

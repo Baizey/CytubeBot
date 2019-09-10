@@ -11,7 +11,7 @@ export default class DeleteQuery extends Query {
     }
 
     /**
-     * @param {function(User|Nomination|Pattern|AliveLink|DeadLink):boolean} statement
+     * @param {function(DatabaseUser|Nomination|DatabasePattern|AliveLink|DeadLink):boolean} statement
      * @param {*} variables
      * @returns {DeleteQuery}
      */
