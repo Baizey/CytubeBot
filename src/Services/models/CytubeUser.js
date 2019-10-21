@@ -35,7 +35,7 @@ export default class CytubeUser {
         this.rank = new Rank(rank);
         this.disallow = disallow;
         this.ignore = ignore;
-        this.lastOnline = lastOnline;
+        this.lastOnline = new Date(lastOnline);
         this.muted = false;
     }
 
@@ -59,6 +59,7 @@ export default class CytubeUser {
      * @returns {DatabaseUser}
      */
     get asDatabaseUser() {
-        return new DatabaseUser(this.name, Date.now(), this.rank.value, this.disallow, this.ignore);
+        this.lastOnline = new Date();
+        return new DatabaseUser(this.name, this.lastOnline.getTime(), this.rank.value, this.disallow, this.ignore);
     }
 }

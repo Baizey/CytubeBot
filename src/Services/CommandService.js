@@ -1,9 +1,16 @@
 import SayCommand from "./models/commands/SayCommand.js";
 import Command from "./models/Command.js";
 import '../infrastructure/prototype/array.js';
+import LastOnlineCommand from "./models/commands/LastOnlineCommand.js";
+import {ExitCommand, RestartCommand} from "./models/commands/ExitCommand.js";
+import HelpCommand from "./models/commands/HelpCommand.js";
 
 const commandConstructors = [
-    SayCommand
+    SayCommand,
+    LastOnlineCommand,
+    ExitCommand,
+    RestartCommand,
+    HelpCommand,
 ];
 
 export default class CommandService {
@@ -29,7 +36,7 @@ export default class CommandService {
      * @param {boolean} isPm
      * @returns {{messages: string[], isPm: boolean}}
      */
-    run(data, user, isPm) {
+    async run(data, user, isPm) {
         const command = this._commands[data.name];
 
         if (!command)
@@ -38,7 +45,7 @@ export default class CommandService {
         if (command.rank.higherThan(user.rank))
             return Command.respond('Command requires higher rank', isPm);
 
-        return command.run(data, user, isPm);
+        return await command.run(data, user, isPm);
     }
 
 }

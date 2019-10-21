@@ -1,3 +1,5 @@
+import "regenerator-runtime";
+
 export default class Command {
     /**
      * @param {Bot} bot
@@ -5,7 +7,7 @@ export default class Command {
      * @param {Rank} minimumRank
      */
     constructor(bot, name, minimumRank) {
-        this._bot = bot;
+        this.bot = bot;
         this._rank = minimumRank;
         this._name = name;
     }
@@ -28,9 +30,9 @@ export default class Command {
      * @param {CytubeCommand} data
      * @param {CytubeUser} user
      * @param {boolean} isPm
-     * @returns {{isPm: boolean, messages: string[]}}
+     * @returns {Promise<{isPm: boolean, messages: string[]}>}
      */
-    run(data, user, isPm) {
+    async run(data, user, isPm) {
         throw `Command '${this.name}' not implemented yet`;
     }
 

@@ -964,7 +964,44 @@ const latinMap = {
     "ₓ": "x"
 };
 
-export default class TitleFilter {
+const qualityMapping = {
+    "cam": "cam",
+    "hdts": "hdts",
+
+    "240": "240p",
+    "240p": "240p",
+
+    "360": "360p",
+    "360p": "360p",
+
+    "480": "480p",
+    "480p": "480p",
+
+    "720": "720p",
+    "720p": "720p",
+
+    "1080": "1080p",
+    "1080p": "1080p",
+};
+
+const qualityOrder = {
+    "cam": 1,
+    "hdts": 2,
+    "240p": 3,
+    "360p": 4,
+    "480p": 5,
+    "720p": 6,
+    "1080p": 7,
+};
+
+export const Quality = {
+    rank: (str) => qualityOrder[qualityMapping[str]] ? qualityOrder[qualityMapping[str]] : 0,
+    compare: (a, b) => Quality.rank(a) - Quality.rank(b),
+    order: qualityOrder,
+    mapping: qualityMapping
+};
+
+export class TitleFilter {
 
     /**
      * Sanitize title for accented characters and non-latin characters
@@ -975,7 +1012,9 @@ export default class TitleFilter {
         return title
             .replace(/[^A-Za-z0-9\[\] ]/g, a => latinMap[a] || a)
             .replace(/[^\x00-\x7F]/g, '')
-            .replace(/[A-Za-z](\.[A-Za-z])+/g, raw => raw.replace(/\./g, ''))
+            .toLowerCase()
+            .replace(/([-~_,./\\ ]|^)([a-z](?:\.[a-z])+)([-~_,./\\ ]|$)/g,
+                (raw, start, text, end) => start + text.replace(/\./g, '') + end)
     }
 
     /**

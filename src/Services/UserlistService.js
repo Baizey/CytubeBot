@@ -31,7 +31,7 @@ export default class UserlistService {
             user.muted = data.meta.muted || data.meta.smuted;
         });
         this._cytube.on(Subscribe.leave, (user) => this.setOffline(user.name));
-        this._cytube.on(Subscribe.userlist, (users) => users.forEach(user => this.add(CytubeUser.fromCytubeServer(user))));
+        this._cytube.on(Subscribe.userlist, (users) => users.forEach(async user => await this.add(CytubeUser.fromCytubeServer(user))));
     }
 
     /**
@@ -42,7 +42,7 @@ export default class UserlistService {
         const dbUser = await this.get(user.name);
         // If user already exist, update rank
         if (dbUser) {
-            this.online[user.name] = dbUser;
+            this.online[dbUser.name] = dbUser;
             await this.update(user.name);
         } else {
             // Otherwise insert user

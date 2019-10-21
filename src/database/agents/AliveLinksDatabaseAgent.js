@@ -28,6 +28,27 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
     }
 
     /**
+     * @param title
+     * @returns {Promise<AliveLink[]>}
+     */
+    async getLike(title) {
+        return await super.select()
+            .where(e => e.title == $, `%${title}%`)
+            .execute()
+            .then(e => e ? e.map(e => AliveLink.fromDatabase(e)) : []);
+    }
+
+    /**
+     * @param {AliveLink} link
+     * @returns {Promise<void>}
+     */
+    async remove(link) {
+        const results = await super.delete()
+            .where(e => e.id === $ && e.type === $, link.id, link.type)
+            .execute();
+    }
+
+    /**
      * @param {string} id
      * @param {string} type
      * @returns {Promise<AliveLink>}

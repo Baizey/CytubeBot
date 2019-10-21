@@ -18,30 +18,30 @@ describe("CommandService tests", () => {
     const say = new SayCommand(bot);
 
     describe('CommandService', () => {
-        it("Cant find commands", () => {
+        it("Cant find commands", async () => {
             const text = 'banana';
             const command = new CytubeCommand('bananahammockwubwub', text);
-            const result = service.run(command, admin, true);
+            const result = await service.run(command, admin, true);
             result.should.deepEqual({
                 messages: ['Command does not exist'],
                 isPm: true
             });
         });
 
-        it('too low rank', () => {
+        it('too low rank', async () => {
             const text = 'banana';
             const command = new CytubeCommand(say.name, text);
-            const result = service.run(command, mod, true);
+            const result = await service.run(command, mod, true);
             result.should.deepEqual({
                 messages: ['Command requires higher rank'],
                 isPm: true
             });
         });
 
-        it("Can find commands", () => {
+        it("Can find commands", async () => {
             const text = 'banana';
             const command = new CytubeCommand(say.name, text);
-            const result = service.run(command, admin, true);
+            const result = await service.run(command, admin, true);
             result.should.deepEqual({
                 messages: [text],
                 isPm: true
@@ -50,20 +50,20 @@ describe("CommandService tests", () => {
     });
 
     describe('SayCommand', () => {
-        it('public chat', () => {
+        it('public chat', async () => {
             const text = 'banana';
             const command = new CytubeCommand(say.name, text);
-            const result = service.run(command, admin, false);
+            const result = await service.run(command, admin, false);
             result.should.deepEqual({
                 messages: [text],
                 isPm: false
             });
         });
 
-        it('private chat', () => {
+        it('private chat', async () => {
             const text = 'banana';
             const command = new CytubeCommand(say.name, text);
-            const result = service.run(command, admin, true);
+            const result = await service.run(command, admin, true);
             result.should.deepEqual({
                 messages: [text],
                 isPm: true

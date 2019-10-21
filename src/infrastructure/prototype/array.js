@@ -17,3 +17,19 @@ Array.prototype.toObject = function (keyFunc = e => '' + e, valueFunc = e => tru
         return obj;
     }, {});
 };
+
+/**
+ * @param {number} n
+ * @returns {*[]}
+ */
+Array.prototype.limit = function (n) {
+    return this.slice(0, n);
+};
+
+/**
+ * @param {number} n
+ * @returns {*[]}
+ */
+Array.prototype.skip = function (n) {
+    return this.slice(n);
+};

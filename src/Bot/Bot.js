@@ -10,6 +10,8 @@ import TmdbAgent from "../agents/TmdbAgent.js";
 import OmdbAgent from "../agents/OmdbAgent.js";
 import Logger from '../infrastructure/logger/Logger.js';
 import CommandService from "../Services/CommandService.js";
+import CleverbotAgent from "../agents/talking/CleverbotAgent";
+import LibraryService from "../Services/LibraryService";
 
 const Subscribe = {
     message: 'message'
@@ -28,17 +30,19 @@ export default class Bot {
         this.database = database;
 
         const apiKeys = config.apikeys;
+        this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);
         this.omdb = new OmdbAgent(apiKeys.omdb);
 
         this.commands = new CommandService(this);
         this.patterns = new PatternService(database.patterns);
-        this.messageService = new MessageService(cytube);
+        this.messages = new MessageService(cytube);
         this.poll = new PollService(cytube);
         this.userlist = new UserlistService(cytube, database.users);
-        this.playlist = new PlaylistService(cytube, database.aliveLinks, database.deadLinks);
+        this.library = new LibraryService(cytube, database.aliveLinks, database.deadLinks);
+        this.playlist = new PlaylistService(cytube, this.library);
 
-        this.messageService.on(Subscribe.message, message => this.handleMessage(message));
+        this.messages.on(Subscribe.message, message => this.handleMessage(message));
 
         this.database.setup()
             .then(async () => {
@@ -47,7 +51,7 @@ export default class Bot {
                 this.poll.subscribe();
                 this.userlist.subscribe();
                 this.playlist.subscribe();
-                this.messageService.subscribe();
+                this.messages.subscribe();
                 await this.patterns.subscribe();
             })
             .catch(error => {
@@ -70,7 +74,7 @@ export default class Bot {
         if (message.name === '[server]')
             return;
 
-        // Log own messages
+        // Log own messages (should only ever be responses to commands)
         if (message.name === this.config.user.name)
             return Logger.command(message, true);
 
@@ -81,7 +85,7 @@ export default class Bot {
                 message.command = new CytubeCommand(pattern.command, pattern.message);
         }
 
-        // Just chat
+        // Normal message
         if (!message.command)
             return Logger.chat(message);
 
@@ -92,11 +96,10 @@ export default class Bot {
         if (user.ignore || user.disallow || user.muted)
             return;
 
-        // Do command
+        // Handle command
         Logger.command(message, false);
-
-        const response = this.commands.run(message.command, user, message.isPm);
-        this.messageService.send(response.messages, response.isPm, user.name);
+        const response = await this.commands.run(message.command, user, message.isPm);
+        this.messages.send(response.messages, response.isPm, user.name);
     }
 
 }

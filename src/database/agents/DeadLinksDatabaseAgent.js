@@ -32,12 +32,13 @@ export default class DeadLinksDatabaseAgent extends BaseDatabaseAgent {
     }
 
     /**
-     * @param {string} id
-     * @param {string} type
+     * @param {DeadLink} link
      * @returns {Promise<void>}
      */
-    async remove(id, type) {
-        await this.delete().where(e => e.id === $ && e.type === $, id, type).execute();
+    async remove(link) {
+        await super.delete()
+            .where(e => e.id === $ && e.type === $, link.id, link.type)
+            .execute();
     }
 
 }

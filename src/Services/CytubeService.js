@@ -101,7 +101,7 @@ export default class CytubeService {
         if (this.isConnected) return Promise.resolve();
         return new Promise(async resolve => {
             while (!this.isConnected)
-                await new Promise(r => setTimeout(() => r(), 5000));
+                await Utils.await(100);
             resolve();
         });
     }

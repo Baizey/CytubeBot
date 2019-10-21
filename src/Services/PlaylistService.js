@@ -23,13 +23,11 @@ export default class PlaylistService {
 
     /**
      * @param {CytubeService} cytube
-     * @param {AliveLinksDatabaseAgent} aliveLinks
-     * @param {DeadLinksDatabaseAgent} deadLinks
+     * @param {LibraryService} library
      */
-    constructor(cytube, aliveLinks, deadLinks) {
+    constructor(cytube, library) {
+        this._library = library;
         this._cytube = cytube;
-        this._alive = aliveLinks;
-        this._dead = deadLinks;
         this.playlist = [];
         this.currentUid = null;
         this.currentPlaytime = 0;
@@ -71,10 +69,9 @@ export default class PlaylistService {
                 const index = self._indexFromUid(data.uid);
                 if (index !== -1) self.playlist.splice(index, 1);
             });
-        this._cytube.on(Subscribe.queue, data => {
+        this._cytube.on(Subscribe.queue, async data => {
             const video = PlaylistVideo.fromCytubeServer(data.item);
-            self._alive.add(video.asAliveDatabaseLink).catch();
-            self._dead.remove(video.id, video.type).catch();
+            await self._library.addVideo(video);
             if (self.playlist.length === 0)
                 self.playlist.push(video);
             else {
@@ -83,6 +80,8 @@ export default class PlaylistService {
                 this.playlist.splice(index + 1, 0, video);
             }
         });
+
+        this._cytube.emit(Publish.request);
     }
 
     /**
@@ -90,16 +89,6 @@ export default class PlaylistService {
      */
     remove(uid) {
         this._cytube.emit(Publish.delete, uid);
-    }
-
-    /**
-     * @param {string} id
-     * @param {string} type
-     * @returns {Promise<PlaylistVideo>}
-     */
-    async getFromDatabase(id, type) {
-        return await this._alive.getByIdAndType(id, type)
-            .then(e => PlaylistVideo.fromAliveLink(e));
     }
 
     /**

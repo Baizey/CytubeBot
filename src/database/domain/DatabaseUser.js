@@ -5,7 +5,7 @@ export default class DatabaseUser {
      * @returns {DatabaseUser}
      */
     static fromDatabase(user) {
-        return user ? new DatabaseUser(user.name, user.lastOnline, user.rank, user.disallow, user.ignore) : null;
+        return user ? new DatabaseUser(user.name, user.lastonline, user.rank, user.disallow, user.ignore) : null;
     }
 
     /**
@@ -17,7 +17,7 @@ export default class DatabaseUser {
      */
     constructor(name, lastOnline, rank, disallow, ignore) {
         this.name = name;
-        this.lastOnline = lastOnline;
+        this.lastOnline = lastOnline - 0;
         this.rank = rank;
         this.disallow = disallow;
         this.ignore = ignore;

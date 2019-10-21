@@ -27,7 +27,7 @@ export default class AliveLink extends DatabaseLink {
      * @param {number} year
      * @param {number} duration
      * @param {string} quality
-     * @param {number} validateBy
+     * @param {string} validateBy
      */
     constructor(id, type, title, fullTitle, year, duration, quality, validateBy) {
         super(id, type);
@@ -36,6 +36,6 @@ export default class AliveLink extends DatabaseLink {
         this.year = year;
         this.duration = duration;
         this.quality = quality;
-        this.validateBy = validateBy;
+        this.validateBy = validateBy - 0;
     }
 }

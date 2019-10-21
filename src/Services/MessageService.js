@@ -103,7 +103,7 @@ export default class MessageService extends EventEmitter {
      * @private
      */
     _splitMessage(text) {
-        return text.map(line => line.htmlEncode())
+        return text.map(line => line)
             .map(line => {
                 if (line.length <= 240)
                     return new Array(line);
