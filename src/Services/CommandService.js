@@ -4,8 +4,10 @@ import '../infrastructure/prototype/array.js';
 import LastOnlineCommand from "./models/commands/LastOnlineCommand.js";
 import {ExitCommand, RestartCommand} from "./models/commands/ExitCommand.js";
 import HelpCommand from "./models/commands/HelpCommand.js";
+import AboutCommand from "./models/commands/AboutCommand";
 
 const commandConstructors = [
+    AboutCommand,
     SayCommand,
     LastOnlineCommand,
     ExitCommand,

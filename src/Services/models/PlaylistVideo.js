@@ -1,6 +1,7 @@
 import AliveLink from "../../database/domain/AliveLink.js";
 import DeadLink from "../../database/domain/DeadLink.js";
 import Link from "../../infrastructure/video/Link.js";
+import Title from "../../infrastructure/video/Title";
 
 export default class PlaylistVideo {
 
@@ -40,7 +41,7 @@ export default class PlaylistVideo {
         video.queuedBy = data.queuedBy;
         video.uid = data.uid;
         video.duration = media.seconds;
-        video.fullTitle = media.title;
+        video.updateTitleInfo(media.title);
         return video;
     }
 
@@ -55,6 +56,7 @@ export default class PlaylistVideo {
         this.year = undefined;
         this.quality = undefined;
         this.duration = undefined;
+        this.imdb = undefined;
         this.validateBy = new Date();
 
         this.isTemp = undefined;
@@ -63,14 +65,27 @@ export default class PlaylistVideo {
     }
 
     get isIntermission() {
-        return this.duration < 60 * 20;
+        return this.duration < 60 * 15;
+    }
+
+    /**
+     * @param {string} fullTitle
+     */
+    updateTitleInfo(fullTitle = this.fullTitle) {
+        const title = Title.filter(fullTitle || '');
+        this.fullTitle = fullTitle;
+        this.title = title.filtered;
+        this.year = title.year;
+        this.quality = title.quality;
+        this.imdb = title.imdbId;
     }
 
     /**
      * @returns {AliveLink}
      */
     get asAliveDatabaseLink() {
-        return new AliveLink(this.link.id, this.link.type, this.title, this.fullTitle, this.year, this.duration, this.quality, 0);
+        return new AliveLink(this.link.id, this.link.type, this.title, this.fullTitle, this.year, this.duration, this.quality,
+            Date.now() + 1000 * 60 * 60 * 24 * 5 + Math.floor(Math.random() * (1000 * 60 * 60 * 24 * 55)));
     }
 
     /**

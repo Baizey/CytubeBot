@@ -994,27 +994,121 @@ const qualityOrder = {
     "1080p": 7,
 };
 
+export const Year = {
+    /**
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    detect: tokens => {
+        let best = 0;
+        tokens.forEach(token => {
+            if (!/^\d{4}$/.test(token)) return;
+            const temp = token - 0;
+            if (isNaN(temp) || !isFinite(temp) || temp < 1930 || temp > 2025) return;
+            if (Math.abs(2009 - best) <= Math.abs(2009 - temp)) return;
+            best = temp;
+        });
+        return best;
+    }
+};
+
 export const Quality = {
+    /**
+     * @param str
+     * @returns {number}
+     */
     rank: (str) => qualityOrder[qualityMapping[str]] ? qualityOrder[qualityMapping[str]] : 0,
+    /**
+     * @param a
+     * @param b
+     * @returns {number}
+     */
     compare: (a, b) => Quality.rank(a) - Quality.rank(b),
     order: qualityOrder,
-    mapping: qualityMapping
+    mapping: qualityMapping,
+    /**
+     * @param {string[]} tokens
+     * @returns {string}
+     */
+    detect: tokens => {
+        let best = '';
+        tokens.forEach(token => {
+            if (Quality.compare(best, token) < 0)
+                best = token;
+        });
+        return best;
+    }
 };
 
 export class TitleFilter {
-
     /**
      * Sanitize title for accented characters and non-latin characters
      * @param {string} title
      * @returns {string}
      */
-    static sanitizeCharacters(title) {
+    static sanitize(title) {
         return title
-            .replace(/[^A-Za-z0-9\[\] ]/g, a => latinMap[a] || a)
+        // Sanitize accents
+            .replace(/[^A-Za-z0-9]/g, a => latinMap[a] || a)
+            // Remove common things that are annoying to detect
+            .replace('&', ' and ')
+            .replace(/['"]/g, '')
+            // Sanitize non-latin characters (chinese etc.)
             .replace(/[^\x00-\x7F]/g, '')
+            // lowercase this motherfucker
             .toLowerCase()
+            // turn U.S.A into USA
             .replace(/([-~_,./\\ ]|^)([a-z](?:\.[a-z])+)([-~_,./\\ ]|$)/g,
                 (raw, start, text, end) => start + text.replace(/\./g, '') + end)
+    }
+
+    /**
+     * @param {string} title
+     * @returns {{title: string, brackets: string}}
+     */
+    static removeBrackets(title) {
+        const result = [];
+        title = title.replace(/[(<{\[]([^)>}\]]+)[)>}\]]/g, (raw, inside) => {
+            result.push(inside);
+            return '';
+        });
+        return {
+            title: title,
+            brackets: result.join(' ')
+        }
+    }
+
+    /**
+     * @param {string} title
+     * @returns {string}
+     */
+    static filterSentences(title) {
+        sentenceFilter.forEach(sentence => title = title.replace(sentence, wordFilter[0]));
+        return title;
+    }
+
+    /**
+     * @param {string[]} tokens
+     * @param {number} year
+     * @returns {string}
+     */
+    static findTitle(tokens, year = 0) {
+        const stringYear = year + '';
+        let skip = 0;
+        let limit = 0;
+        let skipping = true;
+        for (let i = 0; i < tokens.length; i++) {
+            if (wordLookup[tokens[i]] || tokens[i] === stringYear) {
+                if (!skipping) {
+                    limit = i;
+                    break;
+                }
+            } else if (skipping) {
+                skip = i;
+                skipping = false;
+            }
+        }
+        return tokens.slice(skip, limit || tokens.length).join(' ');
     }
 
     /**

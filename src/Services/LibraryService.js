@@ -1,5 +1,6 @@
 import PlaylistVideo from "./models/PlaylistVideo.js";
 import {Quality} from "../infrastructure/video/TitleFilter";
+import AliveLink from "../database/domain/AliveLink";
 
 const levenshtein = require('fast-levenshtein');
 
@@ -34,6 +35,14 @@ export default class LibraryService {
     }
 
     /**
+     * @returns {Promise<PlaylistVideo[]>}
+     */
+    async getAllVideosMissingValidation() {
+        return this._alive.getAllVideosMissingValidation()
+            .then(e => e.map(e => PlaylistVideo.fromAliveLink(e)));
+    }
+
+    /**
      * @param {string} id
      * @param {string} type
      * @returns {Promise<PlaylistVideo>}
@@ -57,7 +66,7 @@ export default class LibraryService {
             }
         }).sort((a, b) => {
             if (a.score !== b.score) return a.score - b.score;
-            if (year) return Math.abs(year - a.year) - Math.abs(year - b.year);
+            if (year && a.year !== b.year) return Math.abs(year - a.year) - Math.abs(year - b.year);
             const quality = Quality.compare(a.quality, b.quality);
             if (quality !== 0) return quality;
             return a.year - b.year;
@@ -65,14 +74,23 @@ export default class LibraryService {
     }
 
     /**
-     * @param {PlaylistVideo} playlistVideo
+     * @param {PlaylistVideo} video
      * @returns {Promise<void>}
      */
-    async addVideo(playlistVideo) {
-        await Promise.all([
-            this._alive.remove(playlistVideo.asAliveDatabaseLink).catch(),
-            this._dead.add(playlistVideo.asDeadDatabaseLink).catch()
-        ]);
+    async addVideo(video) {
+        // Dont remember intermissions
+        if (video.isIntermission)
+            return;
+
+        const alive = await this._alive.isAlive(video.link.id, video.link.type);
+
+        if (alive) {
+            await this._alive.alter(video.asAliveDatabaseLink);
+        } else
+            await Promise.all([
+                this._alive.add(video.asAliveDatabaseLink).catch(),
+                this._dead.remove(video.asDeadDatabaseLink).catch()
+            ]);
     }
 
     /**
@@ -87,12 +105,11 @@ export default class LibraryService {
     }
 
     /**
-     * @param {string} id
-     * @param {string} type
+     * @param {PlaylistVideo} video
      * @returns {Promise<boolean>}
      */
-    async isDead(id, type) {
-        return await this._dead.getByIdAndType(id, type).then(e => !!e);
+    async isDead(video) {
+        return await this._dead.getByIdAndType(video.link.id, video.link.type).then(e => !!e);
     }
 }
 

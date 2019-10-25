@@ -28,17 +28,17 @@ export default class PlaylistService {
     constructor(cytube, library) {
         this._library = library;
         this._cytube = cytube;
-        this.playlist = [];
-        this.currentUid = null;
-        this.currentPlaytime = 0;
-        this.isPlaying = true;
+        this._playlist = [];
+        this._currentUid = null;
+        this._currentPlaytime = 0;
+        this._isPlaying = true;
     }
 
     subscribe() {
         const self = this;
-        this._cytube.on(Subscribe.playlist, data => self.playlist = data.map(e => PlaylistVideo.fromCytubeServer(e)));
-        this._cytube.on(Subscribe.update, data => self.currentPlaytime = data.currentTime);
-        this._cytube.on(Subscribe.setCurrent, uid => self.currentUID = uid);
+        this._cytube.on(Subscribe.playlist, data => self._playlist = data.map(e => PlaylistVideo.fromCytubeServer(e)));
+        this._cytube.on(Subscribe.update, data => self._currentPlaytime = data.currentTime);
+        this._cytube.on(Subscribe.setCurrent, uid => self._currentUid = uid);
         this._cytube.on(Subscribe.move,
             /**
              * @param {{from:number, after:number}} data
@@ -46,19 +46,19 @@ export default class PlaylistService {
             data => {
                 const fromIndex = self._indexFromUid(data.from);
                 if (fromIndex === -1) return;
-                const video = self.playlist.splice(fromIndex, 1)[0];
+                const video = self._playlist.splice(fromIndex, 1)[0];
                 const afterIndex = self._indexFromUid(data.after);
                 if (afterIndex === -1) return;
-                self.playlist.splice(afterIndex + 1, 0, video);
+                self._playlist.splice(afterIndex + 1, 0, video);
             });
         this._cytube.on(Subscribe.setTemp,
             /**
              * @param {{uid: number, temp: boolean}} data
              */
             data => {
-                const index = self._indexFromUid(data.uid);
-                if (index === -1) return;
-                self.playlist[index].temp = data.temp;
+                const video = self.getByUid(data.uid);
+                if (video)
+                    video.temp = data.temp;
             });
         // this._cytube.on(Subscribe.setLeader, data => { /* not used */ });
         this._cytube.on(Subscribe.delete,
@@ -67,19 +67,24 @@ export default class PlaylistService {
              */
             data => {
                 const index = self._indexFromUid(data.uid);
-                if (index !== -1) self.playlist.splice(index, 1);
+                if (index !== -1) self._playlist.splice(index, 1);
             });
-        this._cytube.on(Subscribe.queue, async data => {
-            const video = PlaylistVideo.fromCytubeServer(data.item);
-            await self._library.addVideo(video);
-            if (self.playlist.length === 0)
-                self.playlist.push(video);
-            else {
-                const index = self._indexFromUid(data.after);
-                if (index === -1) return;
-                this.playlist.splice(index + 1, 0, video);
-            }
-        });
+        this._cytube.on(Subscribe.queue,
+            /**
+             * @param {{item: *, after: number}} data
+             * @returns {Promise<void>}
+             */
+            async data => {
+                const video = PlaylistVideo.fromCytubeServer(data.item);
+                self._library.addVideo(video).finally();
+                if (self._playlist.length === 0)
+                    self._playlist.push(video);
+                else {
+                    const index = self._indexFromUid(data.after);
+                    if (index === -1) return;
+                    this._playlist.splice(index + 1, 0, video);
+                }
+            });
 
         this._cytube.emit(Publish.request);
     }
@@ -95,12 +100,37 @@ export default class PlaylistService {
      * @param {number} offset
      * @returns {PlaylistVideo}
      */
-    getFromPlaylist(offset = 0) {
-        const from = this._indexFromUid(this.currentUid);
+    getByOffset(offset = 0) {
+        const from = this._indexFromUid(this._currentUid);
         if (from === -1) return undefined;
         const at = from + offset;
-        const secured = Math.max(0, Math.min(this.playlist.length, at));
-        return this.playlist[secured];
+        const secured = Math.max(0, Math.min(this._playlist.length - 1, at));
+        return this._playlist[secured];
+    }
+
+    /**
+     * @param {string} tag
+     * @returns {PlaylistVideo}
+     */
+    getByTag(tag) {
+        switch (tag) {
+            case 'prev':
+                return this.getByOffset(-1);
+            case 'curr':
+                return this.getByOffset(0);
+            case 'next':
+                return this.getByOffset(1);
+        }
+    }
+
+    /**
+     * @param {number} uid
+     * @returns {PlaylistVideo}
+     */
+    getByUid(uid) {
+        const index = this._indexFromUid(uid);
+        if (index === -1) return undefined;
+        return this._playlist[index];
     }
 
     /**
@@ -108,11 +138,17 @@ export default class PlaylistService {
      * @returns {number}
      */
     _indexFromUid(uid) {
-        for (let i = 0; i < this.playlist.length; i++)
-            if (this.playlist[i].uid === uid)
+        for (let i = 0; i < this._playlist.length; i++)
+            if (this._playlist[i].uid === uid)
                 return i;
         return -1;
     }
 
+    /**
+     * @param {PlaylistVideo} video
+     */
+    queueVideo(video) {
+        this._cytube.emit(Publish.queue, video.asQueueObject);
+    }
 }
 

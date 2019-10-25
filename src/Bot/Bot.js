@@ -10,15 +10,15 @@ import TmdbAgent from "../agents/TmdbAgent.js";
 import OmdbAgent from "../agents/OmdbAgent.js";
 import Logger from '../infrastructure/logger/Logger.js';
 import CommandService from "../Services/CommandService.js";
-import CleverbotAgent from "../agents/talking/CleverbotAgent";
 import LibraryService from "../Services/LibraryService";
+import ValidationAgent from "../agents/linkValidation/ValidationAgent";
+import CleverbotAgent from "../agents/talking/CleverbotAgent";
 
 const Subscribe = {
     message: 'message'
 };
 
 export default class Bot {
-
     /**
      * @param {Config} config
      * @param {CytubeService} cytube
@@ -30,16 +30,18 @@ export default class Bot {
         this.database = database;
 
         const apiKeys = config.apikeys;
+
         this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);
         this.omdb = new OmdbAgent(apiKeys.omdb);
 
+        this.library = new LibraryService(cytube, database.aliveLinks, database.deadLinks);
         this.commands = new CommandService(this);
         this.patterns = new PatternService(database.patterns);
         this.messages = new MessageService(cytube);
         this.poll = new PollService(cytube);
         this.userlist = new UserlistService(cytube, database.users);
-        this.library = new LibraryService(cytube, database.aliveLinks, database.deadLinks);
+        this.validator = new ValidationAgent(apiKeys, this.library);
         this.playlist = new PlaylistService(cytube, this.library);
 
         this.messages.on(Subscribe.message, message => this.handleMessage(message));
@@ -99,7 +101,7 @@ export default class Bot {
         // Handle command
         Logger.command(message, false);
         const response = await this.commands.run(message.command, user, message.isPm);
-        this.messages.send(response.messages, response.isPm, user.name);
+        this.messages.send(response.messages, response.isPm && user.name);
     }
 
 }

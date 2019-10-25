@@ -27,7 +27,7 @@ export default class AliveLink extends DatabaseLink {
      * @param {number} year
      * @param {number} duration
      * @param {string} quality
-     * @param {string} validateBy
+     * @param {number|string} validateBy
      */
     constructor(id, type, title, fullTitle, year, duration, quality, validateBy) {
         super(id, type);

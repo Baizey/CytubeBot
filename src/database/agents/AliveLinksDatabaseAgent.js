@@ -20,11 +20,30 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
     }
 
     /**
+     * @returns {Promise<AliveLink[]>}
+     */
+    async getAllVideosMissingValidation() {
+        const now = Date.now();
+        return this._alive.select()
+            .where(e => e.validateBy <= $, now)
+            .execute()
+            .then(e => e ? e.map(e => AliveLink.fromDatabase(e)) : []);
+    }
+
+    /**
      * @param {AliveLink} link
      * @returns {Promise<void>}
      */
     async add(link) {
         await super.insert(link).execute();
+    }
+
+    /**
+     * @param {AliveLink} link
+     * @returns {Promise<void>}
+     */
+    async alter(link) {
+        await this.update(link).execute();
     }
 
     /**
@@ -48,6 +67,7 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
             .execute();
     }
 
+
     /**
      * @param {string} id
      * @param {string} type
@@ -57,6 +77,17 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
         return await super.select().where(e => e.id === $ && e.type === $, id, type)
             .execute()
             .then(e => e ? AliveLink.fromDatabase(e[0]) : undefined)
+    }
+
+    /**
+     * @param {string} id
+     * @param {string} type
+     * @returns {Promise<boolean>}
+     */
+    async isAlive(id, type) {
+        return await super.select().where(e => e.id === $ && e.type === $, id, type)
+            .execute()
+            .then(e => e && e.length > 0)
     }
 
 }

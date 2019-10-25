@@ -24,7 +24,14 @@ export default class CytubeCommand {
     constructor(name, message, tags = {}) {
         this.message = message;
         this.name = name;
-        this.tags = tags;
+        this.tags = {
+            year: tags.year,
+            playlist: tags.curr || tags.next || tags.prev || 'curr',
+            manage: tags.manage,
+            close: tags.close,
+            top: tags.top,
+            mine: tags.mine,
+        }
     }
 
     /**

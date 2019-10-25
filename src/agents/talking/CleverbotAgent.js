@@ -9,23 +9,23 @@ export default class CleverbotAgent {
         this._client = new ServiceClient(`https://www.cleverbot.com/getreply`, {
             key: apiKey
         });
-        this.cs = null;
+        this._cs = null;
     }
 
     /**
-     * @param {string}message
+     * @param {string} message
      * @returns {Promise<string>}
      */
     async chat(message) {
-        const result = await this._client.get('', {
+        const result = await this._client.get({
             input: message,
-            cs: this.cs
+            cs: this._cs
         });
 
         if (!result.success)
             return 'Shit went wrong, chat with me later.';
 
-        this.cs = result.data.cs;
+        this._cs = result.data.cs;
         return result.data.output;
     }
 }

@@ -3,6 +3,7 @@
   "version": "5.0.0",
   "type": "module",
   "dependencies": {
+    "esm": "^3.2.25",
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "babel-runtime": "^6.26.0",

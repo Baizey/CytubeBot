@@ -30,7 +30,7 @@ export default class OmdbAgent {
      * }>}
      */
     async getByIMDb(id) {
-        const response = await this._client.get('', {i: id});
+        const response = await this._client.get({i: id});
         if (!response.success) {
             Logger.error(response);
             return undefined;
@@ -54,7 +54,7 @@ export default class OmdbAgent {
      * }>}
      */
     async getByTitle(title, year = 0) {
-        const response = await this._client.get('', {t: title, y: year});
+        const response = await this._client.get({t: title, y: year});
         if (!response.success) {
             Logger.error(response);
             return undefined;
@@ -76,7 +76,7 @@ export default class OmdbAgent {
     async search(title, year = 0) {
         const params = {s: title, y: year};
         // Returns {Response: string, Search: [movies], totalResults: number}
-        const response = await this._client.get('', params);
+        const response = await this._client.get(params);
         if (!response.success) {
             Logger.error(response);
             return [];

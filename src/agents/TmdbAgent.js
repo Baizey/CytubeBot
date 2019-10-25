@@ -26,7 +26,7 @@ export default class TmdbAgent {
      *     release_date: string
      * }[]>}
      */
-    async search(title, year = 0) {
+    async _search(title, year = 0) {
         const params = {
             query: title,
             year: year
@@ -42,8 +42,51 @@ export default class TmdbAgent {
     }
 
     /**
-     * @param {number} id
-     * @returns {Promise<{
+     * @param {string} title
+     * @param {number} year
+     * @returns {Promise<{}>}
+     */
+    async getRecommended(title, year = 0) {
+        const searchResponse = await this._search(title, year);
+        if (searchResponse.length === 0)
+            return undefined;
+        const id = searchResponse[0].id;
+
+        const recommended = await this._client.get(`movie/${id}/recommendations`);
+
+        if (!recommended.success) {
+            Logger.error(recommended);
+            return undefined;
+        }
+
+        return recommended.data;
+    }
+
+    /**
+     * @param {string} title
+     * @param {number} year
+     * @returns {Promise<{}>}
+     */
+    async getSimilar(title, year = 0) {
+        const searchResponse = await this._search(title, year);
+        if (searchResponse.length === 0)
+            return undefined;
+        const id = searchResponse[0].id;
+
+        const similar = await this._client.get(`movie/${id}/similar`);
+
+        if (!similar.success) {
+            Logger.error(similar);
+            return undefined;
+        }
+
+        return similar.data;
+    }
+
+    /**
+     * @param id
+     * @returns {Promise<{success: boolean, statusCode: number,
+     * data: {
      *     imdb_id: string|null,
      *     release_date: string,
      *     overview: string,
@@ -57,15 +100,23 @@ export default class TmdbAgent {
      *     vote_count: number,
      *     vote_average: number,
      *     tagline: string|null
+     * }
      * }>}
+     * @private
      */
-    async getById(id) {
-        const response = await this._client.get(`movie/${id}`);
-        if (!response.success) {
-            Logger.error(response);
-            return undefined;
-        }
-        return response.data;
+    async _getInfo(id) {
+        return await this._client.get(`movie/${id}`);
+    }
+
+    /**
+     * @param id
+     * @returns {Promise<{success: boolean, statusCode: number,
+     * data: {cast: {name: string}[]}
+     * }>}
+     * @private
+     */
+    async _getCredits(id) {
+        return await this._client.get(`movie/${id}/credits`);
     }
 
     /**
@@ -84,15 +135,30 @@ export default class TmdbAgent {
      *     title: string,
      *     vote_count: number,
      *     vote_average: number,
-     *     tagline: string|null
+     *     tagline: string|null,
+     *     credits: {cast: {name: string}[]}
      * }>}
      */
-    async getByTitle(title, year = 0) {
-        const searchResponse = await this.search(title, year);
-        if (searchResponse.length === 0)
+    async getInfo(title, year = 0) {
+        const search = await this._search(title, year);
+        if (search.length === 0)
             return undefined;
-        const id = searchResponse[0].id;
-        return await this.getById(id);
+        const id = search[0].id;
+
+        const [info, credits] = await Promise.all([this._getInfo(id), this._getCredits(id)]);
+
+        if (!info.success) {
+            Logger.error(info);
+            return undefined;
+        }
+
+        if (!credits.success) {
+            Logger.error(credits);
+            return undefined;
+        }
+
+        info.data.credits = credits.data;
+        return info.data;
     }
 
     /**
