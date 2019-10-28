@@ -43,7 +43,9 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
      * @returns {Promise<void>}
      */
     async alter(link) {
-        await this.update(link).execute();
+        await this.update(link)
+            .where(e => e.id === $ && e.type === $, link.id, link.type)
+            .execute();
     }
 
     /**

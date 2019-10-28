@@ -55,22 +55,23 @@ export default class LibraryService {
     /**
      * @param {string} title
      * @param {number} year
-     * @returns {Promise<void>}
+     * @returns {Promise<PlaylistVideo[]>}
      */
     async getVideosLike(title, year = undefined) {
-        return this._alive.getLike(title).map(e => {
-            const video = PlaylistVideo.fromAliveLink(e);
-            return {
-                score: levenshtein.get(title, video.title),
-                video: video
-            }
-        }).sort((a, b) => {
-            if (a.score !== b.score) return a.score - b.score;
-            if (year && a.year !== b.year) return Math.abs(year - a.year) - Math.abs(year - b.year);
-            const quality = Quality.compare(a.quality, b.quality);
-            if (quality !== 0) return quality;
-            return a.year - b.year;
-        }).map(e => e.video);
+        return await this._alive.getLike(title)
+            .then(resp => resp.map(e => {
+                const video = PlaylistVideo.fromAliveLink(e);
+                return {
+                    score: levenshtein.get(title, video.title),
+                    video: video
+                }})
+                .sort((a, b) => {
+                    if (a.score !== b.score) return a.score - b.score;
+                    if (year && a.video.year !== b.video.year) return Math.abs(year - a.video.year) - Math.abs(year - b.video.year);
+                    const quality = Quality.compare(a.video.quality, b.video.quality);
+                    if (quality !== 0) return quality;
+                    return a.video.year - b.video.year;
+                }).map(e => e.video));
     }
 
     /**

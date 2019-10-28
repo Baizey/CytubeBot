@@ -24,19 +24,34 @@ export default class PlaylistService {
     /**
      * @param {CytubeService} cytube
      * @param {LibraryService} library
+     * @param {MessageService} message
      */
-    constructor(cytube, library) {
+    constructor(cytube, library, message) {
         this._library = library;
         this._cytube = cytube;
         this._playlist = [];
         this._currentUid = null;
         this._currentPlaytime = 0;
+        this._message = message;
         this._isPlaying = true;
     }
 
     subscribe() {
         const self = this;
-        this._cytube.on(Subscribe.playlist, data => self._playlist = data.map(e => PlaylistVideo.fromCytubeServer(e)));
+        this._cytube.on(Subscribe.playlist, data => {
+            self._playlist = data.map(e => PlaylistVideo.fromCytubeServer(e));
+            self._playlist.forEach(async e => {
+                if (!(await self._library.isDead(e)))
+                    await self._library.addVideo(e);
+            });
+        });
+
+        this._cytube.on('queueFail',
+            /**
+             * @param {{msg: string, link: string, id: string}} data
+             */
+            data => this._message.sendPublic([data.msg.htmlDecode()]));
+
         this._cytube.on(Subscribe.update, data => self._currentPlaytime = data.currentTime);
         this._cytube.on(Subscribe.setCurrent, uid => self._currentUid = uid);
         this._cytube.on(Subscribe.move,
@@ -87,6 +102,27 @@ export default class PlaylistService {
             });
 
         this._cytube.emit(Publish.request);
+    }
+
+    /**
+     * @returns {{movie: PlaylistVideo, between: PlaylistVideo[]}}
+     */
+    get nextMovie() {
+        const start = this._indexFromUid(this._currentUid);
+        if (start === -1) return undefined;
+        const response = {
+            between: [],
+            movie: undefined,
+        };
+        for (let i = start + 1; i < this._playlist.length; i++) {
+            if (!this._playlist[i].isIntermission) {
+                response.movie = this._playlist[i];
+                return response;
+            }
+            response.between.push(this._playlist[i]);
+        }
+
+        return undefined;
     }
 
     /**
@@ -149,6 +185,13 @@ export default class PlaylistService {
      */
     queueVideo(video) {
         this._cytube.emit(Publish.queue, video.asQueueObject);
+    }
+
+    /**
+     * @param {PlaylistVideo} video
+     */
+    jumpTo(video) {
+        this._cytube.emit(Publish.jumpTo, video.uid);
     }
 }
 

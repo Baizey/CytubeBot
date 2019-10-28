@@ -1,26 +1,14 @@
-import SayCommand from "./models/commands/SayCommand.js";
-import Command from "./models/Command.js";
 import '../infrastructure/prototype/array.js';
-import LastOnlineCommand from "./models/commands/LastOnlineCommand.js";
-import {ExitCommand, RestartCommand} from "./models/commands/ExitCommand.js";
-import HelpCommand from "./models/commands/HelpCommand.js";
-import AboutCommand from "./models/commands/AboutCommand";
-
-const commandConstructors = [
-    AboutCommand,
-    SayCommand,
-    LastOnlineCommand,
-    ExitCommand,
-    RestartCommand,
-    HelpCommand,
-];
+import * as Commands from "./models/Command";
+import '../infrastructure/prototype/object.js'
 
 export default class CommandService {
     /**
      * @param {Bot} bot
      */
     constructor(bot) {
-        this._commands = commandConstructors
+        this._commands = Object.keys(Commands)
+            .map(e => Commands[e])
             .map(Command => new Command(bot))
             .toObject(e => e.name, e => e);
     }

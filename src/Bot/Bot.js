@@ -42,7 +42,7 @@ export default class Bot {
         this.poll = new PollService(cytube);
         this.userlist = new UserlistService(cytube, database.users);
         this.validator = new ValidationAgent(apiKeys, this.library);
-        this.playlist = new PlaylistService(cytube, this.library);
+        this.playlist = new PlaylistService(cytube, this.library, this.messages);
 
         this.messages.on(Subscribe.message, message => this.handleMessage(message));
 

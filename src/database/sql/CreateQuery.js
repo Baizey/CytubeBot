@@ -12,6 +12,13 @@ export default class CreateQuery {
     }
 
     /**
+     * @returns {string[]}
+     */
+    get primaryKeys() {
+        return this.columns.filter(e => e._isPrimary).map(e => e._name);
+    }
+
+    /**
      * @param {string} name
      * @returns {Column}
      */

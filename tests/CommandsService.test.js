@@ -2,7 +2,7 @@ import CommandService from "../src/Services/CommandService.js";
 import Rank from "../src/Services/models/Rank.js";
 import CytubeCommand from "../src/Services/models/CytubeCommand.js";
 import CytubeUser from "../src/Services/models/CytubeUser.js";
-import SayCommand from "../src/Services/models/commands/SayCommand.js";
+import SayCommand from "../src/commands/SayCommand.js";
 
 // noinspection ES6UnusedImports
 import should from "should";

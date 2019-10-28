@@ -25,7 +25,7 @@ export default class CytubeCommand {
         this.message = message;
         this.name = name;
         this.tags = {
-            year: tags.year,
+            year: tags.year || 0,
             playlist: tags.curr || tags.next || tags.prev || 'curr',
             manage: tags.manage,
             close: tags.close,
