@@ -47,7 +47,7 @@ class Connection {
 
         const getServerUrl = async (attempt = 1) => {
             logger.system(`Connection attempt ${attempt}`);
-            const request = await Api.request(`www.cytu.be/socketconfig/${self.channel.name}.json`);
+            const request = await Api.request(`https://www.cytu.be/socketconfig/${self.channel.name}.json`);
             if (request.isSuccess) {
                 const serverUrl = request.result.servers.filter(server => server.secure)[0].url;
                 if (utils.isUsed(serverUrl))

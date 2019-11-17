@@ -30,8 +30,9 @@ export default class BaseDatabaseAgent {
      * @returns {UpdateQuery}
      */
     update(item) {
-        this._create.primaryKeys.forEach(key => delete item[key]);
-        return this._context.update(this._table).update(item);
+        const primary = this._create.primaryKeys;
+        const data = item.filter(e => !primary.contains(e.key));
+        return this._context.update(this._table).update(data);
     }
 
     /**

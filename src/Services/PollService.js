@@ -54,6 +54,15 @@ export default class PollService {
         });
     }
 
+    /**
+     * @returns {string}
+     */
+    closeAndChooseWinner() {
+        const winner = this.current.winner;
+        this.close();
+        return winner;
+    }
+
     close() {
         this._cytube.emit(Publishers.close);
     }

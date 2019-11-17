@@ -2,6 +2,8 @@ import AliveLink from "../../database/domain/AliveLink.js";
 import DeadLink from "../../database/domain/DeadLink.js";
 import Link from "../../infrastructure/video/Link.js";
 import Title from "../../infrastructure/video/Title";
+import {TimeFormatter} from "../../infrastructure/Utils";
+import '../../infrastructure/prototype/number'
 
 export default class PlaylistVideo {
 
@@ -65,7 +67,7 @@ export default class PlaylistVideo {
     }
 
     get isIntermission() {
-        return this.duration < 60 * 15;
+        return this.duration < TimeFormatter.minutes(15).seconds;
     }
 
     /**
@@ -84,8 +86,15 @@ export default class PlaylistVideo {
      * @returns {AliveLink}
      */
     get asAliveDatabaseLink() {
-        return new AliveLink(this.link.id, this.link.type, this.title, this.fullTitle, this.year, this.duration, this.quality,
-            Date.now() + 1000 * 60 * 60 * 24 * 5 + Math.floor(Math.random() * (1000 * 60 * 60 * 24 * 55)));
+        return new AliveLink(
+            this.link.id,
+            this.link.type,
+            this.title,
+            this.fullTitle,
+            this.year,
+            this.duration,
+            this.quality,
+            Date.now() + TimeFormatter.days(5).millis + TimeFormatter.days(55).millis.random());
     }
 
     /**
@@ -100,7 +109,7 @@ export default class PlaylistVideo {
      */
     get asQueueObject() {
         return {
-            temp: this.isIntermission,
+            temp: !this.isIntermission,
             pos: "next",
             id: this.link.id,
             type: this.link.type

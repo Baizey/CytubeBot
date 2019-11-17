@@ -90,7 +90,7 @@ class Api {
 
         for (let i = 0; i < queries.length; i++) {
             const query = queries[i];
-            const url = `www.googleapis.com/youtube/v3/search?part=snippet&key=${bot.apikeys.google}&q=${prefix} ${query}&maxResults=1`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&key=${bot.apikeys.google}&q=${prefix} ${query}&maxResults=1`;
             results.push(await (Api.request(url)
                 .then(resp => new Response(true, Video.fromIdAndType(resp.result.items[0]["id"]["videoId"], 'yt')))
                 .catch(() => new Response(false, query))));
@@ -176,7 +176,7 @@ class Api {
      */
     static _validateYoutube(bot, video) {
         const lackTitle = utils.isUndefined(video.fullTitle);
-        let url = `www.googleapis.com/youtube/v3/videos?part=status,snippet&id=${video.id}&key=${bot.apikeys.google}`;
+        let url = `https://www.googleapis.com/youtube/v3/videos?part=status,snippet&id=${video.id}&key=${bot.apikeys.google}`;
 
         return Api.request(url).then(resp => {
             const success = resp.isSuccess;
@@ -214,7 +214,7 @@ class Api {
      */
     static _validateGoogledrive(bot, video) {
         const lackTitle = utils.isUndefined(video.fullTitle);
-        let url = "www.googleapis.com/drive/v3/files/" + video.id + "?key=" + bot.apikeys.google + "&fields=webViewLink" + (lackTitle ? ",name" : "");
+        let url = "https://www.googleapis.com/drive/v3/files/" + video.id + "?key=" + bot.apikeys.google + "&fields=webViewLink" + (lackTitle ? ",name" : "");
         return Api.request(url).then(resp => {
             const success = resp.isSuccess;
             const result = resp.result;

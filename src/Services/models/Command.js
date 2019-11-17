@@ -2,6 +2,8 @@ import "regenerator-runtime";
 import Rank from "./Rank";
 import Exit from "../../infrastructure/Exit";
 import {TimeFormatter} from "../../infrastructure/Utils";
+import '../../infrastructure/prototype/array';
+import CommandResponse from "./CommandResponse";
 
 class Command {
     /**
@@ -33,7 +35,7 @@ class Command {
      * @param {CytubeCommand} data
      * @param {CytubeUser} user
      * @param {boolean} isPm
-     * @returns {Promise<{isPm: boolean, messages: string[]}>}
+     * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
         throw `Command '${this.name}' not implemented yet`;
@@ -42,13 +44,108 @@ class Command {
     /**
      * @param {string[]|string} messages
      * @param {boolean} isPm
-     * @returns {{isPm: boolean, messages: string[]}}
+     * @returns {CommandResponse}
      */
     static respond(messages = [], isPm = false) {
-        return {
-            messages: Array.isArray(messages) ? messages : [messages],
-            isPm: isPm
+        return new CommandResponse(messages, isPm);
+    }
+}
+
+export class GifCommand extends Command {
+    constructor(bot) {
+        super(bot, 'gif', Rank.user);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        const gifs = await this.bot.giphy.search(data.message.trim());
+        if (gifs.length === 0)
+            return Command.respond('No gifs found', isPm);
+        return Command.respond(`${gifs.random()}.pic`, isPm);
+    }
+}
+
+export class PatternCommand extends Command {
+    constructor(bot) {
+        super(bot, 'pattern', Rank.admin);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        return Command.respond();
+    }
+}
+
+export class TrailerCommand extends Command {
+    constructor(bot) {
+        super(bot, 'trailer', Rank.mod);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        const youtube = this.bot.youtube;
+        const options = this.bot.poll.current.options
+            .map(e => 'trailer hd official teaser ' + e.title)
+            .map(e => youtube.search(e));
+        (await Promise.all(options)).reverse()
+            .filter(e => e)
+            .forEach(video => this.bot.playlist.queueVideo(video));
+        return Command.respond();
+    }
+}
+
+export class PollCommand extends Command {
+
+    constructor(bot) {
+        super(bot, 'poll', Rank.mod);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        const poll = this.bot.poll;
+        const manage = data.tags.manage;
+        const hasActivePoll = poll.current.isActive;
+        const manageCurrent = hasActivePoll && manage;
+        const closing = data.tags.close || manageCurrent;
+        const messages = [];
+        if (closing) {
+            const winner = poll.closeAndChooseWinner();
+            if (winner) messages.push(`I pick ${winner} as winner!`);
+            if (winner && manage) {
+                const video = (await this.bot.library.getVideosLike(winner))[0];
+                if (video) this.bot.playlist.queueVideo(video);
+                else messages.push(`Could not find the winner in the library :(`);
+            }
+        } else {
+            const array = data.array;
+            if (array.length === 0) return Command.respond('Need a title to create a poll', isPm);
+            const title = array[0];
+            const options = array.skip(1);
+            this.bot.poll.open(title, options, false);
+            if (manage) messages.push('I do not support managing polls from start to finish... yet');
         }
+
+        return Command.respond(messages, false);
     }
 }
 
@@ -57,6 +154,12 @@ export class NextCommand extends Command {
         super(bot, 'next', Rank.user);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const resp = this.bot.playlist.nextMovie;
         if (!resp)
@@ -72,12 +175,17 @@ export class NextCommand extends Command {
     }
 }
 
-
 export class TalkCommand extends Command {
     constructor(bot) {
         super(bot, 'talk', Rank.user);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const response = await this.bot.chatbot.chat(data.message);
         return Command.respond(response, isPm);
@@ -89,6 +197,12 @@ export class SkipCommand extends Command {
         super(bot, 'skip', Rank.mod);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const video = this.bot.playlist.getByOffset(1);
         if (video) this.bot.playlist.jumpTo(video);
@@ -101,6 +215,12 @@ export class SayCommand extends Command {
         super(bot, 'say', Rank.admin);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         return Command.respond(data.message, false);
     }
@@ -111,6 +231,12 @@ export class LastOnlineCommand extends Command {
         super(bot, 'lastonline', Rank.anon);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const name = data.message.trim();
         const users = this.bot.userlist;
@@ -134,6 +260,12 @@ export class HelpCommand extends Command {
         super(bot, 'help', Rank.admin);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const commands = this.bot.commands.commands.values()
             .filter(e => user.rank.higherOrEqualThan(e.rank))
@@ -153,6 +285,12 @@ export class ExitCommand extends Command {
         super(bot, 'exit', Rank.admin);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         Exit.terminate(Exit.code.exit, 'Exit command was called');
         return Command.respond();
@@ -164,6 +302,12 @@ export class RestartCommand extends Command {
         super(bot, 'restart', Rank.admin);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         Exit.terminate(Exit.code.restart, 'Restart command was called');
         return Command.respond();
@@ -175,6 +319,12 @@ export class AvailableCommand extends Command {
         super(bot, 'avail', Rank.user);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const title = data.message.trim();
         const year = data.tags.year || 0;
@@ -195,6 +345,12 @@ export class AddCommand extends Command {
         super(bot, 'add', Rank.mod);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const title = data.message.trim();
         const year = data.tags.year || 0;
@@ -205,7 +361,7 @@ export class AddCommand extends Command {
 
         const video = videos[0];
         await this.bot.playlist.queueVideo(video);
-        return Command.respond(`Queued the video ${video.title} (${video.year}) next`, isPm);
+        return Command.respond(`Queued the video ${video.title} ${year ? `(${year}) ` : ''}next`, isPm);
     }
 }
 
@@ -214,6 +370,12 @@ export class AboutCommand extends Command {
         super(bot, 'about', Rank.user);
     }
 
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
     async run(data, user, isPm) {
         const title = data.message.trim() || this.bot.playlist.getByTag(data.tags.playlist).title;
         const year = data.tags.year || 0;

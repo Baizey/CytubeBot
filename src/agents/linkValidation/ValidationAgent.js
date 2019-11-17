@@ -9,16 +9,16 @@ export default class ValidationAgent {
      * @param {LibraryService} library
      */
     constructor(apiKeys, library) {
-        this._googleDriveClient = new ServiceClient('www.googleapis.com/drive/v3/files/', {
+        this._googleDriveClient = new ServiceClient('https://www.googleapis.com/drive/v3/files/', {
             key: apiKeys.google,
             fields: 'webViewLink,name'
         });
-        this._youtubeClient = new ServiceClient('www.googleapis.com/youtube/v3/videos/', {
+        this._youtubeClient = new ServiceClient('https://www.googleapis.com/youtube/v3/videos/', {
             key: apiKeys.google,
             part: 'status,snippet',
         });
-        this._vimeoClient = new ServiceClient('vimeo.com/api/oembed.json?vimeo.com/', {});
-        this._dailymotionClient = new ServiceClient('api.dailymotion.com/video/', {});
+        this._vimeoClient = new ServiceClient('https://vimeo.com/api/oembed.json?vimeo.com/', {});
+        this._dailymotionClient = new ServiceClient('https://api.dailymotion.com/video/', {});
         this._queue = [];
         this._library = library;
     }

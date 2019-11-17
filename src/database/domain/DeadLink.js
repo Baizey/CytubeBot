@@ -1,6 +1,4 @@
-import DatabaseLink from "./DatabaseLink.js";
-
-export default class DeadLink extends DatabaseLink {
+export default class DeadLink {
 
     /**
      * @param {object} link
@@ -15,6 +13,7 @@ export default class DeadLink extends DatabaseLink {
      * @param {string} type
      */
     constructor(id, type) {
-        super(id, type);
+        this.id = id;
+        this.type = type;
     }
 }

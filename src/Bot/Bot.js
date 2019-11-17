@@ -13,6 +13,8 @@ import CommandService from "../Services/CommandService.js";
 import LibraryService from "../Services/LibraryService";
 import ValidationAgent from "../agents/linkValidation/ValidationAgent";
 import CleverbotAgent from "../agents/talking/CleverbotAgent";
+import YoutubeAgent from "../agents/YoutubeAgent";
+import GiphyAgent from "../agents/GiphyAgent";
 
 const Subscribe = {
     message: 'message'
@@ -34,6 +36,8 @@ export default class Bot {
         this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);
         this.omdb = new OmdbAgent(apiKeys.omdb);
+        this.youtube = new YoutubeAgent(apiKeys.google);
+        this.giphy = new GiphyAgent(apiKeys.giphy);
 
         this.library = new LibraryService(cytube, database.aliveLinks, database.deadLinks);
         this.commands = new CommandService(this);

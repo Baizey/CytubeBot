@@ -1,7 +1,7 @@
 export default class CytubeCommand {
 
     static fromMessage(message) {
-        const tagRegex = /[\-\[](\w+)(?::(\w+))?]?/g;
+        const tagRegex = /-\s*(\w+)(?::(\w+))?/g;
         const commandRegex = /^\s*[$!](\w+)/;
         const rawCmd = commandRegex.exec(message);
         if (rawCmd) {

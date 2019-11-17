@@ -27,43 +27,43 @@ export default class Utils {
 
 export class TimeFormatter {
     /**
-     * @param time
+     * @param {number} days
      * @returns {TimeFormatter}
      */
-    static days(time) {
-        return new TimeFormatter(0, 0, 0, 0, time);
+    static days(days) {
+        return new TimeFormatter(0, 0, 0, 0, days);
     }
 
     /**
-     * @param time
+     * @param {number} hours
      * @returns {TimeFormatter}
      */
-    static hours(time) {
-        return new TimeFormatter(0, 0, 0, time);
+    static hours(hours) {
+        return new TimeFormatter(0, 0, 0, hours);
     }
 
     /**
-     * @param time
+     * @param {number} minutes
      * @returns {TimeFormatter}
      */
-    static minutes(time) {
-        return new TimeFormatter(0, 0, time);
+    static minutes(minutes) {
+        return new TimeFormatter(0, 0, minutes);
     }
 
     /**
-     * @param time
+     * @param {number} seconds
      * @returns {TimeFormatter}
      */
-    static seconds(time) {
-        return new TimeFormatter(0, time);
+    static seconds(seconds) {
+        return new TimeFormatter(0, seconds);
     }
 
     /**
-     * @param time
+     * @param {number} milliseconds
      * @returns {TimeFormatter}
      */
-    static millis(time) {
-        return new TimeFormatter(time);
+    static millis(milliseconds) {
+        return new TimeFormatter(milliseconds);
     }
 
     /**

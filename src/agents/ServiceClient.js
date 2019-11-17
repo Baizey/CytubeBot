@@ -16,6 +16,17 @@ export default class ServiceClient {
     }
 
     /**
+     * @param {string} url
+     * @param {object} options
+     * @returns {Promise}
+     * @private
+     */
+    _fetch(url, options = {}) {
+        Logger.debug(url + ' ' + JSON.stringify(options));
+        return fetch(url, options);
+    }
+
+    /**
      * @param {string} path
      * @param {object|undefined} allParams
      * @returns {string}
@@ -54,8 +65,9 @@ export default class ServiceClient {
             urlParams = path;
             path = '';
         }
+        Logger.debug(this._baseParams);
         const url = this._joinUri(path, ({...urlParams, ...this._baseParams}));
-        return fetch(url, {
+        return this._fetch(url, {
             method: 'GET'
         })
             .then(Response.map)
@@ -67,20 +79,17 @@ export default class ServiceClient {
 
     /**
      * @param {string|object} path
-     * @param {object} urlParams
+     * @param {object} postParams
      * @returns {Promise<Response>}
      */
-    post(path = '', urlParams = {}) {
+    post(path = '', postParams = {}) {
         if (typeof path === 'object') {
-            urlParams = path;
+            postParams = path;
             path = '';
         }
-        const params = ({...urlParams, ...this._baseParams})
-            .keyValuePairs()
-            .filter(e => e.value)
-            .toObject(e => e.key, e => e.value);
+        const params = ({...postParams, ...this._baseParams}).filter(e => e.value);
         const url = this._joinUri(path);
-        return fetch(url, {
+        return this._fetch(url, {
             method: 'POST',
             body: params
         })

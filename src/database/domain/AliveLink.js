@@ -1,6 +1,4 @@
-import DatabaseLink from "./DatabaseLink.js";
-
-export default class AliveLink extends DatabaseLink {
+export default class AliveLink {
 
     /**
      * @param {object} link
@@ -30,7 +28,8 @@ export default class AliveLink extends DatabaseLink {
      * @param {number|string} validateBy
      */
     constructor(id, type, title, fullTitle, year, duration, quality, validateBy) {
-        super(id, type);
+        this.id = id;
+        this.type = type;
         this.title = title;
         this.fullTitle = fullTitle;
         this.year = year;

@@ -1,6 +1,7 @@
 import '../infrastructure/prototype/array.js';
 import * as Commands from "./models/Command";
 import '../infrastructure/prototype/object.js'
+import CommandResponse from "./models/CommandResponse";
 
 export default class CommandService {
     /**
@@ -30,10 +31,10 @@ export default class CommandService {
         const command = this._commands[data.name];
 
         if (!command)
-            return Command.respond('Command does not exist', isPm);
+            return new CommandResponse('Command does not exist', isPm);
 
         if (command.rank.higherThan(user.rank))
-            return Command.respond('Command requires higher rank', isPm);
+            return new CommandResponse('Command requires higher rank', isPm);
 
         return await command.run(data, user, isPm);
     }

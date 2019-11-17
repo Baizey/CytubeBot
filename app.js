@@ -14,16 +14,6 @@ const config = {
         'name': '',
         'password': ''
     },
-    'webserver': {
-        'active': false,
-        'port': 8080,
-        'password': '',
-        'public': {
-            'active': false,
-            // Full domain: http://<subdomain>.localtunnel.me
-            'subdomain': ''
-        }
-    },
     'database': {
         'host': 'localhost',
         'port': 5432,
@@ -33,6 +23,8 @@ const config = {
     },
 
     'apikeys': {
+        // https://developers.giphy.com/dashboard/
+        "giphy": '',
         // https://products.wolframalpha.com/api/
         'wolfram': '',
         // https://developers.google.com/apis-explorer/#p/

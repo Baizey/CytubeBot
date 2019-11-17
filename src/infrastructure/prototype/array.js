@@ -7,6 +7,13 @@ Array.prototype.contains = function (value) {
 };
 
 /**
+ * @returns {*}
+ */
+Array.prototype.random = function () {
+    return this[Math.floor(Math.random() * this.length)];
+};
+
+/**
  * @param {function(*):string} keyFunc
  * @param {function(*):*} valueFunc
  * @returns {object}

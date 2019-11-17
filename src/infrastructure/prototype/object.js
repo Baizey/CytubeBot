@@ -21,3 +21,13 @@ Object.prototype.values = function (onlyOwnProperties = true) {
 Object.prototype.keyValuePairs = function (onlyOwnProperties = true) {
     return this.keys(onlyOwnProperties).map(k => ({key: k, value: this[k]}));
 };
+
+/**
+ * @param {function({key: string, value: *}): boolean} func
+ * @returns {object}
+ */
+Object.prototype.filter = function (func) {
+    return this.keyValuePairs()
+        .filter(func)
+        .toObject(e => e.key, e => e.value);
+};
