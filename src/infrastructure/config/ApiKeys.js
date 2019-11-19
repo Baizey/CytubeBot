@@ -1,5 +1,5 @@
 export default class ApiKeys {
-    constructor(configData) {
+    constructor(configData = {}) {
         this.omdb = configData['OMDB'] || '';
         this.themovieDB = configData['TheMovieDB'] || '';
         this.giphy = configData['giphy'] || '';

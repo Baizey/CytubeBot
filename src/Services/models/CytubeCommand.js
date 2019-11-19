@@ -24,6 +24,7 @@ export default class CytubeCommand {
     constructor(name, message, tags = {}) {
         this.message = message;
         this.name = name;
+        this.rawTags = tags;
         this.tags = {
             source: tags.youtube || tags.yt || 'library',
             year: tags.year || tags.y || 0,

@@ -17,22 +17,12 @@ describe("Command parsing tests", () => {
 
     it(`Catch command tag correctly`, () => {
         const command = CytubeCommand.fromMessage('!command -a:b a;b;c');
-        command.tags['a'].should.equal('b');
+        command.rawTags['a'].should.equal('b');
     });
 
     it(`Catch command tag correctly`, () => {
         const command = CytubeCommand.fromMessage('!command -a a;b;c');
-        command.tags['a'].should.equal('a');
-    });
-
-    it(`Catch command tag correctly`, () => {
-        const command = CytubeCommand.fromMessage('!command [a:b] a;b;c');
-        command.tags['a'].should.equal('b');
-    });
-
-    it(`Catch command tag correctly`, () => {
-        const command = CytubeCommand.fromMessage('!command [a] a;b;c');
-        command.tags['a'].should.equal('a');
+        command.rawTags['a'].should.equal('a');
     });
 
     it(`Catch command array correctly`, () => {

@@ -5,10 +5,12 @@ export default class CytubeServiceMock extends CytubeService {
         super(undefined, undefined);
     }
 
-    async connect() {
+    connect() {
+        return Promise.resolve();
     }
 
-    async get await() {
+    get await() {
+        return Promise.resolve();
     }
 
     get isConnected() {
