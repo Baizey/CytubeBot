@@ -158,7 +158,7 @@ export class PollCommand extends Command {
             const winner = poll.closeAndChooseWinner();
             if (winner) messages.push(`I pick ${winner} as winner!`);
             if (winner && manage) {
-                const video = (await this.bot.library.getVideosLike(winner))[0];
+                const video = await this.bot.library.closestMatch(winner);
                 if (video) this.bot.playlist.queueVideo(video);
                 else messages.push(`Could not find the winner in the library :(`);
             }
@@ -172,12 +172,14 @@ export class PollCommand extends Command {
         }
 
         if (tags.queue) {
-            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => this.bot.library.closestMatch(e));
+            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => e.split(/\s*\-\s*/))
+                .map(e => this.bot.library.closestMatch(e[1] || e[0], e[1] ? e[0] - 0 : 0));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
         if (tags.trailer) {
-            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => youtube.search(e));
+            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => e.split(/\s*\-\s*/))
+                .map(e => youtube.search(e[1] || e[0]));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
@@ -197,6 +199,9 @@ export class NextCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
+        if (this.bot.poll.current.isActive && this.bot.poll.current.options.length > 0)
+            return Command.respond(`A poll is currently active, the winner will play next`, isPm);
+
         const resp = this.bot.playlist.nextMovie;
         if (!resp)
             return Command.respond(`Something is off, there isn't a next movie?`, isPm);
