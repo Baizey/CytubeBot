@@ -69,7 +69,7 @@ const child = new Monitor('./src/index.js', {
     silent: false,
     minUptime: 5000,
     spinSleepTime: 5000,
-    command: "node --experimental-modules",
+    command: "node -r esm",
 });
 
 const shutdown = (code = 1, error = '') => {

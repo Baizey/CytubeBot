@@ -17,7 +17,7 @@ export default class YoutubeAgent {
      * @returns {Promise<PlaylistVideo>}
      */
     async search(query) {
-        const params = {q: query};
+        const params = {q: query, type: 'video'};
         const response = await this._client.get(params);
 
         if (!response.success) {
@@ -27,7 +27,7 @@ export default class YoutubeAgent {
 
         const result = response.data.items[0];
         if (!result) return undefined;
-        return new PlaylistVideo(result.id.videoId, 'yt');
+        return new PlaylistVideo(result.id.videoId, 'yt', result.snippet.title.htmlDecode());
     }
 
 }

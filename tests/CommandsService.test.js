@@ -2,10 +2,10 @@ import CommandService from "../src/Services/CommandService.js";
 import Rank from "../src/Services/models/Rank.js";
 import CytubeCommand from "../src/Services/models/CytubeCommand.js";
 import CytubeUser from "../src/Services/models/CytubeUser.js";
-import SayCommand from "../src/commands/SayCommand.js";
-
+import {SayCommand} from "../src/Services/models/Command.js";
 // noinspection ES6UnusedImports
 import should from "should";
+import MockConstructor from "./mocks/MockConstructor";
 
 const admin = new CytubeUser('test-admin', Rank.admin.value);
 const mod = new CytubeUser('test-mod', Rank.mod.value);
@@ -13,7 +13,8 @@ const user = new CytubeUser('test-user', Rank.user.value);
 const anon = new CytubeUser('test-anon', Rank.anon.value);
 
 describe("CommandService tests", () => {
-    const bot = null;
+    const mock = MockConstructor.mock;
+    const bot = mock.bot;
     const service = new CommandService(bot);
     const say = new SayCommand(bot);
 

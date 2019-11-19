@@ -50,11 +50,12 @@ export default class PlaylistVideo {
     /**
      * @param {string} id
      * @param {string} type
+     * @param {string} title
      */
-    constructor(id, type) {
+    constructor(id, type, title = undefined) {
         this.link = new Link(id, type);
 
-        this.title = undefined;
+        this.title = title;
         this.year = undefined;
         this.quality = undefined;
         this.duration = undefined;

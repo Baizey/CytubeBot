@@ -25,10 +25,13 @@ export default class CytubeCommand {
         this.message = message;
         this.name = name;
         this.tags = {
-            year: tags.year || 0,
-            playlist: tags.curr || tags.next || tags.prev || 'curr',
-            manage: tags.manage,
-            close: tags.close,
+            source: tags.youtube || tags.yt || 'library',
+            year: tags.year || tags.y || 0,
+            playlist: tags.next || tags.prev || 'curr',
+            manage: tags.manage || tags.m,
+            close: tags.close || tags.c,
+            delete: tags.delete || tags.d,
+            all: tags.all || tags.a,
             top: tags.top,
             mine: tags.mine,
         }

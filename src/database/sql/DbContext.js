@@ -19,13 +19,14 @@ export default class DbContext {
     }
 
     /**
-     * @param {string} host
-     * @param {number} port
-     * @param {string} database
-     * @param {string} username
-     * @param {string} password
+     * @param {string|undefined} host
+     * @param {number|undefined} port
+     * @param {string|undefined} database
+     * @param {string|undefined} username
+     * @param {string|undefined} password
      */
     constructor(host, port, database, username, password) {
+        if (typeof host === 'undefined') return;
         // Actually pg.Pool but that didnt work so fuck it, here we are
         this._connection = pg.default.Pool({
             host: host,
@@ -50,7 +51,7 @@ export default class DbContext {
             return '$' + values.length;
         });
 
-        Logger.system(sql + ' : ' + JSON.stringify(values));
+        Logger.system(sql.replace(/\$(\d+)/g, (raw, index) => values[index - 1]));
 
         const client = await this._connection.connect();
         const resp = await client.query({

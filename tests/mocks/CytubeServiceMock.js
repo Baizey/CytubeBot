@@ -1,16 +1,14 @@
 import CytubeService from "../../src/Services/CytubeService.js";
 
-class CytubeServiceMock extends CytubeService {
+export default class CytubeServiceMock extends CytubeService {
     constructor() {
         super(undefined, undefined);
     }
 
-    connect() {
-        return Promise.resolve();
+    async connect() {
     }
 
-    get await() {
-        return Promise.resolve();
+    async get await() {
     }
 
     get isConnected() {

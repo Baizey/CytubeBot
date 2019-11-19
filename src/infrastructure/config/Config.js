@@ -1,8 +1,7 @@
 import {Channel} from "./Channel.js";
 import {BotUser} from "./BotUser.js";
 import {DatabaseConfig} from "./DatabaseConfig.js";
-import {WebConfig} from "./WebConfig.js";
-import {ApiKeys} from "./ApiKeys.js";
+import ApiKeys from "./ApiKeys";
 
 export default class Config {
     constructor(configData) {

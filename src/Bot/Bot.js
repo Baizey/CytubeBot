@@ -22,16 +22,13 @@ const Subscribe = {
 
 export default class Bot {
     /**
-     * @param {Config} config
+     * @param {ApiKeys} apiKeys
      * @param {CytubeService} cytube
      * @param {Database} database
      */
-    constructor(config, cytube, database) {
+    constructor(apiKeys, cytube, database) {
         this.cytube = cytube;
-        this.config = config;
         this.database = database;
-
-        const apiKeys = config.apikeys;
 
         this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);

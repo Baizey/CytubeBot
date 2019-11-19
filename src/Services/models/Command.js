@@ -70,6 +70,22 @@ export class GifCommand extends Command {
     }
 }
 
+export class WakeAllCommand extends Command {
+    constructor(bot) {
+        super(bot, 'wakeall', Rank.mod);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        return Command.respond(this.bot.userlist.online.keys().join(', '), false);
+    }
+}
+
 export class PatternCommand extends Command {
     constructor(bot) {
         super(bot, 'pattern', Rank.admin);
@@ -82,7 +98,18 @@ export class PatternCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
-        return Command.respond();
+        if (data.tags.all) {
+            return Command.respond(this.bot.patterns.patterns.map(e => `${e.command} | ${e.regexText} | ${e.rest}`), true);
+        }
+        if (data.tags.delete) {
+            await this.bot.patterns.removeByCommand(data.message.trim());
+            return Command.respond(`Deleted patterns for ${data.message.trim()}`, true);
+        }
+
+        const [command, regex, rest] = data.array;
+        const result = await this.bot.patterns.add(command, regex, rest);
+        if (result) return Command.respond(result, true);
+        return Command.respond(`Added ${command} | ${regex} | ${rest}`, true);
     }
 }
 
@@ -257,7 +284,7 @@ export class LastOnlineCommand extends Command {
 
 export class HelpCommand extends Command {
     constructor(bot) {
-        super(bot, 'help', Rank.admin);
+        super(bot, 'help', Rank.anon);
     }
 
     /**
@@ -354,7 +381,10 @@ export class AddCommand extends Command {
     async run(data, user, isPm) {
         const title = data.message.trim();
         const year = data.tags.year || 0;
-        const videos = await this.bot.library.getVideosLike(title, year);
+
+        const videos = (data.tags.source === 'youtube' || data.tags.source === 'yt')
+            ? await this.bot.youtube.search(data.message.trim()).then(e => e ? [e] : [])
+            : await this.bot.library.getVideosLike(title, year);
 
         if (videos.length === 0)
             return Command.respond(`Found no working links in library with the title '${title}'`, isPm);

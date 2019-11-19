@@ -22,7 +22,7 @@ export default class ServiceClient {
      * @private
      */
     _fetch(url, options = {}) {
-        Logger.debug(url + ' ' + JSON.stringify(options));
+        Logger.system(url + ' ' + JSON.stringify(options));
         return fetch(url, options);
     }
 
@@ -65,7 +65,6 @@ export default class ServiceClient {
             urlParams = path;
             path = '';
         }
-        Logger.debug(this._baseParams);
         const url = this._joinUri(path, ({...urlParams, ...this._baseParams}));
         return this._fetch(url, {
             method: 'GET'
