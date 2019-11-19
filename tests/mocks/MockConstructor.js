@@ -14,7 +14,7 @@ export default class MockConstructor {
         params.dbContext = new DbContextMock();
         params.database = new DatabaseMock(params.dbContext);
         params.cytubeService = new CytubeServiceMock();
-        params.bot = new Bot(new ApiKeys(), params.cytubeService, params.database);
+        params.bot = new Bot('bot',  new ApiKeys(), params.cytubeService, params.database);
         return params;
     }
 

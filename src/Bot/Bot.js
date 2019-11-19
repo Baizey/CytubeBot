@@ -22,11 +22,13 @@ const Subscribe = {
 
 export default class Bot {
     /**
+     * @param {string} username
      * @param {ApiKeys} apiKeys
      * @param {CytubeService} cytube
      * @param {Database} database
      */
-    constructor(apiKeys, cytube, database) {
+    constructor(username, apiKeys, cytube, database) {
+        this.username = username;
         this.cytube = cytube;
         this.database = database;
 
@@ -78,7 +80,7 @@ export default class Bot {
             return;
 
         // Log own messages (should only ever be responses to commands)
-        if (message.name === this.config.user.name)
+        if (message.name === this.username)
             return Logger.command(message, true);
 
         // If no command found, check for command patterns

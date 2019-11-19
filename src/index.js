@@ -12,4 +12,4 @@ const context = DbContext.with(config.database);
 const cytube = new CytubeService(config.channel, config.user);
 const database = new Database(context);
 
-const bot = new Bot(config, cytube, database);
+const bot = new Bot(config.user.name, config.apikeys, cytube, database);
