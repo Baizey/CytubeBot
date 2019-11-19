@@ -3,6 +3,7 @@ import Rank from "./Rank";
 import Exit from "../../infrastructure/Exit";
 import {TimeFormatter} from "../../infrastructure/Utils";
 import '../../infrastructure/prototype/array';
+import '../../infrastructure/prototype/string';
 import CommandResponse from "./CommandResponse";
 
 class Command {
@@ -375,8 +376,8 @@ export class AvailableCommand extends Command {
         if (videos.length === 0)
             return Command.respond(`No videos with a title like that in the library`, isPm);
 
-        const messages = [`Found ${videos.length} matches, the best matches are:`,];
-        videos.limit(5).forEach(video => messages.push(`${video.title} (${video.year})`));
+        const messages = [`Found ${videos.length} matches, the best matches are:`];
+        videos.limit(5).forEach(video => messages.push(`${video.title.capitalize()}${video.year ? ` (${video.year})` : ''}${video.quality ? ` (${video.quality})` : ''}`));
 
         return Command.respond(messages, isPm);
     }

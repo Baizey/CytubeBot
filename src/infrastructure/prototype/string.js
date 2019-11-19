@@ -1,5 +1,15 @@
 import * as html from "html-encoder-decoder";
+
 const htmlDefault = html.default;
+
+/**
+ * @returns {string}
+ */
+String.prototype.capitalize = function () {
+    return this.length > 0
+        ? this.charAt(0).toUpperCase() + this.substr(1)
+        : this;
+};
 
 /**
  * @returns {string}
