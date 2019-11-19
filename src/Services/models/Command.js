@@ -156,7 +156,8 @@ export class PollCommand extends Command {
 
         if (tags.close) {
             const winner = poll.closeAndChooseWinner();
-            if (winner) messages.push(`I pick ${winner} as winner!`);
+            const title = winner.split(/-+/)[1] || winner;
+            if (winner) messages.push(`I pick ${title} as winner!`);
             if (winner && manage) {
                 const video = await this.bot.library.closestMatch(winner);
                 if (video) this.bot.playlist.queueVideo(video);
@@ -172,13 +173,13 @@ export class PollCommand extends Command {
         }
 
         if (tags.queue) {
-            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => e.split(/\s*\-\s*/))
+            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => e.split(/\s*--\s*/))
                 .map(e => this.bot.library.closestMatch(e[1] || e[0], e[1] ? e[0] - 0 : 0));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
         if (tags.trailer) {
-            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => e.split(/\s*\-\s*/))
+            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => e.split(/\s*--\s*/))
                 .map(e => youtube.search(e[1] || e[0]));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
