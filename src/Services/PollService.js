@@ -52,6 +52,9 @@ export default class PollService {
             obscured: obscured,
             opts: options
         });
+        this.current = new Poll(options,
+            '0'.repeat(options.length).split('').map(e => e - 0),
+            title);
     }
 
     /**

@@ -55,6 +55,17 @@ export default class LibraryService {
     /**
      * @param {string} title
      * @param {number} year
+     * @returns {Promise<PlaylistVideo>}
+     */
+    async closestMatch(title, year = undefined) {
+        const result = await this.getVideosLike(title, year);
+        if (result.length === 0) return undefined;
+        return result[0];
+    }
+
+    /**
+     * @param {string} title
+     * @param {number} year
      * @returns {Promise<PlaylistVideo[]>}
      */
     async getVideosLike(title, year = undefined) {
@@ -64,7 +75,8 @@ export default class LibraryService {
                 return {
                     score: levenshtein.get(title, video.title),
                     video: video
-                }})
+                }
+            })
                 .sort((a, b) => {
                     if (a.score !== b.score) return a.score - b.score;
                     if (year && a.video.year !== b.video.year) return Math.abs(year - a.video.year) - Math.abs(year - b.video.year);

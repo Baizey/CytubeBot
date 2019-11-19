@@ -149,13 +149,14 @@ export class PollCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
+        const youtube = this.bot.youtube;
+        const tags = data.tags;
         const poll = this.bot.poll;
-        const manage = data.tags.manage;
+        const manage = tags.manage;
         const hasActivePoll = poll.current.isActive;
-        const manageCurrent = hasActivePoll && manage;
-        const closing = data.tags.close || manageCurrent;
         const messages = [];
-        if (closing) {
+
+        if (tags.close) {
             const winner = poll.closeAndChooseWinner();
             if (winner) messages.push(`I pick ${winner} as winner!`);
             if (winner && manage) {
@@ -163,13 +164,23 @@ export class PollCommand extends Command {
                 if (video) this.bot.playlist.queueVideo(video);
                 else messages.push(`Could not find the winner in the library :(`);
             }
-        } else {
+        } else if (!hasActivePoll) {
             const array = data.array;
             if (array.length === 0) return Command.respond('Need a title to create a poll', isPm);
             const title = array[0];
             const options = array.skip(1);
             this.bot.poll.open(title, options, false);
             if (manage) messages.push('I do not support managing polls from start to finish... yet');
+        }
+
+        if (tags.queue) {
+            const options = poll.current.options.filter(e => e.trim()).map(e => this.bot.library.closestMatch(e));
+            (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
+        }
+
+        if (tags.trailer) {
+            const options = this.bot.poll.current.options.map(e => 'trailer hd official teaser ' + e.title).map(e => youtube.search(e));
+            (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
         return Command.respond(messages, false);

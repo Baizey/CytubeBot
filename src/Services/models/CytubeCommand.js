@@ -26,15 +26,17 @@ export default class CytubeCommand {
         this.name = name;
         this.rawTags = tags;
         this.tags = {
-            source: tags.youtube || tags.yt || 'library',
+            source: tags.youtube || (tags.yt && 'youtube') || 'library',
             year: tags.year || tags.y || 0,
             playlist: tags.next || tags.prev || 'curr',
-            manage: tags.manage || tags.m,
             close: tags.close || tags.c,
             delete: tags.delete || tags.d,
             all: tags.all || tags.a,
-            top: tags.top,
-            mine: tags.mine,
+            queue: tags.queue || tags.q,
+            mine: tags.mine || tags.m,
+            manage: tags.manage || tags.m,
+            top: tags.top || tags.t,
+            trailer: tags.trailer || tags.trailers || tags.t
         }
     }
 
