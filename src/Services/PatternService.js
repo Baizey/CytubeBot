@@ -11,7 +11,8 @@ export default class PatternService {
     }
 
     async subscribe() {
-        this.patterns = await this._db.getAll().then(patterns => patterns.map(e => Pattern.fromDatabase(e)));
+        const data = await this._db.getAll();
+        this.patterns = data.map(e => Pattern.fromDatabase(e));
     }
 
     /**

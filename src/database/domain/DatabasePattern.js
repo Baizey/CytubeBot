@@ -5,7 +5,7 @@ export default class DatabasePattern {
      * @returns {DatabasePattern}
      */
     static fromDatabase(pattern) {
-        return pattern ? new DatabasePattern(pattern.regex, pattern.command, pattern.rest) : null;
+        return pattern ? new DatabasePattern(pattern.command, pattern.regex, pattern.rest) : null;
     }
 
     /**
@@ -13,7 +13,7 @@ export default class DatabasePattern {
      * @param {string} command
      * @param {string} rest
      */
-    constructor(regex, command, rest) {
+    constructor(command, regex, rest) {
         this.regex = regex;
         this.command = command;
         this.rest = rest;
