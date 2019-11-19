@@ -179,8 +179,8 @@ export class PollCommand extends Command {
         }
 
         if (tags.trailer) {
-            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => e.split(/\s*[-|]\s*/))
-                .map(e => youtube.search(e[1] || e[0]));
+            const options = poll.current.optionsTitles.map(e => e.split(/\s*[-|]\s*/))
+                .map(e => youtube.search('trailer hd official teaser ' + (e[1] || e[0])));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
