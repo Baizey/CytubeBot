@@ -44,7 +44,7 @@ export default class CytubeCommand {
      * @returns {string[]}
      */
     get array() {
-        return this.message.trim().split(';').filter(e => e);
+        return this.message.trim().split(';').map(e => e.trim()).filter(e => e);
     }
 
 }

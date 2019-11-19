@@ -126,9 +126,7 @@ export class TrailerCommand extends Command {
      */
     async run(data, user, isPm) {
         const youtube = this.bot.youtube;
-        const options = this.bot.poll.current.options
-            .map(e => 'trailer hd official teaser ' + e.title)
-            .map(e => youtube.search(e));
+        const options = data.array.map(e => 'trailer hd official teaser ' + e).map(e => youtube.search(e));
         (await Promise.all(options)).reverse()
             .filter(e => e)
             .forEach(video => this.bot.playlist.queueVideo(video));
@@ -174,12 +172,12 @@ export class PollCommand extends Command {
         }
 
         if (tags.queue) {
-            const options = poll.current.options.filter(e => e.trim()).map(e => this.bot.library.closestMatch(e));
+            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => this.bot.library.closestMatch(e));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 
         if (tags.trailer) {
-            const options = this.bot.poll.current.options.map(e => 'trailer hd official teaser ' + e.title).map(e => youtube.search(e));
+            const options = poll.current.optionsTitles.map(e => 'trailer hd official teaser ' + e).map(e => youtube.search(e));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
 

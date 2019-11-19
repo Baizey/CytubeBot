@@ -16,7 +16,7 @@ export default class Poll {
      */
     update(options, votes) {
         votes.map(vote => ((typeof vote) !== 'number') ? vote.match(/\d+/)[0] : vote).map(vote => vote - 0);
-        this.options = options.map((e, i) => new Option(e, votes[i]));
+        this._options = options.map((e, i) => new Option(e, votes[i]));
     }
 
     /**
@@ -25,17 +25,31 @@ export default class Poll {
     close() {
         this.isActive = false;
     }
-    
+
     /**
      * @returns {string}
      */
     get winner() {
-        if (this.options.length === 0)
+        if (this._options.length === 0)
             return undefined;
-        const max = Math.max(...this.options.map(e => e.votes));
-        const winners = this.options.filter(e => e.votes === max);
+        const max = Math.max(...this._options.map(e => e.votes));
+        const winners = this._options.filter(e => e.votes === max);
         const pick = Math.floor(Math.random() * winners.length);
         return winners[pick].title;
+    }
+
+    /**
+     * @returns {string[]}
+     */
+    get optionsTitles() {
+        return this.options.map(e => e.title);
+    }
+
+    /**
+     * @returns {Option[]}
+     */
+    get options() {
+        return this._options;
     }
 }
 

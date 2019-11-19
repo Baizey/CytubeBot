@@ -18,6 +18,7 @@ export default class PollService {
     constructor(cytube) {
         this._cytube = cytube;
         this.current = new Poll([], [], 'None');
+        this.current.isActive = false;
     }
 
     subscribe() {
