@@ -53,7 +53,7 @@ export default class PatternService {
         // rest is optional, so nothing given is simply empty string
         if (!rest) rest = '';
 
-        await this._db.insert(new DatabasePattern(command, regex, rest));
+        await this._db.add(new DatabasePattern(command, regex, rest));
         this.patterns.push(new Pattern(command, regex, rest));
     };
 
