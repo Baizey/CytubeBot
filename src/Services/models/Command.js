@@ -378,7 +378,7 @@ export class AvailableCommand extends Command {
         const messages = [`Found ${videos.length} matches, the best matches are:`,];
         videos.limit(5).forEach(video => messages.push(`${video.title} (${video.year})`));
 
-        Command.respond(messages, isPm);
+        return Command.respond(messages, isPm);
     }
 }
 
