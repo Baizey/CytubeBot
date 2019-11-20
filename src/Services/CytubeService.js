@@ -1,6 +1,7 @@
 import socketClient from "socket.io-client";
 import {default as fetch} from 'node-fetch';
 import Utils from "../infrastructure/Utils.js";
+import Logger from "../infrastructure/logger/Logger";
 
 const Subscribe = {
     connect: 'connect',
@@ -111,8 +112,10 @@ export default class CytubeService {
      * @param {*} data
      */
     emit(event, data = undefined) {
-        if (this.isConnected)
+        if (this.isConnected) {
+            Logger.system(`EMIT ${event}: ${JSON.stringify(data)}`);
             this._socket.emit(event, data);
+        }
     }
 
     /**
@@ -120,6 +123,9 @@ export default class CytubeService {
      * @param {function(*):*} act
      */
     on(event, act) {
-        this.await.finally(() => this._socket.on(event, data => act(data)));
+        this.await.finally(() => this._socket.on(event, data => {
+            Logger.system(`ON ${event}: ${JSON.stringify(data)}`);
+            act(data);
+        }));
     }
 }
