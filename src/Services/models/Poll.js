@@ -38,9 +38,8 @@ export default class Poll {
         if (this._options.length === 0)
             return undefined;
         const max = Math.max(...this._options.map(e => e.votes));
-        const winners = this._options.filter(e => e.votes === max);
-        const pick = Math.floor(Math.random() * winners.length);
-        return winners[pick].title;
+        return this._options.filter(e => e.votes === max)
+            .map(e => e.title).random();
     }
 
     /**
