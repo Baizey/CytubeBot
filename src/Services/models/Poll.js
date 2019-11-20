@@ -17,7 +17,7 @@ export default class Poll {
      * @param {number[]|string[]} votes
      */
     update(options, votes) {
-        votes.map(vote => {
+        votes = votes.map(vote => {
             if (typeof vote === 'number') return vote;
             vote += '';
             if (vote.length === 0 || vote === '?') return 0;
@@ -37,10 +37,11 @@ export default class Poll {
      * @returns {string}
      */
     get winner() {
-        if (this._options.length === 0)
+        if (this.options.length === 0)
             return undefined;
-        const max = Math.max(...this._options.map(e => e.votes));
-        return this._options.filter(e => e.votes === max)
+        const max = Math.max(...this.options.map(e => e.votes));
+        return this.options
+            .filter(e => e.votes === max)
             .map(e => e.title).random();
     }
 
