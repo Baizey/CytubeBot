@@ -15,7 +15,12 @@ export default class Poll {
      * @param {number[]|string[]} votes
      */
     update(options, votes) {
-        votes.map(vote => ((typeof vote) !== 'number') ? vote.match(/\d+/)[0] : vote).map(vote => vote - 0);
+        votes.map(vote => {
+            if (typeof vote === 'number') return vote;
+            vote += '';
+            if (vote.length === 0 || vote === '?') return 0;
+            return vote.substr(0, vote.length - 1);
+        }).map(vote => vote - 0);
         this._options = options.map((e, i) => new Option(e, votes[i]));
     }
 
