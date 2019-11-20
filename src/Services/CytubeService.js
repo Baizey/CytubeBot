@@ -124,7 +124,8 @@ export default class CytubeService {
      */
     on(event, act) {
         this.await.finally(() => this._socket.on(event, data => {
-            Logger.system(`ON ${event}: ${JSON.stringify(data)}`);
+            if (event !== 'mediaUpdate')
+                Logger.system(`ON ${event}: ${JSON.stringify(data)}`);
             act(data);
         }));
     }
