@@ -27,7 +27,7 @@ export default class PollService {
             /**
              * @param {{counts: number[], options: string[], title:string}} data
              */
-            data => self.current = new Poll(data.options, data.counts, data.title));
+            data => self.current = new Poll(data.options.map(e => e.htmlDecode()), data.counts, data.title.htmlDecode()));
 
         this._cytube.on(Subscriptions.update,
             /**
