@@ -1,3 +1,5 @@
+import '../../infrastructure/prototype/array'
+
 export default class Poll {
     /**
      * @param {string[]} options
