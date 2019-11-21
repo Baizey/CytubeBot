@@ -45,7 +45,7 @@ export default class UrbanDictionaryAgent {
 
 class UrbanDefinition {
     constructor(data) {
-        this.definition = data.definition && data.definition.htmlDecode();
-        this.example = data.example && data.example.htmlDecode();
+        this.definition = data.definition && data.definition.htmlDecode().replace(/[\[\]]/g, '');
+        this.example = data.example && data.example.htmlDecode().replace(/[\[\]]/g, '');
     }
 }
