@@ -52,6 +52,29 @@ class Command {
     }
 }
 
+export class UrbanDictionaryCommand extends Command {
+    constructor(bot) {
+        super(bot, 'define', Rank.user);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        const query = data.message.trim();
+        if (!query) return Command.respond('I need something to define... try again', isPm);
+        const definition = await this.bot.urbanDictionary.define(query);
+        if (!definition) return Command.respond(`I do not know a definition for '${query}'`, isPm);
+        return Command.respond([
+            `A definition is '${definition.definition}'`,
+            `An example could be ${definition.example}`
+        ], isPm);
+    }
+}
+
 export class GifCommand extends Command {
     constructor(bot) {
         super(bot, 'gif', Rank.user);

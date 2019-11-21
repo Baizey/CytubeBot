@@ -1,8 +1,36 @@
-import Poll from "../src/Services/models/Poll.js";
+import Poll, {Option} from "../src/Services/models/Poll.js";
+
 // noinspection ES6UnusedImports
 import should from "should";
 
 describe("Poll tests", () => {
+
+    it('test poll update anon', () => {
+        const poll = new Poll(['a'], [0], 'shit');
+        poll.update(['a'], [1]);
+        poll.options.should.deepEqual([new Option('a', 1)]);
+    });
+
+    it('test poll update anon', () => {
+        const poll = new Poll(['a'], ['?'], 'shit');
+        poll.update(['a'], ['1?']);
+        poll.options.should.deepEqual([new Option('a', 1)]);
+    });
+
+    it('test poll update anon', () => {
+        const poll = new Poll(['a'], ['?'], 'shit');
+        poll.options.should.deepEqual([new Option('a', 0)]);
+    });
+
+    it('test poll update anon', () => {
+        const poll = new Poll(['a'], ['0?'], 'shit');
+        poll.options.should.deepEqual([new Option('a', 0)]);
+    });
+
+    it('test poll update numbers', () => {
+        const poll = new Poll(['a'], [0], 'shit');
+        poll.options.should.deepEqual([new Option('a', 0)]);
+    });
 
     it('test poll title', () => {
         const poll = new Poll([], [], 'shit');

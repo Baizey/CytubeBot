@@ -10,7 +10,7 @@ export default class ServiceClient {
      * @param {string} baseUrl
      * @param {object} params
      */
-    constructor(baseUrl, params) {
+    constructor(baseUrl, params = {}) {
         this.baseUrl = baseUrl;
         this._baseParams = params;
     }
@@ -18,12 +18,23 @@ export default class ServiceClient {
     /**
      * @param {string} url
      * @param {object} options
-     * @returns {Promise}
+     * @returns {Promise<Response>}
      * @private
      */
     _fetch(url, options = {}) {
-        Logger.system(url + ' ' + JSON.stringify(options));
-        return fetch(url, options);
+        const now = Date.now();
+        let status;
+        return fetch(url, options).then(async resp => {
+            status = resp.status;
+            const response = await Response.map(resp);
+            const time = (Date.now() - now) + ' ms';
+            Logger.system(`${url} ${JSON.stringify(options)} (${time})\nStatus: ${response.statusCode}, Data: ${JSON.stringify(response.data)}`);
+            return response;
+        }).catch(error => {
+            const time = (Date.now() - now) + ' ms';
+            Logger.error(`${url} ${JSON.stringify(options)} (${time})\nStatus: ${status}, Error: ${JSON.stringify(error)}`);
+            throw error;
+        });
     }
 
     /**
@@ -68,12 +79,7 @@ export default class ServiceClient {
         const url = this._joinUri(path, ({...urlParams, ...this._baseParams}));
         return this._fetch(url, {
             method: 'GET'
-        })
-            .then(Response.map)
-            .catch(error => {
-                Logger.error(error);
-                throw error;
-            })
+        });
     }
 
     /**
@@ -91,12 +97,7 @@ export default class ServiceClient {
         return this._fetch(url, {
             method: 'POST',
             body: params
-        })
-            .then(Response.map)
-            .catch(error => {
-                Logger.error(error);
-                throw error;
-            })
+        });
     }
 
 }

@@ -60,7 +60,7 @@ export default class Poll {
     }
 }
 
-class Option {
+export class Option {
     /**
      * @param {string} option
      * @param {number} votes
