@@ -16,6 +16,7 @@ import CleverbotAgent from "../agents/talking/CleverbotAgent";
 import YoutubeAgent from "../agents/YoutubeAgent";
 import GiphyAgent from "../agents/GiphyAgent";
 import UrbanDictionaryAgent from "../agents/UrbanDictionaryAgent";
+import PastebinAgent from "../agents/PastebinAgent";
 
 const Subscribe = {
     message: 'message'
@@ -33,6 +34,7 @@ export default class Bot {
         this.cytube = cytube;
         this.database = database;
 
+        this.pastebin = new PastebinAgent(apiKeys.pastebin);
         this.urbanDictionary = new UrbanDictionaryAgent();
         this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
         this.tmdb = new TmdbAgent(apiKeys.themovieDB);
