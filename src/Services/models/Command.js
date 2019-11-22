@@ -1,7 +1,7 @@
 import "regenerator-runtime";
 import Rank from "./Rank";
 import Exit from "../../infrastructure/Exit";
-import {TimeFormatter} from "../../infrastructure/Utils";
+import Utils, {TimeFormatter} from "../../infrastructure/Utils";
 import '../../infrastructure/prototype/array';
 import '../../infrastructure/prototype/string';
 import CommandResponse from "./CommandResponse";
@@ -49,6 +49,46 @@ class Command {
      */
     static respond(messages = [], isPm = false) {
         return new CommandResponse(messages, isPm);
+    }
+}
+
+export class PlaylistCleanupCommand extends Command {
+    constructor(bot) {
+        super(bot, 'cleanup', Rank.admin);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        const playlist = this.bot.playlist;
+        const deadlinks = [];
+        for (let i = 0; i < playlist.size; i++) {
+            const video = playlist.getByIndex(i);
+            if (!video || video.uid === playlist._currentUid) continue;
+            const before = playlist.getByIndex(i - 1);
+            const after = (before && before.uid) || 'prepend';
+            const from = video.uid;
+            await playlist.remove(from);
+            const resp = await playlist.queueVideo(video, true);
+            await Utils.await(100);
+            if (resp.success) {
+                await playlist.moveVideo(resp.data, after);
+                await Utils.await(100);
+            } else {
+                deadlinks.push(video.title);
+                deadlinks.push(resp.data);
+            }
+        }
+        if (deadlinks.length === 0)
+            return Command.respond('No dead links were found', true);
+
+        const paste = this.bot.pastebin.paste(deadlinks.join('\n'));
+
+        return Command.respond(`Dead links were found: ${paste}`, true);
     }
 }
 
@@ -151,9 +191,9 @@ export class TrailerCommand extends Command {
     async run(data, user, isPm) {
         const youtube = this.bot.youtube;
         const options = data.array.map(e => 'trailer hd official teaser ' + e).map(e => youtube.search(e));
-        (await Promise.all(options)).reverse()
-            .filter(e => e)
-            .forEach(video => this.bot.playlist.queueVideo(video));
+        const videos = (await Promise.all(options)).reverse().filter(e => e);
+        for (let i in videos)
+            await this.bot.playlist.queueVideo(videos[i]);
         return Command.respond();
     }
 }
@@ -184,8 +224,11 @@ export class PollCommand extends Command {
             if (winner) messages.push(`I pick ${title} as winner!`);
             if (winner && tags.queue) {
                 const video = await this.bot.library.closestMatch(winner);
-                if (video) this.bot.playlist.queueVideo(video);
-                else messages.push(`Could not find the winner in the library :(`);
+                if (video) {
+                    const resp = await this.bot.playlist.queueVideo(video);
+                    if (resp.success) messages.push('and it should be queued up next :D');
+                    else messages.push(`and I couldn't queue it: ${resp.data}`);
+                } else messages.push(`Could not find the winner in the library :(`);
             }
         } else if (!hasActivePoll) {
             const array = data.array;
@@ -431,8 +474,10 @@ export class AddCommand extends Command {
             return Command.respond(`Found no working links in library with the title '${title}'`, isPm);
 
         const video = videos[0];
-        await this.bot.playlist.queueVideo(video);
-        return Command.respond(`Queued the video ${video.title} ${year ? `(${year}) ` : ''}next`, isPm);
+        const resp = await this.bot.playlist.queueVideo(video);
+        if (resp.success)
+            return Command.respond(`Queued the video ${video.title} ${year ? `(${year}) ` : ''}next`, isPm);
+        else return Command.respond(resp.data, isPm);
     }
 }
 

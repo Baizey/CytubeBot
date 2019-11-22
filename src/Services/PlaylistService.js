@@ -1,4 +1,5 @@
 import PlaylistVideo from "./models/PlaylistVideo.js";
+import Utils from "../infrastructure/Utils";
 
 const Subscribe = {
     playlist: 'playlist',
@@ -10,9 +11,11 @@ const Subscribe = {
     setLeader: 'setLeader',
     delete: 'delete',
     queue: 'queue',
+    queueFail: 'queueFail'
 };
 
 const Publish = {
+    move: 'moveMedia',
     queue: 'queue',
     jumpTo: 'jumpTo',
     request: 'requestPlaylist',
@@ -36,6 +39,37 @@ export default class PlaylistService {
         this._isPlaying = true;
     }
 
+    /**
+     * @param {PlaylistVideo} video
+     * @param {boolean} tempPos
+     * @returns {Promise<{success: boolean, data: PlaylistVideo|string}>}
+     */
+    async queueVideo(video, tempPos = false) {
+        return await new Promise(async resolve => {
+            const onDone = {
+                func: () => {
+                }
+            };
+            const removeSuccess = await this._cytube.on(Subscribe.queue, data => {
+                const id = data.item.media.id;
+                const type = data.item.media.type;
+                if (id !== video.link.id || type !== video.link.type) return;
+                onDone.func(true, PlaylistVideo.fromCytubeServer(data.item));
+            });
+            const removeFail = await this._cytube.on(Subscribe.queueFail, data => {
+                const id = data.id;
+                if (id !== video.link.id) return;
+                onDone.func(false, data.msg.htmlDecode());
+            });
+            onDone.func = (success, data) => {
+                removeSuccess();
+                removeFail();
+                resolve({success: success, data: data});
+            };
+            this._cytube.emit(Publish.queue, tempPos ? video.asTempQueueObject : video.asQueueObject);
+        });
+    }
+
     subscribe() {
         const self = this;
         this._cytube.on(Subscribe.playlist, data => {
@@ -45,26 +79,23 @@ export default class PlaylistService {
                     await self._library.addVideo(e);
             });
         });
-
-        this._cytube.on('queueFail',
-            /**
-             * @param {{msg: string, link: string, id: string}} data
-             */
-            data => this._message.sendPublic([data.msg.htmlDecode()]));
-
         this._cytube.on(Subscribe.update, data => self._currentPlaytime = data.currentTime);
         this._cytube.on(Subscribe.setCurrent, uid => self._currentUid = uid);
         this._cytube.on(Subscribe.move,
             /**
-             * @param {{from:number, after:number}} data
+             * @param {{from:number, after:number|string}} data
              */
             data => {
-                const fromIndex = self._indexFromUid(data.from);
+                const fromIndex = self.indexFromUid(data.from);
                 if (fromIndex === -1) return;
                 const video = self._playlist.splice(fromIndex, 1)[0];
-                const afterIndex = self._indexFromUid(data.after);
-                if (afterIndex === -1) return;
-                self._playlist.splice(afterIndex + 1, 0, video);
+                if (data.after === 'prepend') {
+                    self._playlist.unshift(video);
+                } else {
+                    const afterIndex = self.indexFromUid(data.after);
+                    if (afterIndex === -1) return;
+                    self._playlist.splice(afterIndex + 1, 0, video);
+                }
             });
         this._cytube.on(Subscribe.setTemp,
             /**
@@ -81,7 +112,7 @@ export default class PlaylistService {
              * @param {{uid: number}} data
              */
             data => {
-                const index = self._indexFromUid(data.uid);
+                const index = self.indexFromUid(data.uid);
                 if (index !== -1) self._playlist.splice(index, 1);
             });
         this._cytube.on(Subscribe.queue,
@@ -95,7 +126,7 @@ export default class PlaylistService {
                 if (self._playlist.length === 0)
                     self._playlist.push(video);
                 else {
-                    const index = self._indexFromUid(data.after);
+                    const index = self.indexFromUid(data.after);
                     if (index === -1) return;
                     this._playlist.splice(index + 1, 0, video);
                 }
@@ -108,7 +139,7 @@ export default class PlaylistService {
      * @returns {{movie: PlaylistVideo, between: PlaylistVideo[]}}
      */
     get nextMovie() {
-        const start = this._indexFromUid(this._currentUid);
+        const start = this.indexFromUid(this._currentUid);
         if (start === -1) return undefined;
         const response = {
             between: [],
@@ -127,9 +158,24 @@ export default class PlaylistService {
 
     /**
      * @param {Number} uid
+     * @returns {Promise<int>}
      */
-    remove(uid) {
-        this._cytube.emit(Publish.delete, uid);
+    async remove(uid) {
+        return await new Promise(async resolve => {
+            const onDone = {
+                func: () => {
+                }
+            };
+            const remove = await this._cytube.on(Subscribe.delete, data => {
+                if (uid !== data.uid) return;
+                onDone.func();
+            });
+            onDone.func = () => {
+                remove();
+                resolve(uid);
+            };
+            this._cytube.emit(Publish.delete, uid);
+        });
     }
 
     /**
@@ -137,7 +183,7 @@ export default class PlaylistService {
      * @returns {PlaylistVideo}
      */
     getByOffset(offset = 0) {
-        const from = this._indexFromUid(this._currentUid);
+        const from = this.indexFromUid(this._currentUid);
         if (from === -1) return undefined;
         const at = from + offset;
         const secured = Math.max(0, Math.min(this._playlist.length - 1, at));
@@ -164,7 +210,7 @@ export default class PlaylistService {
      * @returns {PlaylistVideo}
      */
     getByUid(uid) {
-        const index = this._indexFromUid(uid);
+        const index = this.indexFromUid(uid);
         if (index === -1) return undefined;
         return this._playlist[index];
     }
@@ -173,7 +219,7 @@ export default class PlaylistService {
      * @param {Number} uid
      * @returns {number}
      */
-    _indexFromUid(uid) {
+    indexFromUid(uid) {
         for (let i = 0; i < this._playlist.length; i++)
             if (this._playlist[i].uid === uid)
                 return i;
@@ -182,9 +228,25 @@ export default class PlaylistService {
 
     /**
      * @param {PlaylistVideo} video
+     * @param {int|"prepend"} after
+     * @returns {Promise<void>}
      */
-    queueVideo(video) {
-        this._cytube.emit(Publish.queue, video.asQueueObject);
+    async moveVideo(video, after) {
+        return await new Promise(async resolve => {
+            const onDone = {
+                func: () => {
+                }
+            };
+            const remove = await this._cytube.on(Subscribe.move, data => {
+                if (video.uid !== data.from || after !== data.after) return;
+                onDone.func();
+            });
+            onDone.func = () => {
+                remove();
+                resolve();
+            };
+            this._cytube.emit(Publish.move, {from: video.uid, after: after});
+        });
     }
 
     /**
@@ -192,6 +254,21 @@ export default class PlaylistService {
      */
     jumpTo(video) {
         this._cytube.emit(Publish.jumpTo, video.uid);
+    }
+
+    /**
+     * @returns {int}
+     */
+    get size() {
+        return this._playlist.length;
+    }
+
+    /**
+     * @param {int} i
+     * @returns {PlaylistVideo|undefined}
+     */
+    getByIndex(i) {
+        return this._playlist[i];
     }
 }
 
