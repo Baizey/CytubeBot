@@ -270,5 +270,32 @@ export default class PlaylistService {
     getByIndex(i) {
         return this._playlist[i];
     }
+
+    /**
+     * @param {boolean} autoManageDuplicates
+     * @returns {string[]}
+     */
+    findDuplicates(autoManageDuplicates = false) {
+        const playlist = this._playlist;
+        const seen = {};
+        playlist.forEach(video => {
+            if (!seen[video.title]) seen[video.title] = [video];
+            else seen[video.title].push(video);
+        });
+
+        const curr = this.indexFromUid(this._currentUid);
+        return seen.values().filter(e => e.length > 1).map(e => {
+            if (autoManageDuplicates) {
+                e.map(e => {
+                    let at = this.indexFromUid(e.uid);
+                    if (at < curr) at = (this.size - at) + this.size;
+                    return ({video: e, weight: at})
+                })
+                    .sort((a, b) => a.weight - b.weight)
+                    .skip(1).forEach(e => this.remove(e.video.uid));
+            }
+            return e.map(e => e.fullTitle);
+        });
+    }
 }
 

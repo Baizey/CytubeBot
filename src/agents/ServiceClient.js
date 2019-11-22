@@ -18,20 +18,23 @@ export default class ServiceClient {
     /**
      * @param {string} url
      * @param {object} options
+     * @param {object} normalBody
      * @returns {Promise<Response>}
      * @private
      */
-    _fetch(url, options = {}) {
+    _fetch(url, options = {}, normalBody = undefined) {
         const now = Date.now();
         let status;
         return fetch(url, options).then(async resp => {
             status = resp.status;
             const response = await Response.map(resp);
             const time = (Date.now() - now) + ' ms';
+            if (normalBody) options.body = normalBody;
             Logger.system(`${url} ${JSON.stringify(options)} (${time})\nStatus: ${response.statusCode}, Data: ${JSON.stringify(response.data)}`);
             return response;
         }).catch(error => {
             const time = (Date.now() - now) + ' ms';
+            if (normalBody) options.body = normalBody;
             Logger.error(`${url} ${JSON.stringify(options)} (${time})\nStatus: ${status}, Error: ${JSON.stringify(error)}`);
             throw error;
         });
@@ -85,19 +88,25 @@ export default class ServiceClient {
     /**
      * @param {string|object} path
      * @param {object} postParams
+     * @param {boolean} urlEncodedBody
      * @returns {Promise<Response>}
      */
-    post(path = '', postParams = {}) {
+    post(path = '', postParams = {}, urlEncodedBody = false) {
         if (typeof path === 'object') {
             postParams = path;
             path = '';
         }
         const params = ({...postParams, ...this._baseParams}).filter(e => e.value);
+        let usedParams = params;
+        if (urlEncodedBody) {
+            usedParams = new URLSearchParams();
+            params.keyValuePairs().forEach(pair => usedParams.append(pair.key, pair.value));
+        }
         const url = this._joinUri(path);
         return this._fetch(url, {
             method: 'POST',
-            body: params
-        });
+            body: usedParams
+        }, params);
     }
 
 }
@@ -105,8 +114,13 @@ export default class ServiceClient {
 class Response {
 
     static async map(resp) {
-        const data = await resp.json();
-        return new Response(resp.ok, resp.status, data);
+        const body = await resp.text();
+        try {
+            const data = JSON.parse(body);
+            return new Response(resp.ok, resp.status, data);
+        } catch (err) {
+            return new Response(resp.ok, resp.status, body);
+        }
     }
 
     constructor(success, statusCode, data) {

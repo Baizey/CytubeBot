@@ -18,7 +18,7 @@ export default class GiphyAgent {
     async paste(text) {
         const result = await this._client.post('api_post.php', {
             api_paste_code: text
-        });
+        }, true);
         return result.success ? result.data : undefined;
     }
 

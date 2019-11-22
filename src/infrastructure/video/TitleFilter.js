@@ -1052,7 +1052,7 @@ export class TitleFilter {
             .replace(/[^A-Za-z0-9]/g, a => latinMap[a] || a)
             // Remove common things that are annoying to detect
             .replace('&', ' and ')
-            .replace(/['"]/g, '')
+            .replace(/[':"]/g, '')
             // Sanitize non-latin characters (chinese etc.)
             .replace(/[^\x00-\x7F]/g, '')
             // lowercase this motherfucker

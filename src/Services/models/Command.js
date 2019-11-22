@@ -83,12 +83,20 @@ export class PlaylistCleanupCommand extends Command {
                 deadlinks.push(resp.data);
             }
         }
+        const messages = [];
         if (deadlinks.length === 0)
-            return Command.respond('No dead links were found', true);
+            messages.push('No dead links were found');
+        else
+            messages.push(`Dead links were found: ${await this.bot.pastebin.paste(deadlinks.join('\n'))}`);
 
-        const paste = this.bot.pastebin.paste(deadlinks.join('\n'));
+        const duplicates = playlist.findDuplicates(!!data.tags.manage);
 
-        return Command.respond(`Dead links were found: ${paste}`, true);
+        if (duplicates.length === 0)
+            messages.push('No duplicates were found');
+        else
+            messages.push(`Duplicates found: ${await this.bot.pastebin.paste(duplicates.map(e => e.join('\n')).join('\n\n'))}`);
+
+        return Command.respond(messages, true);
     }
 }
 

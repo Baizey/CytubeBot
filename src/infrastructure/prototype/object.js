@@ -31,3 +31,15 @@ Object.prototype.filter = function (func) {
         .filter(func)
         .toObject(e => e.key, e => e.value);
 };
+
+/**
+ * @returns {object}
+ */
+URLSearchParams.prototype.toObject = function () {
+    const entries = this.entries();
+    let curr;
+    const result = {};
+    while (!(curr = entries.next()).done)
+        result[curr.values[0]] = curr.values[1];
+    return result;
+};
