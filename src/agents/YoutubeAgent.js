@@ -5,7 +5,7 @@ import PlaylistVideo from "../Services/models/PlaylistVideo";
 export default class YoutubeAgent {
 
     constructor(apiKey) {
-        this._client = new ServiceClient('https://www.googleapis.com/youtube/v3/search', {
+        this._client = new ServiceClient('https://www.googleapis.com/youtube/v3', {
             key: apiKey,
             maxResults: 1,
             part: 'snippet'
@@ -18,7 +18,7 @@ export default class YoutubeAgent {
      */
     async search(query) {
         const params = {q: query, type: 'video'};
-        const response = await this._client.get(params);
+        const response = await this._client.get('search', params);
 
         if (!response.success) {
             Logger.error(response);
@@ -27,7 +27,10 @@ export default class YoutubeAgent {
 
         const result = response.data.items[0];
         if (!result) return undefined;
-        return new PlaylistVideo(result.id.videoId, 'yt', result.snippet.title.htmlDecode());
+        const video = new PlaylistVideo(result.id.videoId, 'yt', result.snippet.title.htmlDecode());
+        // Just assume all youtube videos are intermissions until proven otherwise, cause fuck youtube's api
+        video.duration = 0;
+        return video;
     }
 
 }
