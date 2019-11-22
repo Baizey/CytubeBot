@@ -182,7 +182,7 @@ export class PollCommand extends Command {
             const winner = poll.closeAndChooseWinner();
             const title = winner.split(/[-|]/)[1] || winner;
             if (winner) messages.push(`I pick ${title} as winner!`);
-            if (winner && manage) {
+            if (winner && tags.queue) {
                 const video = await this.bot.library.closestMatch(winner);
                 if (video) this.bot.playlist.queueVideo(video);
                 else messages.push(`Could not find the winner in the library :(`);
@@ -196,8 +196,8 @@ export class PollCommand extends Command {
             if (manage) messages.push('I do not support managing polls from start to finish... yet');
         }
 
-        if (tags.queue) {
-            const options = ((tags.close && [poll.current.winner]) || poll.current.optionsTitles)
+        if (tags.queue && !tags.close) {
+            const options = poll.current.optionsTitles
                 .filter(e => e && e.trim())
                 .map(e => e.split(/\s*[-|]\s*/))
                 .map(e => this.bot.library.closestMatch(e[1] || e[0], e[1] ? e[0] - 0 : 0));
