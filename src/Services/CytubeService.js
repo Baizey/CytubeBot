@@ -121,12 +121,17 @@ export default class CytubeService {
     /**
      * @param {string} event
      * @param {function(*):*} act
+     * @returns {function():void} removerFunction
      */
-    on(event, act) {
-        this.await.finally(() => this._socket.on(event, data => {
+    async on(event, act) {
+        await this.await;
+        const func = data => {
             if (event !== 'mediaUpdate')
                 Logger.system(`ON ${event}: ${JSON.stringify(data)}`);
             act(data);
-        }));
+        };
+        const remover = () => this._socket.removeListener(event, func);
+        this._socket.on(event, func);
+        return remover;
     }
 }
