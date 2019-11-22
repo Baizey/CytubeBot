@@ -34,6 +34,15 @@ Array.prototype.limit = function (n) {
 };
 
 /**
+ * @param {function(value:T, index:int, array:T[]):T[]} func
+ * @returns {T[]}
+ */
+Array.prototype.peek = function (func) {
+    this.forEach(func);
+    return this;
+};
+
+/**
  * @param {number} n
  * @returns {*[]}
  */
