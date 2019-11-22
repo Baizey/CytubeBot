@@ -110,8 +110,20 @@ export default class PlaylistVideo {
      */
     get asQueueObject() {
         return {
-            temp: !this.isIntermission,
+            temp: this.isIntermission,
             pos: "next",
+            id: this.link.id,
+            type: this.link.type
+        };
+    }
+
+    /**
+     * @returns {{temp: *, pos: string, id: string, type: string}}
+     */
+    get asTempQueueObject() {
+        return {
+            temp: this.isIntermission,
+            pos: "end",
             id: this.link.id,
             type: this.link.type
         };
