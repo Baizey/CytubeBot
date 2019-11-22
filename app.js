@@ -23,6 +23,8 @@ const config = {
     },
 
     'apikeys': {
+        // https://pastebin.com/api, used when a large amount of data is needed to be conveyed, cytube ain't good for that
+        "pastebin": '',
         // https://developers.giphy.com/dashboard/
         "giphy": '',
         // https://products.wolframalpha.com/api/
