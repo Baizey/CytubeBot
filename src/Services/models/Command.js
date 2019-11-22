@@ -197,7 +197,9 @@ export class PollCommand extends Command {
         }
 
         if (tags.queue) {
-            const options = poll.current.optionsTitles.filter(e => e.trim()).map(e => e.split(/\s*[-|]\s*/))
+            const options = ((tags.close && [poll.current.winner]) || poll.current.optionsTitles)
+                .filter(e => e && e.trim())
+                .map(e => e.split(/\s*[-|]\s*/))
                 .map(e => this.bot.library.closestMatch(e[1] || e[0], e[1] ? e[0] - 0 : 0));
             (await Promise.all(options)).reverse().filter(e => e).forEach(video => this.bot.playlist.queueVideo(video));
         }
