@@ -24,26 +24,9 @@ export default class UrbanDictionaryAgent {
         if (!result) return undefined;
         return new UrbanDefinition(result);
     }
-
-    /**
-     * @returns {Promise<UrbanDefinition>}
-     */
-    async random() {
-        const params = {page: 0};
-        const response = await this._client.get('v0/random', params);
-
-        if (!response.success) {
-            Logger.error(response);
-            return undefined;
-        }
-
-        const result = response.data && response.data.list && response.data.list[0];
-        if (!result) return undefined;
-        return new UrbanDefinition(result);
-    }
 }
 
-class UrbanDefinition {
+export class UrbanDefinition {
     constructor(data) {
         this.definition = data.definition && data.definition.htmlDecode().replace(/[\[\]]/g, '');
         this.example = data.example && data.example.htmlDecode().replace(/[\[\]]/g, '');

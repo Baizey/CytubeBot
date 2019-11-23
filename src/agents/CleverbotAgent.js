@@ -1,4 +1,4 @@
-import ServiceClient from "../ServiceClient.js";
+import ServiceClient from "./ServiceClient.js";
 
 export default class CleverbotAgent {
 

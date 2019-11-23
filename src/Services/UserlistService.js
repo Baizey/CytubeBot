@@ -43,6 +43,7 @@ export default class UserlistService {
         // If user already exist, update rank
         if (dbUser) {
             this.online[dbUser.name] = dbUser;
+            dbUser.rank = user.rank || dbUser.rank;
             await this.update(user.name);
         } else {
             // Otherwise insert user

@@ -1,7 +1,7 @@
-import ServiceClient from "../ServiceClient.js";
-import Utils from "../../infrastructure/Utils";
-import PlaylistVideo from "../../Services/models/PlaylistVideo";
-import Logger from '../../infrastructure/logger/Logger.js';
+import ServiceClient from "./ServiceClient.js";
+import Utils from "../infrastructure/Utils";
+import PlaylistVideo from "../Services/models/PlaylistVideo";
+import Logger from '../infrastructure/logger/Logger.js';
 
 export default class ValidationAgent {
     /**

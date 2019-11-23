@@ -11,8 +11,8 @@ import OmdbAgent from "../agents/OmdbAgent.js";
 import Logger from '../infrastructure/logger/Logger.js';
 import CommandService from "../Services/CommandService.js";
 import LibraryService from "../Services/LibraryService";
-import ValidationAgent from "../agents/linkValidation/ValidationAgent";
-import CleverbotAgent from "../agents/talking/CleverbotAgent";
+import ValidationAgent from "../agents/ValidationAgent";
+import CleverbotAgent from "../agents/CleverbotAgent";
 import YoutubeAgent from "../agents/YoutubeAgent";
 import GiphyAgent from "../agents/GiphyAgent";
 import UrbanDictionaryAgent from "../agents/UrbanDictionaryAgent";
@@ -25,22 +25,30 @@ const Subscribe = {
 export default class Bot {
     /**
      * @param {string} username
-     * @param {ApiKeys} apiKeys
+     * @param {{
+     *     pastebin: PastebinAgent,
+     *     urbanDictionary: UrbanDictionaryAgent,
+     *     chatbot: CleverbotAgent,
+     *     tmdb: TmdbAgent,
+     *     omdb: OmdbAgent,
+     *     youtube: YoutubeAgent,
+     *     giphy: GiphyAgent
+     * }} apis
      * @param {CytubeService} cytube
      * @param {Database} database
      */
-    constructor(username, apiKeys, cytube, database) {
+    constructor(username, apis, cytube, database) {
         this.username = username;
         this.cytube = cytube;
         this.database = database;
 
-        this.pastebin = new PastebinAgent(apiKeys.pastebin);
-        this.urbanDictionary = new UrbanDictionaryAgent();
-        this.chatbot = new CleverbotAgent(apiKeys.cleverbot);
-        this.tmdb = new TmdbAgent(apiKeys.themovieDB);
-        this.omdb = new OmdbAgent(apiKeys.omdb);
-        this.youtube = new YoutubeAgent(apiKeys.google);
-        this.giphy = new GiphyAgent(apiKeys.giphy);
+        this.pastebin = apis.pastebin;
+        this.urbanDictionary = apis.urbanDictionary;
+        this.chatbot = apis.chatbot;
+        this.tmdb = apis.tmdb;
+        this.omdb = apis.omdb;
+        this.youtube = apis.youtube;
+        this.giphy = apis.giphy;
 
         this.library = new LibraryService(cytube, database.aliveLinks, database.deadLinks);
         this.commands = new CommandService(this);
@@ -48,7 +56,6 @@ export default class Bot {
         this.messages = new MessageService(cytube);
         this.poll = new PollService(cytube);
         this.userlist = new UserlistService(cytube, database.users);
-        this.validator = new ValidationAgent(apiKeys, this.library);
         this.playlist = new PlaylistService(cytube, this.library, this.messages);
 
         this.messages.on(Subscribe.message, message => this.handleMessage(message));

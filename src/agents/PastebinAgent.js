@@ -13,7 +13,7 @@ export default class GiphyAgent {
 
     /**
      * @param {string} text
-     * @returns {Promise<string[]>}
+     * @returns {Promise<string>}
      */
     async paste(text) {
         const result = await this._client.post('api_post.php', {

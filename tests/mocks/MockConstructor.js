@@ -3,6 +3,13 @@ import ApiKeys from "../../src/infrastructure/config/ApiKeys";
 import CytubeServiceMock from "./CytubeServiceMock";
 import DbContextMock from "./DbContextMock";
 import DatabaseMock from "./DatabaseMock";
+import {
+    CleverbotAgentMock,
+    GiphyAgentMock, OmdbAgentMock,
+    PastebinAgentMock, TmdbAgentMock,
+    UrbanDictionaryAgentMock,
+    YoutubeAgentMock
+} from "./Apis";
 
 export default class MockConstructor {
 
@@ -14,7 +21,16 @@ export default class MockConstructor {
         params.dbContext = new DbContextMock();
         params.database = new DatabaseMock(params.dbContext);
         params.cytubeService = new CytubeServiceMock();
-        params.bot = new Bot('bot',  new ApiKeys(), params.cytubeService, params.database);
+        params.apis = {
+            pastebin: new PastebinAgentMock(),
+            urbanDictionary: new UrbanDictionaryAgentMock(),
+            chatbot: new CleverbotAgentMock(),
+            tmdb: new TmdbAgentMock(),
+            omdb: new OmdbAgentMock(),
+            youtube: new YoutubeAgentMock(),
+            giphy: new GiphyAgentMock()
+        };
+        params.bot = new Bot('bot', params.apis, params.cytubeService, params.database);
         return params;
     }
 
