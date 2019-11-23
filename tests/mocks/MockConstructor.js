@@ -1,5 +1,4 @@
 import Bot from "../../src/Bot/Bot";
-import ApiKeys from "../../src/infrastructure/config/ApiKeys";
 import CytubeServiceMock from "./CytubeServiceMock";
 import DbContextMock from "./DbContextMock";
 import DatabaseMock from "./DatabaseMock";
@@ -14,7 +13,19 @@ import {
 export default class MockConstructor {
 
     /**
-     * @returns {{dbContext: DbContextMock, database: DatabaseMock, cytubeService: CytubeServiceMock, bot: Bot}}
+     * @returns {{apis: {
+            pastebin: PastebinAgentMock,
+            urbanDictionary: UrbanDictionaryAgentMock,
+            chatbot: CleverbotAgentMock,
+            tmdb: TmdbAgentMock,
+            omdb: OmdbAgentMock,
+            youtube: YoutubeAgentMock,
+            giphy: GiphyAgentMock
+     * },
+     * dbContext: DbContextMock,
+     * database: DatabaseMock,
+     * cytubeService: CytubeServiceMock,
+     * bot: Bot}}
      */
     static get mock() {
         const params = {};
