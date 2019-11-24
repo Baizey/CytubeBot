@@ -309,18 +309,17 @@ export class NextCommand extends Command {
             } else
                 return Command.respond(`A poll is currently active, the winner will play next`, isPm);
         }
-        
+
         const resp = this.bot.playlist.nextMovie;
-        if (!resp)
-            return Command.respond(`Something is off, there isn't a next movie?`, isPm);
+        if (!resp) return Command.respond(`Something is off, there isn't a next movie?`, isPm);
 
         const timeTill = resp.between.length === 0
             ? undefined
             : TimeFormatter.seconds(resp.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
         if (timeTill)
-            return Command.respond(`${timeTill} until next in queue, which is ${resp.movie.title}`, isPm);
-        return Command.respond(`Next in the queue is ${resp.movie.title}`, isPm);
+            return Command.respond([...messages, `${timeTill} until next in queue, which is ${resp.movie.title}`], isPm);
+        return Command.respond([...messages, `Next in the queue is ${resp.movie.title}`], isPm);
     }
 }
 
