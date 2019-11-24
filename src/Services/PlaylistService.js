@@ -2,8 +2,7 @@ import PlaylistVideo from "./models/PlaylistVideo.js";
 import Utils from "../infrastructure/Utils";
 import Link from "../infrastructure/video/Link";
 
-
-const ignore = ['a secret to everybody.', 'what will play next.', 'is ready to play next'];
+const ignore = ['a secret to everybody.', 'what will play next.', 'is ready to play next', 'super duper'];
 
 const Subscribe = {
     playlist: 'playlist',
