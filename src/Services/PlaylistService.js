@@ -3,7 +3,7 @@ import Utils from "../infrastructure/Utils";
 import Link from "../infrastructure/video/Link";
 
 
-const ignore = ['a secret to everybody.', 'what will play next.'];
+const ignore = ['a secret to everybody.', 'what will play next.', 'is ready to play next'];
 
 const Subscribe = {
     playlist: 'playlist',
