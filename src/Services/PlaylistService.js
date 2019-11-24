@@ -2,6 +2,9 @@ import PlaylistVideo from "./models/PlaylistVideo.js";
 import Utils from "../infrastructure/Utils";
 import Link from "../infrastructure/video/Link";
 
+
+const ignore = ['a secret to everybody.', 'what will play next.'];
+
 const Subscribe = {
     playlist: 'playlist',
     update: 'mediaUpdate',
@@ -93,6 +96,21 @@ export default class PlaylistService {
                     await self._library.addVideo(e);
             });
         });
+        this._cytube.on(Subscribe.change,
+            /**
+             * @param {{id: string, meta: object, paused: boolean, seconds: int, title: string, type: string}} data
+             */
+            data => {
+                if (ignore.contains(data.title)) {
+                    setTimeout(() => {
+                        const next = this.getByOffset(1);
+                        if (next && typeof next.uid === 'number') {
+                            this.jumpTo(next.uid);
+                            this._message.sendPublic('Skipping to next video');
+                        }
+                    }, 1000);
+                }
+            });
         this._cytube.on(Subscribe.update, data => self._currentPlaytime = data.currentTime);
         this._cytube.on(Subscribe.setCurrent, uid => self._currentUid = uid);
         this._cytube.on(Subscribe.move,
@@ -161,7 +179,6 @@ export default class PlaylistService {
      * @returns {{movie: PlaylistVideo, between: PlaylistVideo[]}}
      */
     get nextMovie() {
-        const ignore = ['a secret to everybody.', 'what will play next.'];
         const start = this.indexFromUid(this._currentUid);
         if (start === -1) return undefined;
         const response = {
