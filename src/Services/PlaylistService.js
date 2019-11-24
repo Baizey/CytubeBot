@@ -161,6 +161,7 @@ export default class PlaylistService {
      * @returns {{movie: PlaylistVideo, between: PlaylistVideo[]}}
      */
     get nextMovie() {
+        const ignore = ['a secret to everybody.', 'what will play next.'];
         const start = this.indexFromUid(this._currentUid);
         if (start === -1) return undefined;
         const response = {
@@ -168,6 +169,8 @@ export default class PlaylistService {
             movie: undefined,
         };
         for (let i = start + 1; i < this._playlist.length; i++) {
+            if (ignore.contains(this._playlist[i].fullTitle))
+                continue;
             if (!this._playlist[i].isIntermission) {
                 response.movie = this._playlist[i];
                 return response;
