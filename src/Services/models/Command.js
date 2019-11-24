@@ -303,7 +303,7 @@ export class NextCommand extends Command {
         const messages = [];
         if (this.bot.poll.current.isActive) {
             if (this.bot.poll.current.options.length === 0) {
-                if (this.bot.poll.current.title.contains('marathon'))
+                if (this.bot.poll.current.title.toLowerCase().contains('marathon'))
                     messages.push(`A marathon is currently happening`);
                 else return Command.respond(`Something unknown is up next, sit tight`, isPm);
             } else
@@ -318,7 +318,7 @@ export class NextCommand extends Command {
             : TimeFormatter.seconds(resp.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
         if (timeTill)
-            return Command.respond([...messages, `${timeTill} until next in queue, which is ${resp.movie.title}`], isPm);
+            return Command.respond([...messages, `${timeTill} until next in queue, which is ${resp.movie.title.capitalize()}`], isPm);
         return Command.respond([...messages, `Next in the queue is ${resp.movie.title}`], isPm);
     }
 }
