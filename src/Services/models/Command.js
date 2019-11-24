@@ -300,7 +300,7 @@ export class NextCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
-        return Command.respond('Blame worry for this command being disabled', isPm);
+        return Command.respond('Worry keeps putting shit up so I cant tell you, so fuck if I know', isPm);
         const messages = [];
         if (this.bot.poll.current.isActive) {
             if (this.bot.poll.current.options.length === 0) {
