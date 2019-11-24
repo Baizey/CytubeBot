@@ -102,13 +102,13 @@ export default class PlaylistService {
              */
             data => {
                 if (ignore.contains(data.title)) {
-                    setTimeout(() => {
-                        const next = this.getByOffset(1);
-                        if (next && typeof next.uid === 'number') {
-                            this.jumpTo(next.uid);
-                            this._message.sendPublic('Skipping to next video');
+                    Utils.await(1000).then(() => {
+                        const next = self.getByOffset(1);
+                        if (next) {
+                            self.jumpTo(next);
+                            self._message.sendPublic('Skipping to next video');
                         }
-                    }, 1000);
+                    });
                 }
             });
         this._cytube.on(Subscribe.update, data => self._currentPlaytime = data.currentTime);
