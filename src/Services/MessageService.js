@@ -64,6 +64,7 @@ export default class MessageService extends EventEmitter {
      * @param {string|string[]} messages
      */
     sendPublic(messages) {
+        messages = Array.isArray(messages) ? messages : [messages];
         messages = this._splitMessage(messages);
         const pack = {
             meta: {}
@@ -76,6 +77,7 @@ export default class MessageService extends EventEmitter {
      * @param {string} receiver
      */
     sendPrivate(messages, receiver) {
+        messages = Array.isArray(messages) ? messages : [messages];
         messages = this._splitMessage(messages);
         const pack = {
             meta: {},

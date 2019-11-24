@@ -17,6 +17,7 @@ import YoutubeAgent from "../agents/YoutubeAgent";
 import GiphyAgent from "../agents/GiphyAgent";
 import UrbanDictionaryAgent from "../agents/UrbanDictionaryAgent";
 import PastebinAgent from "../agents/PastebinAgent";
+import ValidatorService from "../Services/ValidatorService";
 
 const Subscribe = {
     message: 'message'
@@ -57,6 +58,7 @@ export default class Bot {
         this.poll = new PollService(cytube);
         this.userlist = new UserlistService(cytube, database.users);
         this.playlist = new PlaylistService(cytube, this.library, this.messages);
+        this.validator = new ValidatorService(this.messages, this.playlist, this.library);
 
         this.messages.on(Subscribe.message, message => this.handleMessage(message));
 
@@ -68,6 +70,7 @@ export default class Bot {
                 this.userlist.subscribe();
                 this.playlist.subscribe();
                 this.messages.subscribe();
+                this.validator.subscribe();
                 await this.patterns.subscribe();
             })
             .catch(error => {

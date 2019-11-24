@@ -1,5 +1,6 @@
 import PlaylistVideo from "./models/PlaylistVideo.js";
 import Utils from "../infrastructure/Utils";
+import Link from "../infrastructure/video/Link";
 
 const Subscribe = {
     playlist: 'playlist',
@@ -37,6 +38,19 @@ export default class PlaylistService {
         this._currentPlaytime = 0;
         this._message = message;
         this._isPlaying = true;
+    }
+
+    /**
+     * @param {PlaylistVideo} video
+     * @returns {Promise<{success: boolean, data: (PlaylistVideo|string)}>}
+     */
+    async validateVideo(video) {
+        // Try and add the video to the end of the playlist
+        const result = await this.queueVideo(video, true);
+        // If it succeed, clean up after yourself
+        if (result.success) await this.remove(result.data.uid);
+        // Return if it succeeded
+        return result;
     }
 
     /**
@@ -115,6 +129,9 @@ export default class PlaylistService {
                 const index = self.indexFromUid(data.uid);
                 if (index !== -1) self._playlist.splice(index, 1);
             });
+
+
+        // If a movie queues successfully, add to library
         this._cytube.on(Subscribe.queue,
             /**
              * @param {{item: *, after: number}} data
@@ -131,6 +148,11 @@ export default class PlaylistService {
                     this._playlist.splice(index + 1, 0, video);
                 }
             });
+        // If a movie fails to queue, add to dead links
+        this._cytube.on(Subscribe.queueFail, async data => {
+            const link = Link.fromUrl(data.link);
+            await self._library.removeVideo(new PlaylistVideo(link.id, link.type));
+        });
 
         this._cytube.emit(Publish.request);
     }
@@ -188,6 +210,18 @@ export default class PlaylistService {
         const at = from + offset;
         const secured = Math.max(0, Math.min(this._playlist.length - 1, at));
         return this._playlist[secured];
+    }
+
+    /**
+     * @param {string} id
+     * @param {string} type
+     * @returns {boolean}
+     */
+    onPlaylist(id, type) {
+        for (let i = 0; i < this._playlist.length; i++)
+            if (this._playlist[i].link.id === id && this._playlist[i].type === type)
+                return true;
+        return false;
     }
 
     /**

@@ -36,7 +36,7 @@ export default class CommandService {
         if (command.rank.higherThan(user.rank))
             return new CommandResponse('Command requires higher rank', isPm);
 
-        return await command.run(data, user, isPm);
+        return await command.run(data, user, isPm) || new CommandResponse();
     }
 
 }

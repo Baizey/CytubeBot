@@ -12,6 +12,13 @@ String.prototype.capitalize = function () {
 };
 
 /**
+ * @returns {boolean}
+ */
+String.prototype.contains = function (otherString) {
+    return this.indexOf(otherString) >= 0;
+};
+
+/**
  * @returns {string}
  */
 String.prototype.htmlDecode = function () {

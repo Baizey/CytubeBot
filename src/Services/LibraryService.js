@@ -112,8 +112,8 @@ export default class LibraryService {
      */
     async removeVideo(playlistVideo) {
         await Promise.all([
-            this._alive.add(playlistVideo.asAliveDatabaseLink).catch(),
-            this._dead.remove(playlistVideo.asDeadDatabaseLink).catch()
+            this._alive.remove(playlistVideo.asAliveDatabaseLink).catch(),
+            this._dead.add(playlistVideo.asDeadDatabaseLink).catch()
         ]);
     }
 

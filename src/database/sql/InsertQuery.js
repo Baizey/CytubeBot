@@ -49,7 +49,7 @@ export default class InsertQuery extends Query {
     get generateSql() {
         const keys = this._generateInsertKeysSql;
         const values = this._generateInsertValuesSql;
-        return `INSERT INTO ${this._table} (${keys}) values (${values})`;
+        return `INSERT INTO ${this._table} (${keys}) values (${values}) ON CONFLICT DO NOTHING`;
     }
 
     /**

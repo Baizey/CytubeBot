@@ -24,7 +24,7 @@ export default class AliveLinksDatabaseAgent extends BaseDatabaseAgent {
      */
     async getAllVideosMissingValidation() {
         const now = Date.now();
-        return this._alive.select()
+        return await super.select()
             .where(e => e.validateBy <= $, now)
             .execute()
             .then(e => e ? e.map(e => AliveLink.fromDatabase(e)) : []);

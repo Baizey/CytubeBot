@@ -43,7 +43,6 @@ export default class UserlistService {
         // If user already exist, update rank
         if (dbUser) {
             this.online[dbUser.name] = dbUser;
-            dbUser.rank = user.rank || dbUser.rank;
             await this.update(user.name);
         } else {
             // Otherwise insert user
@@ -68,12 +67,10 @@ export default class UserlistService {
      * @returns {Promise<void>}
      */
     async update(name, data = {}) {
-        const user = this.online[name];
+        const user = await this.get(name);
         if (!user) return;
 
-        user.rank = data.rank
-            ? data.rank
-            : user.rank;
+        user.rank = data.rank || user.rank;
         user.disallow = typeof data.disallow === 'boolean'
             ? data.disallow
             : user.disallow;
@@ -83,6 +80,8 @@ export default class UserlistService {
 
         // Always update lastOnline if nothing else
         await this._db.alter(user.asDatabaseUser);
+        if (this.isOnline(name))
+            this.online[name] = user;
     }
 
     /**
@@ -91,10 +90,9 @@ export default class UserlistService {
      */
     async get(name) {
         if (this.online[name])
-            return Promise.resolve(this.online[name]);
+            return this.online[name];
         const dbUser = await this._db.getByName(name);
-        const user = CytubeUser.fromDatabaseUser(dbUser);
-        return user;
+        return CytubeUser.fromDatabaseUser(dbUser);
     }
 
     /**

@@ -100,6 +100,29 @@ export class PlaylistCleanupCommand extends Command {
     }
 }
 
+export class ValidateCommand extends Command {
+    constructor(bot) {
+        super(bot, 'validate', Rank.admin);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param isPm
+     * @returns {Promise<CommandResponse>}
+     */
+    async run(data, user, isPm) {
+        if (data.tags.delete) {
+            this.bot.validator.removeUser(user.name);
+            return Command.respond('Removed you from getting validation updates', isPm);
+        }
+        this.bot.validator.addUser(user.name);
+        const started = this.bot.validator.validateOldLinks();
+        if (!started) return Command.respond(`Progress: ${this.bot.validator.progress}%`, isPm);
+        return Command.respond();
+    }
+}
+
 export class UrbanDictionaryCommand extends Command {
     constructor(bot) {
         super(bot, 'define', Rank.user);
