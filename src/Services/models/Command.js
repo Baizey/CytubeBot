@@ -300,9 +300,16 @@ export class NextCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
-        if (this.bot.poll.current.isActive && this.bot.poll.current.options.length > 0)
-            return Command.respond(`A poll is currently active, the winner will play next`, isPm);
-
+        const messages = [];
+        if (this.bot.poll.current.isActive) {
+            if (this.bot.poll.current.options.length === 0) {
+                if (this.bot.poll.current.title.contains('marathon'))
+                    messages.push(`A marathon is currently happening`);
+                else return Command.respond(`Something unknown is up next, sit tight`, isPm);
+            } else
+                return Command.respond(`A poll is currently active, the winner will play next`, isPm);
+        }
+        
         const resp = this.bot.playlist.nextMovie;
         if (!resp)
             return Command.respond(`Something is off, there isn't a next movie?`, isPm);
