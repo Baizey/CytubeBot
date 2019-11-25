@@ -318,7 +318,11 @@ export class NextCommand extends Command {
             ? undefined
             : TimeFormatter.seconds(nextNotBullshit.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
-        if (isPm || user.name === 'DontWorryItsJustMe') {
+        if (user.name === 'DontWorryItsJustMe') {
+            if (timeTill)
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextBullshit.movie.title.capitalize()}`], isPm);
+            return Command.respond([...messages, `Next in the queue is ${nextBullshit.movie.title}`], isPm);
+        } else if (isPm) {
             if (timeTill)
                 return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextNotBullshit.movie.title.capitalize()}`], isPm);
             return Command.respond([...messages, `Next in the queue is ${nextNotBullshit.movie.title}`], isPm);
