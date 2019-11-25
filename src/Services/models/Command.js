@@ -300,7 +300,6 @@ export class NextCommand extends Command {
      * @returns {Promise<CommandResponse>}
      */
     async run(data, user, isPm) {
-        return Command.respond('Worry keeps putting shit up so I cant tell you, so fuck if I know', isPm);
         const messages = [];
         if (this.bot.poll.current.isActive) {
             if (this.bot.poll.current.options.length === 0) {
@@ -310,17 +309,31 @@ export class NextCommand extends Command {
             } else
                 return Command.respond(`A poll is currently active, the winner will play next`, isPm);
         }
+        const nextBullshit = this.bot.playlist.nextMovie(false);
+        const nextNotBullshit = this.bot.playlist.nextMovie(true);
 
-        const resp = this.bot.playlist.nextMovie;
-        if (!resp) return Command.respond(`Something is off, there isn't a next movie?`, isPm);
+        if (!nextNotBullshit) return Command.respond(`Something is off, there isn't a next movie?`, isPm);
 
-        const timeTill = resp.between.length === 0
+        const timeTill = nextNotBullshit.between.length === 0
             ? undefined
-            : TimeFormatter.seconds(resp.between.reduce((a, b) => a + b.duration, 0)).exactString;
+            : TimeFormatter.seconds(nextNotBullshit.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
-        if (timeTill)
-            return Command.respond([...messages, `${timeTill} until next in queue, which is ${resp.movie.title.capitalize()}`], isPm);
-        return Command.respond([...messages, `Next in the queue is ${resp.movie.title}`], isPm);
+        if (isPm || user.name === 'DontWorryItsJustMe') {
+            if (timeTill)
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextNotBullshit.movie.title.capitalize()}`], isPm);
+            return Command.respond([...messages, `Next in the queue is ${nextNotBullshit.movie.title}`], isPm);
+        } else {
+            // Say what's actually next in pm
+            if (nextNotBullshit.foundBullshit) {
+                if (timeTill)
+                    this.bot.messages.sendPrivate([...messages, `${timeTill} until next in queue, which is ${nextNotBullshit.movie.title.capitalize()}`, '#shh'], user.name);
+                else this.bot.messages.sendPrivate([...messages, `Next in the queue is ${nextNotBullshit.movie.title}`, '#shh'], user.name);
+            }
+            // Pretend worry's bullshit filter works
+            if (timeTill)
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextBullshit.movie.title.capitalize()}`], isPm);
+            return Command.respond([...messages, `Next in the queue is ${nextBullshit.movie.title}`], isPm);
+        }
     }
 }
 

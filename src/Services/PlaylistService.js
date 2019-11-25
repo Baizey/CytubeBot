@@ -175,18 +175,21 @@ export default class PlaylistService {
     }
 
     /**
-     * @returns {{movie: PlaylistVideo, between: PlaylistVideo[]}}
+     * @returns {{foundBullshit: boolean, movie: PlaylistVideo, between: PlaylistVideo[]}}
      */
-    get nextMovie() {
+    nextMovie(skipBullshit = true) {
         const start = this.indexFromUid(this._currentUid);
         if (start === -1) return undefined;
         const response = {
+            foundBullshit: false,
             between: [],
             movie: undefined,
         };
         for (let i = start + 1; i < this._playlist.length; i++) {
-            if (ignore.contains(this._playlist[i].fullTitle))
+            if (skipBullshit && ignore.contains(this._playlist[i].fullTitle)) {
+                response.foundBullshit = true;
                 continue;
+            }
             if (!this._playlist[i].isIntermission) {
                 response.movie = this._playlist[i];
                 return response;
