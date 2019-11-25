@@ -315,24 +315,17 @@ export class NextCommand extends Command {
             ? undefined
             : TimeFormatter.seconds(nextData.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
-        if (isPm) {
+        if (user.rank.higherOrEqualThan(Rank.mod))
             if (timeTill)
-                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextData.movie.title.capitalize()}`], isPm);
-            return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], isPm);
-        }
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextData.movie.title.capitalize()}`], true);
+            else return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], true);
 
-        if (this.bot.userlist.hasLiveMod(['Baizey', this.bot.username])) {
-            const mods = this.bot.userlist.mods(['Baizey', this.bot.username]);
-            return Command.respond([
-                'Oh no, mods are on, this is no no words for me then :(',
-                mods.map(e => e.name).join(', '),
-                `Can any of you say what's next?`
-            ], isPm);
-        } else {
+        if (!this.bot.userlist.hasLiveMod(this.bot.username))
             if (timeTill)
                 return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextData.movie.title.capitalize()}`], isPm);
-            return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], isPm);
-        }
+            else return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], isPm);
+
+        return Command.respond();
     }
 }
 
