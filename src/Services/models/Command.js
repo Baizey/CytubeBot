@@ -309,34 +309,29 @@ export class NextCommand extends Command {
             } else
                 return Command.respond(`A poll is currently active, the winner will play next`, isPm);
         }
-        const nextBullshit = this.bot.playlist.nextMovie(false);
-        const nextNotBullshit = this.bot.playlist.nextMovie(true);
 
-        if (!nextNotBullshit) return Command.respond(`Something is off, there isn't a next movie?`, isPm);
-
-        const timeTill = nextNotBullshit.between.length === 0
+        const nextData = this.bot.playlist.nextMovie(true);
+        const timeTill = nextData.between.length === 0
             ? undefined
-            : TimeFormatter.seconds(nextNotBullshit.between.reduce((a, b) => a + b.duration, 0)).exactString;
+            : TimeFormatter.seconds(nextData.between.reduce((a, b) => a + b.duration, 0)).exactString;
 
-        if (user.name === 'DontWorryItsJustMe') {
+        if (isPm) {
             if (timeTill)
-                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextBullshit.movie.title.capitalize()}`], isPm);
-            return Command.respond([...messages, `Next in the queue is ${nextBullshit.movie.title}`], isPm);
-        } else if (isPm) {
-            if (timeTill)
-                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextNotBullshit.movie.title.capitalize()}`], isPm);
-            return Command.respond([...messages, `Next in the queue is ${nextNotBullshit.movie.title}`], isPm);
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextData.movie.title.capitalize()}`], isPm);
+            return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], isPm);
+        }
+
+        if (this.bot.userlist.hasLiveMod(['Baizey', this.bot.username])) {
+            const mods = this.bot.userlist.mods(['Baizey', this.bot.username]);
+            return Command.respond([
+                'Oh no, mods are on, this is no no words for me then :(',
+                mods.map(e => e.name).join(', '),
+                `Can any of you say what's next?`
+            ], isPm);
         } else {
-            // Say what's actually next in pm
-            if (nextNotBullshit.foundBullshit) {
-                if (timeTill)
-                    this.bot.messages.sendPrivate([...messages, `${timeTill} until next in queue, which is ${nextNotBullshit.movie.title.capitalize()}`, '#shh'], user.name);
-                else this.bot.messages.sendPrivate([...messages, `Next in the queue is ${nextNotBullshit.movie.title}`, '#shh'], user.name);
-            }
-            // Pretend worry's bullshit filter works
             if (timeTill)
-                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextBullshit.movie.title.capitalize()}`], isPm);
-            return Command.respond([...messages, `Next in the queue is ${nextBullshit.movie.title}`], isPm);
+                return Command.respond([...messages, `${timeTill} until next in queue, which is ${nextData.movie.title.capitalize()}`], isPm);
+            return Command.respond([...messages, `Next in the queue is ${nextData.movie.title.capitalize()}`], isPm);
         }
     }
 }

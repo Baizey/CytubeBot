@@ -9,8 +9,10 @@ export default class CytubeUser {
      */
     static fromCytubeServer(data) {
         const user = new CytubeUser(data.name, data.rank);
-        if (data.meta)
+        if (data.meta) {
             user.muted = data.meta.muted || data.meta.smuted;
+            user.afk = data.meta.afk;
+        }
         return user;
     }
 
@@ -37,6 +39,7 @@ export default class CytubeUser {
         this.ignore = ignore;
         this.lastOnline = new Date(lastOnline);
         this.muted = false;
+        this.afk = false;
     }
 
     /**

@@ -7,7 +7,8 @@ const Subscribe = {
     setRank: 'setUserRank',
     leave: 'userLeave',
     userlist: 'userlist',
-    setMeta: 'setUserMeta'
+    setMeta: 'setUserMeta',
+    setAfk: 'setAFK'
 };
 
 export default class UserlistService {
@@ -23,15 +24,44 @@ export default class UserlistService {
     }
 
     subscribe() {
+        this._cytube.on(Subscribe.setAfk, data => {
+            const user = this.online[data.name];
+            if (!user) return;
+            user.afk = data.afk;
+        });
         this._cytube.on(Subscribe.add, async user => await this.add(CytubeUser.fromCytubeServer(user)));
         this._cytube.on(Subscribe.setRank, async user => await this.update(user.name, {rank: new Rank(user.rank)}));
         this._cytube.on(Subscribe.setMeta, data => {
             const user = this.online[data.name];
             if (!user) return;
             user.muted = data.meta.muted || data.meta.smuted;
+            user.afk = (typeof data.afk === 'boolean') ? data.meta.afk : user.afk;
         });
         this._cytube.on(Subscribe.leave, (user) => this.setOffline(user.name));
         this._cytube.on(Subscribe.userlist, (users) => users.forEach(async user => await this.add(CytubeUser.fromCytubeServer(user))));
+    }
+
+    /**
+     * @param {string|string[]} ignoreNames
+     * @returns {CytubeUser[]}
+     */
+    mods(ignoreNames = []) {
+        ignoreNames = Array.isArray(ignoreNames) ? ignoreNames : [ignoreNames];
+        return this.online.values()
+            .filter(e => e.rank.higherOrEqualThan(Rank.mod))
+            .filter(e => !ignoreNames.contains(e.name));
+    }
+
+    /**
+     * @param {string|string[]} ignoreNames
+     * @returns {boolean}
+     */
+    hasLiveMod(ignoreNames = []) {
+        ignoreNames = Array.isArray(ignoreNames) ? ignoreNames : [ignoreNames];
+        return this.online.values()
+            .filter(e => e.rank.higherOrEqualThan(Rank.mod))
+            .filter(e => !ignoreNames.contains(e.name))
+            .length > 0;
     }
 
     /**
