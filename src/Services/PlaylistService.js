@@ -69,7 +69,8 @@ export default class PlaylistService {
             const removeSuccess = await this._cytube.on(Subscribe.queue, data => {
                 const id = data.item.media.id;
                 const type = data.item.media.type;
-                if (id !== video.link.id || type !== video.link.type) return;
+                // TODO: find proper fix, this is 'temp'
+                if ((!video) || !(video.link) || id !== video.link.id || type !== video.link.type) return;
                 onDone.func(true, PlaylistVideo.fromCytubeServer(data.item));
             });
             const removeFail = await this._cytube.on(Subscribe.queueFail, data => {
