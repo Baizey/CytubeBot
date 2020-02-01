@@ -1,6 +1,7 @@
 import PlaylistVideo from "./models/PlaylistVideo.js";
 import Utils from "../infrastructure/Utils";
 import Link from "../infrastructure/video/Link";
+import Logger from "../infrastructure/logger/Logger";
 
 const ignore = ['a secret to everybody.', 'what will play next.', 'is ready to play next', 'super duper'];
 
@@ -70,7 +71,13 @@ export default class PlaylistService {
                 const id = data.item.media.id;
                 const type = data.item.media.type;
                 // TODO: find proper fix, this is 'temp'
-                if ((!video) || !(video.link) || id !== video.link.id || type !== video.link.type) return;
+                if (!video || !video.link) {
+                    Logger.error(data);
+                    Logger.error(video);
+                    onDone.func(false, data);
+                    return;
+                }
+                if (id !== video.link.id || type !== video.link.type) return;
                 onDone.func(true, PlaylistVideo.fromCytubeServer(data.item));
             });
             const removeFail = await this._cytube.on(Subscribe.queueFail, data => {
