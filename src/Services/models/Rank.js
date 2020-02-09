@@ -43,6 +43,13 @@ export default class Rank {
     }
 
     /**
+     * @returns {Rank}
+     */
+    static get dev() {
+        return new Rank(6);
+    }
+
+    /**
      * @param {number} value
      */
     constructor(value) {
@@ -53,7 +60,7 @@ export default class Rank {
      * @returns {string}
      */
     get name() {
-        return ['anon', 'user', 'mod', 'admin', 'owner', 'founder'][this._value];
+        return ['anon', 'user', 'mod', 'admin', 'owner', 'founder', 'dev'][this._value];
     }
 
     /**
