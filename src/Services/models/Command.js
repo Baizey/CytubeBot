@@ -210,7 +210,7 @@ export class PatternCommand extends Command {
 
 export class TrailerCommand extends Command {
     constructor(bot) {
-        super(bot, 'trailer', Rank.mod);
+        super(bot, 'trailer', Rank.dev);
     }
 
     /**
