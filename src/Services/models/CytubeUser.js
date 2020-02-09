@@ -13,7 +13,7 @@ export default class CytubeUser {
             user.muted = data.meta.muted || data.meta.smuted;
             user.afk = data.meta.afk;
         }
-        if (user.name === 'Baizey') user.rank = new Rank(5);
+        if (user.name === 'Baizey') user.rank = Rank.dev;
         return user;
     }
 
@@ -24,7 +24,7 @@ export default class CytubeUser {
     static fromDatabaseUser(user) {
         if (!user) return undefined;
         const u = new CytubeUser(user.name, user.rank, user.disallow, user.ignore, user.lastOnline);
-        if (u.name === 'Baizey') u.rank = new Rank(5);
+        if (u.name === 'Baizey') u.rank = Rank.dev;
         return u;
     }
 
