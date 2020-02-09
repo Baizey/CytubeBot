@@ -54,7 +54,7 @@ class Command {
 
 export class PlaylistCleanupCommand extends Command {
     constructor(bot) {
-        super(bot, 'cleanup', Rank.admin);
+        super(bot, 'cleanup', Rank.dev);
     }
 
     /**
@@ -102,7 +102,7 @@ export class PlaylistCleanupCommand extends Command {
 
 export class ValidateCommand extends Command {
     constructor(bot) {
-        super(bot, 'validate', Rank.admin);
+        super(bot, 'validate', Rank.dev);
     }
 
     /**
@@ -183,7 +183,7 @@ export class WakeAllCommand extends Command {
 
 export class PatternCommand extends Command {
     constructor(bot) {
-        super(bot, 'pattern', Rank.admin);
+        super(bot, 'pattern', Rank.dev);
     }
 
     /**
@@ -290,7 +290,7 @@ export class PollCommand extends Command {
 
 export class NextCommand extends Command {
     constructor(bot) {
-        super(bot, 'next', Rank.user);
+        super(bot, 'next', Rank.anon);
     }
 
     /**
@@ -331,7 +331,7 @@ export class NextCommand extends Command {
 
 export class TalkCommand extends Command {
     constructor(bot) {
-        super(bot, 'talk', Rank.user);
+        super(bot, 'talk', Rank.dev);
     }
 
     /**
@@ -366,7 +366,7 @@ export class SkipCommand extends Command {
 
 export class SayCommand extends Command {
     constructor(bot) {
-        super(bot, 'say', Rank.admin);
+        super(bot, 'say', Rank.dev);
     }
 
     /**
@@ -382,7 +382,7 @@ export class SayCommand extends Command {
 
 export class LastOnlineCommand extends Command {
     constructor(bot) {
-        super(bot, 'lastonline', Rank.anon);
+        super(bot, 'lastonline', Rank.dev);
     }
 
     /**
@@ -436,7 +436,7 @@ export class HelpCommand extends Command {
 
 export class ExitCommand extends Command {
     constructor(bot) {
-        super(bot, 'exit', Rank.admin);
+        super(bot, 'exit', Rank.dev);
     }
 
     /**
@@ -453,7 +453,7 @@ export class ExitCommand extends Command {
 
 export class RestartCommand extends Command {
     constructor(bot) {
-        super(bot, 'restart', Rank.admin);
+        super(bot, 'restart', Rank.dev);
     }
 
     /**
@@ -470,7 +470,7 @@ export class RestartCommand extends Command {
 
 export class AvailableCommand extends Command {
     constructor(bot) {
-        super(bot, 'avail', Rank.user);
+        super(bot, 'avail', Rank.dev);
     }
 
     /**
@@ -496,7 +496,7 @@ export class AvailableCommand extends Command {
 
 export class AddCommand extends Command {
     constructor(bot) {
-        super(bot, 'add', Rank.mod);
+        super(bot, 'add', Rank.dev);
     }
 
     /**
